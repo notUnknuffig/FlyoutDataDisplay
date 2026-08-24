@@ -140,9 +140,32 @@ var COLOR_UNSELECT = rl.DarkGreen
 var COLOR_SELECT = rl.Green
 var COLOR_TEXT_SELECT = rl.White
 var COLOR_TEXT_UNSELECT = rl.Gray
+var SCREEN_MARGIN = 20
 
 func (s OptionState) Draw() {
 	var fontSize = int32(25)
+	s.drawOptions(fontSize)
+	s.drawButtons(fontSize)
+}
+
+const BUTTON_LENGTH = 5
+
+func (s OptionState) drawButtons(fontSize int32) {
+	var buttonSize = int32(60) // Square
+	// rl.DrawLine(0, 0, int32(rl.GetRenderHeight()), int32(rl.GetRenderWidth()), rl.White)
+	// rl.DrawLine(int32(rl.GetRenderHeight()), 0, 0, int32(rl.GetRenderWidth()), rl.White)
+	for i := 0; i < BUTTON_LENGTH; i++ {
+		var baseX = SCREEN_MARGIN
+		var baseY = SCREEN_MARGIN + ((rl.GetRenderHeight()-(2*SCREEN_MARGIN))/(BUTTON_LENGTH+1))*(i+1) - int(buttonSize/2)
+		rl.DrawRectangle(int32(baseX)-5, int32(baseY)-5, buttonSize, buttonSize, rl.Gray)
+		a := rl.Vector2{X: float32(baseX), Y: float32(baseY)}
+		b := rl.Vector2{X: float32(baseX + int(buttonSize)), Y: float32(baseY)}
+		c := rl.Vector2{X: float32(baseX + int(buttonSize/2)), Y: float32(baseY + int(buttonSize))}
+		rl.DrawTriangle(a, b, c, COLOR_SELECT)
+	}
+}
+
+func (s OptionState) drawOptions(fontSize int32) {
 	var buttonWidth = int32(300)
 	var buttonHeight = int32(40)
 	var centerBoxX = (int32(rl.GetRenderWidth()) - buttonWidth) / 2
@@ -172,6 +195,5 @@ func (s OptionState) Draw() {
 		case OPTION_APPLY:
 			rl.DrawText("Apply", centerBoxX+5, centerBoxY+int32(50*i)+5, fontSize, textColor)
 		}
-
 	}
 }
