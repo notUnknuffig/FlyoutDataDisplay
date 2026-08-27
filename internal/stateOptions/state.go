@@ -1,4 +1,4 @@
-package options
+package stateOptions
 
 import (
 	"fmt"
@@ -31,7 +31,7 @@ var aspectRatios []string = []string{
 
 var resolutions [][][]int = [][][]int{
 	{{300, 300}, {512, 512}, {1024, 1024}, {1920, 1920}, {2440, 2440}}, // 1x1
-	{{300, 400}, {540, 720}, {1080, 1440}, {1440, 1920}, {1920, 2560}}, // 3x4
+	{{300, 400}, {540, 720}, {810, 1080}, {1080, 1440}, {1440, 1920}},  // 3x4
 	{{320, 400}, {576, 720}, {1080, 1350}, {1536, 1920}, {2048, 2560}}, // 4x5
 	{{270, 480}, {405, 720}, {576, 1024}, {810, 1440}, {1080, 1920}},   // 9x16
 }
@@ -136,12 +136,6 @@ func (s OptionState) Input() state.State {
 	return s
 }
 
-var COLOR_UNSELECT = rl.DarkGreen
-var COLOR_SELECT = rl.Green
-var COLOR_TEXT_SELECT = rl.White
-var COLOR_TEXT_UNSELECT = rl.Gray
-var SCREEN_MARGIN = 20
-
 func (s OptionState) Draw() {
 	var fontSize = int32(25)
 	s.drawOptions(fontSize)
@@ -151,18 +145,27 @@ func (s OptionState) Draw() {
 const BUTTON_LENGTH = 5
 
 func (s OptionState) drawButtons(fontSize int32) {
+	drawArrowButtons(0)
+}
+
+func drawArrowButtons(i int) {
 	var buttonSize = int32(60) // Square
-	// rl.DrawLine(0, 0, int32(rl.GetRenderHeight()), int32(rl.GetRenderWidth()), rl.White)
-	// rl.DrawLine(int32(rl.GetRenderHeight()), 0, 0, int32(rl.GetRenderWidth()), rl.White)
-	for i := 0; i < BUTTON_LENGTH; i++ {
-		var baseX = SCREEN_MARGIN
-		var baseY = SCREEN_MARGIN + ((rl.GetRenderHeight()-(2*SCREEN_MARGIN))/(BUTTON_LENGTH+1))*(i+1) - int(buttonSize/2)
-		rl.DrawRectangle(int32(baseX)-5, int32(baseY)-5, buttonSize, buttonSize, rl.Gray)
-		a := rl.Vector2{X: float32(baseX), Y: float32(baseY)}
-		b := rl.Vector2{X: float32(baseX + int(buttonSize)), Y: float32(baseY)}
-		c := rl.Vector2{X: float32(baseX + int(buttonSize/2)), Y: float32(baseY + int(buttonSize))}
-		rl.DrawTriangle(a, b, c, COLOR_SELECT)
-	}
+	var baseX = state.SCREEN_MARGIN
+	var baseY = state.SCREEN_MARGIN + ((rl.GetRenderHeight()-(2*state.SCREEN_MARGIN))/(BUTTON_LENGTH+1))*(i+1) - int(buttonSize/2)
+	d := rl.Vector2{X: float32(baseX + int(buttonSize)), Y: float32(baseY + int(buttonSize))}
+	e := rl.Vector2{X: float32(baseX), Y: float32(baseY + int(buttonSize))}
+	f := rl.Vector2{X: float32(baseX + int(buttonSize/2)), Y: float32(baseY)}
+	rl.DrawTriangle(f, e, d, state.COLOR_SELECT)
+	rl.DrawTriangle(rl.Vector2Add(f, rl.Vector2{0, 12}), rl.Vector2Add(e, rl.Vector2{10, -6}), rl.Vector2Add(d, rl.Vector2{-10, -6}), rl.Black)
+
+	baseX = state.SCREEN_MARGIN
+	baseY = state.SCREEN_MARGIN + ((rl.GetRenderHeight()-(2*state.SCREEN_MARGIN))/(BUTTON_LENGTH+1))*(i+1+1) - int(buttonSize/2)
+	a := rl.Vector2{X: float32(baseX), Y: float32(baseY)}
+	b := rl.Vector2{X: float32(baseX + int(buttonSize)), Y: float32(baseY)}
+	c := rl.Vector2{X: float32(baseX + int(buttonSize/2)), Y: float32(baseY + int(buttonSize))}
+	rl.DrawTriangle(c, b, a, state.COLOR_SELECT)
+	rl.DrawTriangle(rl.Vector2Add(c, rl.Vector2{0, -12}), rl.Vector2Add(b, rl.Vector2{-10, 6}), rl.Vector2Add(a, rl.Vector2{10, 6}), rl.Black)
+
 }
 
 func (s OptionState) drawOptions(fontSize int32) {
@@ -174,11 +177,11 @@ func (s OptionState) drawOptions(fontSize int32) {
 		var textColor rl.Color
 		var backgroundColor rl.Color
 		if i == s.selection {
-			textColor = COLOR_TEXT_SELECT
-			backgroundColor = COLOR_SELECT
+			textColor = state.COLOR_TEXT_SELECT
+			backgroundColor = state.COLOR_SELECT
 		} else {
-			textColor = COLOR_TEXT_UNSELECT
-			backgroundColor = COLOR_UNSELECT
+			textColor = state.COLOR_TEXT_UNSELECT
+			backgroundColor = state.COLOR_UNSELECT
 		}
 		rl.DrawRectangle(centerBoxX, centerBoxY+int32(50*i), buttonWidth, buttonHeight, backgroundColor)
 		switch i {
