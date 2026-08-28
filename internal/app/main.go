@@ -1,6 +1,8 @@
 package app
 
 import (
+	"math"
+
 	"example.com/MFDTest/internal/state"
 	"example.com/MFDTest/internal/stateAttitude"
 	"example.com/MFDTest/internal/stateEngine"
@@ -72,6 +74,17 @@ func (a App) Init() {
 
 	a.state = a.availableStates[Options]
 
+	// Startup Animation
+	var sideLength = float32(state.Scale(200))
+	var cos = float32(math.Cos(1.333333333333333*math.Pi)) * sideLength
+	var sin = float32(math.Sin(1.333333333333333*math.Pi)) * sideLength
+
+	var center = rl.Vector2{X: float32(rl.GetRenderHeight() / 2), Y: float32(rl.GetRenderWidth() / 2)}
+	var centerHigh = rl.Vector2Add(center, rl.Vector2{X: 0, Y: -sideLength})
+	var leftLow = rl.Vector2Add(center, rl.Vector2{X: sin, Y: -cos})
+	var rightLow = rl.Vector2Add(center, rl.Vector2{X: -sin, Y: -cos})
+
+	var i = 1
 	for !rl.WindowShouldClose() {
 		// State Input
 		a.state = a.Input()
@@ -81,11 +94,26 @@ func (a App) Init() {
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.Black)
 
-		// Draw State
-		a.Draw()
-		a.state.Draw()
+		if i < 20 {
+			var alpha = float32(math.Min(float64(i)/15, 1))
+			rl.DrawTriangle(center, centerHigh, leftLow, rl.Fade(rl.Red, alpha))
+			rl.DrawTriangle(leftLow, centerHigh, rl.Vector2Add(leftLow, rl.Vector2{X: 0, Y: -sideLength}), rl.Fade(rl.Red, alpha))
+
+			rl.DrawTriangle(centerHigh, center, rightLow, rl.Fade(rl.Blue, alpha))
+			rl.DrawTriangle(centerHigh, rightLow, rl.Vector2Add(rightLow, rl.Vector2{X: 0, Y: -sideLength}), rl.Fade(rl.Blue, alpha))
+
+			rl.DrawTriangle(rightLow, center, leftLow, rl.Fade(rl.Green, alpha))
+			rl.DrawTriangle(rightLow, leftLow, rl.Vector2Add(center, rl.Vector2{X: 0, Y: sideLength}), rl.Fade(rl.Green, alpha))
+		} else if i < 30 {
+
+		} else {
+			// Draw State
+			a.Draw()
+			a.state.Draw()
+		}
 
 		rl.EndDrawing()
+		i++
 	}
 }
 
