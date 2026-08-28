@@ -16,4 +16,8 @@ func (s _state) Input() state.State {
 }
 
 func (s _state) Draw() {
+	if state.GlobalFlightData == nil {
+		state.DrawNoData()
+		return
+	}
 }

@@ -1,1 +1,1 @@
-GOOS=windows GOARCH=amd64 go build -o ./out/MFD.exe -ldflags "-H=windowsgui" .
+GOOS=windows GOARCH=amd64 go build -o ./out/MFD.exe -ldflags "-H=windowsgui" ./cmd/client

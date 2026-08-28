@@ -45,29 +45,31 @@ const (
 
 type App struct {
 	state           state.State
-	Data            *state.FlightData
 	availableStates []state.State
 }
 
 func (a App) Init() {
-	rl.InitWindow(1024, 1024, "Multi-Function Display")
+	rl.InitWindow(720, 720, "Multi-Function Display")
 	defer rl.CloseWindow()
 	rl.SetTargetFPS(30)
 
-	config := stateOptions.Options{
-		Resolution_x: 1024,
-		Resolution_y: 1024,
+	config := state.Options{
+		Resolution_x: 720,
+		Resolution_y: 720,
 		AspectRatio:  "1x1",
 		Fullscreen:   false,
+		Scale:        1,
 	}
+	state.GlobalOptions = &config
 	a.availableStates = []state.State{
 		stateAttitude.Init(),
 		stateEngine.Init(),
 		stateNavigation.Init(),
 		stateSystems.Init(),
 		stateWeapons.Init(),
-		stateOptions.Init(config),
+		stateOptions.Init(&config),
 	}
+
 	a.state = a.availableStates[Options]
 
 	for !rl.WindowShouldClose() {
@@ -104,22 +106,28 @@ func (a App) Input() state.State {
 }
 
 func (a App) Draw() {
-	var buttonSize = int32(60) // Square
+	var buttonHeight = state.Scale(36) // Square
+	var buttonWidth = state.Scale(64)
+	var fontSize = state.Scale(24)
+	var buttonMarginX = state.Scale(8)
+	var buttonMarginY = (buttonHeight - fontSize) / 2
 	for i := 0; i < state.BUTTON_LENGTH; i++ {
-		var baseX = state.SCREEN_MARGIN + ((rl.GetRenderHeight()-(2*state.SCREEN_MARGIN))/(state.BUTTON_LENGTH+1))*(i+1) - int(buttonSize/2)
-		var baseY = rl.GetRenderHeight() - state.SCREEN_MARGIN - int(buttonSize)
-		rl.DrawRectangle(int32(baseX), int32(baseY), buttonSize, buttonSize, state.COLOR_UNSELECT)
+		var colorBackground = state.COLOR_UNSELECT
+		var colorText = state.COLOR_TEXT_UNSELECT
+		var baseX = state.SCREEN_MARGIN + ((rl.GetRenderWidth()-(2*state.SCREEN_MARGIN))/(state.BUTTON_LENGTH+1))*(i+1) - int(buttonWidth/2)
+		var baseY = rl.GetRenderHeight() - state.SCREEN_MARGIN - int(buttonHeight)
+		rl.DrawRectangle(int32(baseX), int32(baseY), buttonWidth, buttonHeight, colorBackground)
 		switch i {
 		case Attidude:
-			rl.DrawText("Att", int32(baseX+5), int32(baseY+15), state.FONT_SIZE, state.COLOR_TEXT_UNSELECT)
+			rl.DrawText("Att", int32(baseX)+buttonMarginX, int32(baseY)+buttonMarginY, fontSize, colorText)
 		case Engine:
-			rl.DrawText("Eng", int32(baseX+5), int32(baseY+15), state.FONT_SIZE, state.COLOR_TEXT_UNSELECT)
+			rl.DrawText("Eng", int32(baseX)+buttonMarginX, int32(baseY)+buttonMarginY, fontSize, colorText)
 		case Navigation:
-			rl.DrawText("Nav", int32(baseX+5), int32(baseY+15), state.FONT_SIZE, state.COLOR_TEXT_UNSELECT)
+			rl.DrawText("Nav", int32(baseX)+buttonMarginX, int32(baseY)+buttonMarginY, fontSize, colorText)
 		case Systems:
-			rl.DrawText("Sys", int32(baseX+5), int32(baseY+15), state.FONT_SIZE, state.COLOR_TEXT_UNSELECT)
+			rl.DrawText("Sys", int32(baseX)+buttonMarginX, int32(baseY)+buttonMarginY, fontSize, colorText)
 		case Weapons:
-			rl.DrawText("Wpn", int32(baseX+5), int32(baseY+15), state.FONT_SIZE, state.COLOR_TEXT_UNSELECT)
+			rl.DrawText("Wpn", int32(baseX)+buttonMarginX, int32(baseY)+buttonMarginY, fontSize, colorText)
 		}
 	}
 }

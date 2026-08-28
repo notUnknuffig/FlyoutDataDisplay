@@ -5,9 +5,6 @@ type State interface {
 	Draw()
 }
 
-var GlobalFlightData *FlightData
-var LastGlobalFlightData *FlightData
-
 type JetEngine struct {
 	Throttle            float32 `json:"Throttle"`
 	IdleThrottle        float32 `json:"IdleThrottle"`
@@ -54,4 +51,12 @@ type FlightData struct {
 	PistonEngines []PistonEngine `json:"PistonEngines"`
 	Missiles      []Missile      `json:"Missiles"`
 	ActiveMissile string         `json:"ActiveMissile"`
+}
+
+type Options struct {
+	Resolution_x int
+	Resolution_y int
+	AspectRatio  string
+	Fullscreen   bool
+	Scale        float32
 }

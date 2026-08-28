@@ -29,11 +29,19 @@ var aspectRatios []string = []string{
 	"9x16",
 }
 
+var scales []float32 = []float32{
+	0.5,
+	0.75,
+	1,
+	1.25,
+	1.5,
+}
+
 var resolutions [][][]int = [][][]int{
-	{{300, 300}, {512, 512}, {1024, 1024}, {1920, 1920}, {2440, 2440}}, // 1x1
-	{{300, 400}, {540, 720}, {810, 1080}, {1080, 1440}, {1440, 1920}},  // 3x4
-	{{320, 400}, {576, 720}, {1080, 1350}, {1536, 1920}, {2048, 2560}}, // 4x5
-	{{270, 480}, {405, 720}, {576, 1024}, {810, 1440}, {1080, 1920}},   // 9x16
+	{{300, 300}, {512, 512}, {720, 720}, {910, 910}, {1080, 1080}},   // 1x1  1
+	{{300, 400}, {512, 683}, {720, 960}, {910, 1213}, {1080, 1440}},  // 3x4  1.333333333
+	{{300, 375}, {512, 640}, {720, 900}, {910, 1138}, {1080, 1350}},  // 4x5  1.25
+	{{300, 533}, {512, 910}, {720, 1280}, {910, 1618}, {1080, 1920}}, // 9x16 1.777777778
 }
 
 /*
@@ -46,25 +54,18 @@ var resolutions [][][]int = [][][]int{
  */
 
 type OptionState struct {
-	options                 Options
+	options                 *state.Options
 	selection               int // Option selected to Modify
 	resolutionIndex         int // index
 	aspectRatioIndex        int // index in reselutions
 	previousFullscreenState bool
 }
 
-type Options struct {
-	Resolution_x int
-	Resolution_y int
-	AspectRatio  string
-	Fullscreen   bool
-}
-
-func Init(cfg Options) OptionState {
+func Init(cfg *state.Options) OptionState {
 	return OptionState{
 		options:          cfg,
 		selection:        0,
-		resolutionIndex:  0,
+		resolutionIndex:  2,
 		aspectRatioIndex: 0,
 	}
 }
@@ -84,7 +85,7 @@ func (s OptionState) Input() state.State {
 			s.resolutionIndex -= 1
 			s.options.Resolution_x = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
 			s.options.Resolution_y = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
-		} else if rl.IsKeyPressed(KEY_RIGHT) && s.resolutionIndex < len(resolutions)-1 {
+		} else if rl.IsKeyPressed(KEY_RIGHT) && s.resolutionIndex < len(resolutions) {
 			s.resolutionIndex += 1
 			s.options.Resolution_x = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
 			s.options.Resolution_y = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
@@ -129,6 +130,7 @@ func (s OptionState) Input() state.State {
 					rl.ToggleFullscreen()
 				} // TODO: Figure out if this should be fullscreen
 				rl.SetWindowSize(s.options.Resolution_x, s.options.Resolution_y)
+				s.options.Scale = scales[s.resolutionIndex]
 				s.previousFullscreenState = false
 			}
 		}
@@ -137,42 +139,24 @@ func (s OptionState) Input() state.State {
 }
 
 func (s OptionState) Draw() {
-	var fontSize = int32(25)
-	s.drawOptions(fontSize)
-	s.drawButtons(fontSize)
+	s.drawOptions()
+	s.drawButtons()
 }
 
 const BUTTON_LENGTH = 5
 
-func (s OptionState) drawButtons(fontSize int32) {
-	drawArrowButtons(0)
+func (s OptionState) drawButtons() {
+	state.DrawArrowButtons(0)
 }
 
-func drawArrowButtons(i int) {
-	var buttonSize = int32(60) // Square
-	var baseX = state.SCREEN_MARGIN
-	var baseY = state.SCREEN_MARGIN + ((rl.GetRenderHeight()-(2*state.SCREEN_MARGIN))/(BUTTON_LENGTH+1))*(i+1) - int(buttonSize/2)
-	d := rl.Vector2{X: float32(baseX + int(buttonSize)), Y: float32(baseY + int(buttonSize))}
-	e := rl.Vector2{X: float32(baseX), Y: float32(baseY + int(buttonSize))}
-	f := rl.Vector2{X: float32(baseX + int(buttonSize/2)), Y: float32(baseY)}
-	rl.DrawTriangle(f, e, d, state.COLOR_SELECT)
-	rl.DrawTriangle(rl.Vector2Add(f, rl.Vector2{0, 12}), rl.Vector2Add(e, rl.Vector2{10, -6}), rl.Vector2Add(d, rl.Vector2{-10, -6}), rl.Black)
-
-	baseX = state.SCREEN_MARGIN
-	baseY = state.SCREEN_MARGIN + ((rl.GetRenderHeight()-(2*state.SCREEN_MARGIN))/(BUTTON_LENGTH+1))*(i+1+1) - int(buttonSize/2)
-	a := rl.Vector2{X: float32(baseX), Y: float32(baseY)}
-	b := rl.Vector2{X: float32(baseX + int(buttonSize)), Y: float32(baseY)}
-	c := rl.Vector2{X: float32(baseX + int(buttonSize/2)), Y: float32(baseY + int(buttonSize))}
-	rl.DrawTriangle(c, b, a, state.COLOR_SELECT)
-	rl.DrawTriangle(rl.Vector2Add(c, rl.Vector2{0, -12}), rl.Vector2Add(b, rl.Vector2{-10, 6}), rl.Vector2Add(a, rl.Vector2{10, 6}), rl.Black)
-
-}
-
-func (s OptionState) drawOptions(fontSize int32) {
-	var buttonWidth = int32(300)
-	var buttonHeight = int32(40)
+func (s OptionState) drawOptions() {
+	var fontSize = state.Scale(20)
+	var buttonHeight = state.Scale(32)
+	var buttonWidth = state.Scale(240)
+	var buttonMargin = (buttonHeight - fontSize) / 2
+	var gap = state.Scale(48)
 	var centerBoxX = (int32(rl.GetRenderWidth()) - buttonWidth) / 2
-	var centerBoxY = (int32(rl.GetRenderHeight()) - buttonHeight - (OPTION_LENGTH * 50)) / 2
+	var centerBoxY = (int32(rl.GetRenderHeight()) - buttonHeight - (OPTION_LENGTH * gap)) / 2
 	for i := 0; i < OPTION_LENGTH; i++ {
 		var textColor rl.Color
 		var backgroundColor rl.Color
@@ -183,20 +167,20 @@ func (s OptionState) drawOptions(fontSize int32) {
 			textColor = state.COLOR_TEXT_UNSELECT
 			backgroundColor = state.COLOR_UNSELECT
 		}
-		rl.DrawRectangle(centerBoxX, centerBoxY+int32(50*i), buttonWidth, buttonHeight, backgroundColor)
+		rl.DrawRectangle(centerBoxX, centerBoxY+gap*int32(i), buttonWidth, buttonHeight, backgroundColor)
 		switch i {
 		case OPTION_RESOLUTION:
-			rl.DrawText(fmt.Sprintf("Resolution: %dx%d", s.options.Resolution_x, s.options.Resolution_y), centerBoxX+5, centerBoxY+int32(50*i)+5, fontSize, textColor)
+			rl.DrawText(fmt.Sprintf("Resolution: %dx%d", s.options.Resolution_x, s.options.Resolution_y), centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
 		case OPTION_ASPECT_RATIO:
-			rl.DrawText(fmt.Sprintf("Aspect Ratio %s", s.options.AspectRatio), centerBoxX+5, centerBoxY+int32(50*i)+5, fontSize, textColor)
+			rl.DrawText(fmt.Sprintf("Aspect Ratio %s", s.options.AspectRatio), centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
 		case OPTION_FULLSCREEN:
 			if s.options.Fullscreen {
-				rl.DrawText("Fullscreen: on", centerBoxX+5, centerBoxY+int32(50*i)+5, fontSize, textColor)
+				rl.DrawText("Fullscreen: on", centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
 			} else {
-				rl.DrawText("Fullscreen: off", centerBoxX+5, centerBoxY+int32(50*i)+5, fontSize, textColor)
+				rl.DrawText("Fullscreen: off", centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
 			}
 		case OPTION_APPLY:
-			rl.DrawText("Apply", centerBoxX+5, centerBoxY+int32(50*i)+5, fontSize, textColor)
+			rl.DrawText("Apply", centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
 		}
 	}
 }
