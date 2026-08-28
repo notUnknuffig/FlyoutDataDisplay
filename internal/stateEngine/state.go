@@ -1,20 +1,37 @@
 package stateEngine
 
 import (
+	"math"
 	"strconv"
 
 	"example.com/MFDTest/internal/state"
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
+const (
+	KEY_UP    = rl.KeyUp
+	KEY_DOWN  = rl.KeyDown
+	KEY_LEFT  = rl.KeyLeft
+	KEY_RIGHT = rl.KeyRight
+	KEY_APPLY = rl.KeyEnter
+)
+
 type _state struct {
+	offset int
 }
 
 func Init() _state {
-	return _state{}
+	return _state{
+		offset: 0,
+	}
 }
 
 func (s _state) Input() state.State {
+	if rl.IsKeyPressed(KEY_DOWN) && s.offset < int(math.Ceil(float64(len(state.GlobalFlightData.JetEngines)+len(state.GlobalFlightData.PistonEngines))/4)-1) {
+		s.offset = s.offset + 1
+	} else if rl.IsKeyPressed(KEY_UP) && s.offset > 0 {
+		s.offset = s.offset - 1
+	}
 	return s
 }
 
@@ -23,37 +40,139 @@ func (s _state) Draw() {
 		state.DrawNoData()
 		return
 	}
-	for i := 0; i < len(state.GlobalFlightData.JetEngines); i++ {
-		s.drawEngineStatistics(100, 100, i, 1)
+
+	var length = 0
+	if len(state.GlobalFlightData.JetEngines)-s.offset*4 < 4 {
+		length = len(state.GlobalFlightData.JetEngines) - s.offset*4
+	} else {
+		length = 4
 	}
-	for i := 0; i < len(state.GlobalFlightData.PistonEngines); i++ {
-		s.drawEngineStatistics(100, 100, i, 1)
+	for i := 0; i < length; i++ {
+		s.drawEngineStatistics(state.Scale(60)+state.Scale(300)*int32(i%2), state.Scale(60)+state.Scale(300)*int32(math.Floor(float64(i/2))), i+(s.offset*4), true)
+		if i < 2 && (length > 2 || len(state.GlobalFlightData.PistonEngines) >= 2) {
+			rl.DrawRectangle(state.Scale(60)+state.Scale(300)*int32((i)%2)+state.Scale(20), state.Scale(60)+state.Scale(300)*int32(math.Floor(float64(i/2)))+state.Scale(300), state.Scale(260), 2, state.COLOR_SELECT)
+		}
+		if i%2 == 0 && (length > 1 || len(state.GlobalFlightData.PistonEngines) > 0) {
+			rl.DrawRectangle(state.Scale(60)+state.Scale(300)*int32((i+1)%2)-1, state.Scale(60)+state.Scale(300)*int32(math.Floor(float64(i/2)))+state.Scale(20), 2, state.Scale(260), state.COLOR_SELECT)
+		}
 	}
+
+	// var o = len(state.GlobalFlightData.PistonEngines) % 4
+	var o = 0
+	if len(state.GlobalFlightData.JetEngines)-s.offset*4 < 4 {
+
+		if len(state.GlobalFlightData.JetEngines)-s.offset*4 > 0 {
+			o = len(state.GlobalFlightData.JetEngines) % 4
+		}
+		if len(state.GlobalFlightData.PistonEngines)+len(state.GlobalFlightData.JetEngines)-s.offset*4 < 4 {
+			length = len(state.GlobalFlightData.PistonEngines) + len(state.GlobalFlightData.JetEngines) - s.offset*4 - o
+		} else {
+			length = 4 - o
+		}
+		for i := 0; i < length; i++ {
+			s.drawEngineStatistics(state.Scale(60)+state.Scale(300)*int32((i+o)%2), state.Scale(60)+state.Scale(300)*int32(math.Floor(float64((i+o)/2))), i+o+(s.offset*4)-len(state.GlobalFlightData.JetEngines), false)
+			if i+o < 2 && length > 2 {
+				rl.DrawRectangle(state.Scale(60)+state.Scale(300)*int32((i+o)%2)+state.Scale(20), state.Scale(60)+state.Scale(300)*int32(math.Floor(float64((i+o)/2)))+state.Scale(300), state.Scale(260), 2, state.COLOR_SELECT)
+			}
+			if (i+o)%2 == 0 && length > 1 {
+				rl.DrawRectangle(state.Scale(60)+state.Scale(300)*int32(((i+o)+1)%2)-1, state.Scale(60)+state.Scale(300)*int32(math.Floor(float64((i+o)/2)))+state.Scale(20), 2, state.Scale(260), state.COLOR_SELECT)
+			}
+		}
+	}
+	state.DrawArrowButtons(0)
 }
 
 var COLOR_AFTERBURNER_BACKGROUND = rl.Color{R: 153, G: 102, B: 0, A: 255}
 var COLOR_AFTERBURNER_FORGROUND = rl.Color{R: 255, G: 153, B: 0, A: 255}
 
-func (s _state) drawEngineStatistics(anchorX, anchorY int, engine int, scale int) {
-	var boxSize = 300
-	var margin = 10
-	var centerX = anchorX + (boxSize / 2)
-	var centerY = anchorY + (boxSize / 2)
+func (s _state) drawEngineStatistics(anchorX, anchorY int32, engine int, turbine bool) {
+	var boxSize = state.Scale(300)
+	var margin = state.Scale(20)
+	var ringWidth = state.Scale(20)
+	var ringOffset = state.Scale(8)
+	var ringGap = int32(0)
+	var centerX = int(anchorX + (boxSize / 2))
+	var centerY = int(anchorY + (boxSize / 2))
+	var fontSize = state.Scale(20)
 
-	// rl.DrawRectangle(int32(anchorX), int32(anchorY), int32(boxSize), int32(boxSize), state.COLOR_TEXT_UNSELECT)
-	if state.GlobalFlightData.JetEngines[engine].HasAfterburner {
-		rl.DrawRing(rl.Vector2{X: float32(centerX), Y: float32(centerY)}, float32(boxSize/2-margin-20), float32(boxSize/2-margin), 306-1.5, 360, 0, COLOR_AFTERBURNER_BACKGROUND)
-		rl.DrawRectangle(int32(anchorX+boxSize-margin-20), int32(centerY), 20, 3, COLOR_AFTERBURNER_BACKGROUND)
-		rl.DrawRing(rl.Vector2{X: float32(centerX), Y: float32(centerY)}, float32(boxSize/2-(margin+3)-14), float32(boxSize/2-(margin+3)), 306, 306+54*state.GlobalFlightData.JetEngines[engine].AfterburnerThrottle, 0, COLOR_AFTERBURNER_FORGROUND)
+	var throttle = float32(0.0)
+	var rpm = 0
+	if turbine {
+		throttle = state.GlobalFlightData.JetEngines[engine].Throttle
+		// rpm = int(state.GlobalFlightData.JetEngines[engine].RPM)
+	} else {
+		throttle = state.GlobalFlightData.PistonEngines[engine].Throttle
+		rpm = int(state.GlobalFlightData.PistonEngines[engine].RPM)
 	}
 
-	margin = 32
-	rl.DrawRing(rl.Vector2{X: float32(centerX), Y: float32(centerY)}, float32(boxSize/2-margin-20), float32(boxSize/2-margin), 180, 360, 0, state.COLOR_UNSELECT)
-	rl.DrawRectangle(int32(anchorX+margin), int32(centerY), 20, 3, state.COLOR_UNSELECT)
-	rl.DrawRectangle(int32(anchorX+boxSize-margin-20), int32(centerY), 20, 3, state.COLOR_UNSELECT)
-	rl.DrawRing(rl.Vector2{X: float32(centerX), Y: float32(centerY)}, float32(boxSize/2-(margin+3)-14), float32(boxSize/2-(margin+3)), 180, 180+180*state.GlobalFlightData.JetEngines[engine].Throttle, 0, state.COLOR_SELECT)
+	// rl.DrawRectangle(int32(anchorX), int32(anchorY), int32(boxSize), int32(boxSize), state.COLOR_TEXT_UNSELECT)
+	rl.DrawText(strconv.FormatInt(int64(engine+1), 10), anchorX+margin, anchorY+margin, fontSize, state.COLOR_SELECT)
+	if turbine {
+		if state.GlobalFlightData.JetEngines[engine].HasAfterburner {
+			ringGap = state.Scale(25)
+			rl.DrawRing(
+				rl.Vector2{X: float32(centerX), Y: float32(centerY)},
+				float32(boxSize/2-margin-ringWidth),
+				float32(boxSize/2-margin),
+				306-1.8, 360,
+				0,
+				COLOR_AFTERBURNER_BACKGROUND,
+			)
+			rl.DrawRectangle(anchorX+int32(boxSize-margin-ringWidth), int32(centerY), int32(ringWidth), ringOffset/2, COLOR_AFTERBURNER_BACKGROUND)
+			rl.DrawRing(
+				rl.Vector2{X: float32(centerX), Y: float32(centerY)},
+				float32(boxSize/2-margin+(ringOffset/2)-ringWidth),
+				float32(boxSize/2-margin-(ringOffset/2)),
+				306,
+				306+54*state.GlobalFlightData.JetEngines[engine].AfterburnerThrottle,
+				0,
+				COLOR_AFTERBURNER_FORGROUND,
+			)
+		}
 
-	rl.DrawText("Fuel Flow "+strconv.FormatFloat(float64(state.GlobalFlightData.JetEngines[engine].FuelFlow), 'f', -1, 64), int32(anchorX+margin), int32(centerY+20), 20, state.COLOR_SELECT)
-	rl.DrawText("Alt Power "+strconv.FormatFloat(float64(state.GlobalFlightData.JetEngines[engine].AlternatorPower), 'f', -1, 64), int32(anchorX+margin), int32(centerY+40), 20, state.COLOR_SELECT)
-	rl.DrawText("Hydr Pres "+strconv.FormatFloat(float64(state.GlobalFlightData.JetEngines[engine].HydraulicPower), 'f', -1, 64), int32(anchorX+margin), int32(centerY+60), 20, state.COLOR_SELECT)
+		rl.DrawText("Fuel Flow "+strconv.FormatFloat(math.Round(float64(state.GlobalFlightData.JetEngines[engine].FuelFlow)), 'f', 1, 64)+"kg/s", anchorX+int32(margin), int32(centerY)+margin, fontSize, state.COLOR_SELECT)
+		rl.DrawText("Alt Power "+strconv.FormatFloat(math.Round(float64(state.GlobalFlightData.JetEngines[engine].AlternatorPower/100))/10, 'f', 1, 64)+"kw/h", anchorX+int32(margin), int32(centerY)+margin+fontSize, fontSize, state.COLOR_SELECT)
+		rl.DrawText("Hydr Pres "+strconv.FormatFloat(math.Round(float64(state.GlobalFlightData.JetEngines[engine].HydraulicPower)), 'f', 1, 64)+"--", anchorX+int32(margin), int32(centerY)+margin+fontSize*2, fontSize, state.COLOR_SELECT)
+	} else {
+		ringGap = state.Scale(25)
+		rl.DrawRectangle(anchorX+int32(margin), int32(centerY), int32(ringWidth), ringOffset/2, COLOR_AFTERBURNER_BACKGROUND)
+		rl.DrawRing(
+			rl.Vector2{X: float32(centerX), Y: float32(centerY)},
+			float32(boxSize/2-margin-ringWidth),
+			float32(boxSize/2-margin),
+			180, 360,
+			0,
+			COLOR_AFTERBURNER_BACKGROUND,
+		)
+		rl.DrawRectangle(anchorX+int32(boxSize-margin-ringWidth), int32(centerY), int32(ringWidth), ringOffset/2, COLOR_AFTERBURNER_BACKGROUND)
+		rl.DrawRing(
+			rl.Vector2{X: float32(centerX), Y: float32(centerY)},
+			float32(boxSize/2-margin+(ringOffset/2)-ringWidth),
+			float32(boxSize/2-margin-(ringOffset/2)),
+			180,
+			180+180*float32(rpm/6000),
+			0,
+			COLOR_AFTERBURNER_FORGROUND,
+		)
+	}
+	rl.DrawRing(
+		rl.Vector2{X: float32(centerX), Y: float32(centerY)},
+		float32(boxSize/2-margin-ringWidth-ringGap),
+		float32(boxSize/2-margin-ringGap),
+		180,
+		360,
+		0,
+		state.COLOR_UNSELECT,
+	)
+	rl.DrawRectangle(anchorX+int32(margin+ringGap), int32(centerY), int32(ringWidth), ringOffset/2, state.COLOR_UNSELECT)
+	rl.DrawRectangle(anchorX+int32(boxSize-margin-ringWidth-ringGap), int32(centerY), int32(ringWidth), ringOffset/2, state.COLOR_UNSELECT)
+	rl.DrawRing(
+		rl.Vector2{X: float32(centerX), Y: float32(centerY)},
+		float32(boxSize/2-margin+(ringOffset/2)-ringWidth-ringGap),
+		float32(boxSize/2-margin-(ringOffset/2)-ringGap),
+		180,
+		180+180*throttle,
+		0,
+		state.COLOR_SELECT,
+	)
 }

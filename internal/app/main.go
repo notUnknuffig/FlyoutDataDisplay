@@ -108,8 +108,8 @@ func (a App) Init() {
 
 		} else {
 			// Draw State
-			a.Draw()
 			a.state.Draw()
+			a.Draw()
 		}
 
 		rl.EndDrawing()

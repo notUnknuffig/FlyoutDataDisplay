@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"time"
 
@@ -29,30 +28,32 @@ func initTCPConnection(a app.App) {
 		conn, err = net.Dial("tcp", ADDR)
 		if err != nil {
 			time.Sleep(5 * time.Second)
-			fmt.Println("Reattempting to connect to socket")
+			fmt.Println("Reconnecting to socket")
 		} else {
-			break
-		}
-	}
-	defer conn.Close()
-	fmt.Println("Connected to socket")
+			defer conn.Close()
+			fmt.Println("Connected to socket")
 
-	ms := 0
-	for {
-		ms = time.Now().Nanosecond()
-		buf := make([]byte, 4096)
-		n, err := conn.Read(buf)
-		if err != nil {
-			log.Fatal(err)
+			ms := 0
+			for {
+				ms = time.Now().Nanosecond()
+				buf := make([]byte, 4096)
+				n, err := conn.Read(buf)
+				if err != nil {
+					fmt.Println("Connection reset by peer")
+					state.GlobalFlightData = nil
+					break
+				}
+				msg := string(buf[:n])
+				obj := state.FlightData{}
+				if err := state.ReadString(msg, &obj); err == nil {
+					state.GlobalFlightData = &obj
+				} else {
+					fmt.Println("Error decoding json")
+				}
+				ms = time.Now().Nanosecond() - ms
+				state.SmoothData(ms)
+			}
 		}
-		msg := string(buf[:n])
-		obj := state.FlightData{}
-		if err := state.ReadString(msg, &obj); err == nil {
-			state.GlobalFlightData = &obj
-		} else {
-			log.Fatal(err)
-		}
-		ms = time.Now().Nanosecond() - ms
-		state.SmoothData(ms)
 	}
+
 }
