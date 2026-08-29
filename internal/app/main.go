@@ -26,14 +26,6 @@ const (
 	KEY_F10 = rl.KeyF10
 	KEY_F11 = rl.KeyF11
 	KEY_F12 = rl.KeyF12
-	KEY_F13 = rl.KeyF12 + 1
-	KEY_F14 = rl.KeyF12 + 2
-	KEY_F15 = rl.KeyF12 + 3
-	KEY_F16 = rl.KeyF12 + 4
-	KEY_F17 = rl.KeyF12 + 5
-	KEY_F18 = rl.KeyF12 + 6
-	KEY_F19 = rl.KeyF12 + 7
-	KEY_F20 = rl.KeyF12 + 8
 )
 
 const (
@@ -57,17 +49,65 @@ func (a App) Init() {
 	// rl.SetExitKey(-1)
 
 	config := state.Options{
-		Resolution_x: 720,
-		Resolution_y: 720,
-		AspectRatio:  "1x1",
-		Fullscreen:   false,
-		Scale:        1,
+		ResolutionX: 720,
+		ResolutionY: 720,
+		AspectRatio: "1x1",
+		Fullscreen:  false,
+		Scale:       1,
+	}
+	navigation := stateNavigation.NavManager{
+		NavPoints: []stateNavigation.MappedObjects{
+			{
+				Latitude:  -51.4,
+				Longitude: -36.3,
+				Type:      stateNavigation.NAV_POINT,
+				Heading:   0,
+				Allied:    true,
+			},
+			{
+				Latitude:  -52.4,
+				Longitude: -36.3,
+				Type:      stateNavigation.NAV_POINT,
+				Heading:   0,
+				Allied:    true,
+			},
+			{
+				Latitude:  -52.4,
+				Longitude: -33.3,
+				Type:      stateNavigation.NAV_POINT,
+				Heading:   0,
+				Allied:    true,
+			},
+			{
+				Latitude:  -53.4,
+				Longitude: -33.3,
+				Type:      stateNavigation.NAV_POINT,
+				Heading:   0,
+				Allied:    true,
+			},
+		},
+		Airfields: []stateNavigation.MappedObjects{
+			{
+				Latitude:  -51.8061,
+				Longitude: -35.604,
+				Heading:   0,
+				Allied:    true,
+				Type:      stateNavigation.AIRFIELD,
+			},
+			{
+				Latitude:  -63.3045,
+				Longitude: 11.6763,
+				Heading:   0,
+				Allied:    true,
+				Type:      stateNavigation.AIRFIELD,
+			},
+		},
 	}
 	state.GlobalOptions = &config
 	a.availableStates = []state.State{
 		stateAttitude.Init(),
 		stateEngine.Init(),
-		stateNavigation.Init(),
+		stateNavigation.Init(&navigation),
 		stateSystems.Init(),
 		stateWeapons.Init(),
 		stateOptions.Init(&config),
@@ -141,8 +181,9 @@ func (a App) Draw() {
 	// var buttonMarginX = state.Scale(8)
 	var buttonMarginY = (buttonHeight - fontSize) / 2
 	for i := 0; i < state.BUTTON_LENGTH; i++ {
-		var baseX = state.SCREEN_MARGIN + ((rl.GetRenderWidth()-(2*state.SCREEN_MARGIN))/(state.BUTTON_LENGTH+1))*(i+1) - int(buttonWidth/2)
-		var baseY = rl.GetRenderHeight() - state.SCREEN_MARGIN - int(buttonHeight)
+		var baseX = int(state.Scale(state.SCREEN_MARGIN)) + ((rl.GetRenderWidth()-int(2*state.Scale(state.SCREEN_MARGIN)))/(state.BUTTON_LENGTH+1))*(i+1) - int(buttonWidth/2)
+
+		var baseY = rl.GetRenderHeight() - int(state.Scale(state.SCREEN_MARGIN)) - int(buttonHeight)
 		rl.DrawRectangle(int32(baseX), int32(baseY), buttonWidth, buttonHeight, state.COLOR_UNSELECT)
 		switch i {
 		case Attidude:

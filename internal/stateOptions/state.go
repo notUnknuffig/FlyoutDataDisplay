@@ -83,12 +83,12 @@ func (s OptionState) Input() state.State {
 
 		} else if rl.IsKeyPressed(KEY_LEFT) && s.resolutionIndex > 0 {
 			s.resolutionIndex -= 1
-			s.options.Resolution_x = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
-			s.options.Resolution_y = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
+			s.options.ResolutionX = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
+			s.options.ResolutionY = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
 		} else if rl.IsKeyPressed(KEY_RIGHT) && s.resolutionIndex < len(resolutions) {
 			s.resolutionIndex += 1
-			s.options.Resolution_x = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
-			s.options.Resolution_y = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
+			s.options.ResolutionX = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
+			s.options.ResolutionY = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
 		}
 	case OPTION_ASPECT_RATIO:
 		if s.options.Fullscreen {
@@ -96,31 +96,31 @@ func (s OptionState) Input() state.State {
 		} else if rl.IsKeyPressed(KEY_LEFT) && s.aspectRatioIndex > 0 {
 			s.aspectRatioIndex -= 1
 			s.options.AspectRatio = aspectRatios[s.aspectRatioIndex]
-			s.options.Resolution_x = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
-			s.options.Resolution_y = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
+			s.options.ResolutionX = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
+			s.options.ResolutionY = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
 		} else if rl.IsKeyPressed(KEY_RIGHT) && s.aspectRatioIndex < len(aspectRatios)-1 {
 			s.aspectRatioIndex += 1
 			s.options.AspectRatio = aspectRatios[s.aspectRatioIndex]
-			s.options.Resolution_x = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
-			s.options.Resolution_y = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
+			s.options.ResolutionX = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
+			s.options.ResolutionY = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
 		}
 	case OPTION_FULLSCREEN:
 		if rl.IsKeyPressed(KEY_RIGHT) {
 			s.options.Fullscreen = true
 			monitor := rl.GetCurrentMonitor()
-			s.options.Resolution_x = rl.GetMonitorWidth(monitor)
-			s.options.Resolution_y = rl.GetMonitorHeight(monitor)
+			s.options.ResolutionX = rl.GetMonitorWidth(monitor)
+			s.options.ResolutionY = rl.GetMonitorHeight(monitor)
 
 		} else if rl.IsKeyPressed(KEY_LEFT) {
 			s.options.Fullscreen = false
-			s.options.Resolution_x = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
-			s.options.Resolution_y = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
+			s.options.ResolutionX = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
+			s.options.ResolutionY = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
 
 		}
 	case OPTION_APPLY:
 		if rl.IsKeyPressed(KEY_APPLY) {
 			if s.options.Fullscreen {
-				rl.SetWindowSize(s.options.Resolution_x, s.options.Resolution_y)
+				rl.SetWindowSize(s.options.ResolutionX, s.options.ResolutionY)
 				if !s.previousFullscreenState {
 					rl.ToggleFullscreen()
 				} // TODO: Figure out if this should be fullscreen
@@ -129,7 +129,7 @@ func (s OptionState) Input() state.State {
 				if s.previousFullscreenState {
 					rl.ToggleFullscreen()
 				} // TODO: Figure out if this should be fullscreen
-				rl.SetWindowSize(s.options.Resolution_x, s.options.Resolution_y)
+				rl.SetWindowSize(s.options.ResolutionX, s.options.ResolutionY)
 				s.options.Scale = scales[s.resolutionIndex]
 				s.previousFullscreenState = false
 			}
@@ -170,7 +170,7 @@ func (s OptionState) drawOptions() {
 		rl.DrawRectangle(centerBoxX, centerBoxY+gap*int32(i), buttonWidth, buttonHeight, backgroundColor)
 		switch i {
 		case OPTION_RESOLUTION:
-			rl.DrawText(fmt.Sprintf("Resolution: %dx%d", s.options.Resolution_x, s.options.Resolution_y), centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
+			rl.DrawText(fmt.Sprintf("Resolution: %dx%d", s.options.ResolutionX, s.options.ResolutionY), centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
 		case OPTION_ASPECT_RATIO:
 			rl.DrawText(fmt.Sprintf("Aspect Ratio %s", s.options.AspectRatio), centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
 		case OPTION_FULLSCREEN:

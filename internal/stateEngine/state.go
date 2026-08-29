@@ -23,7 +23,8 @@ type _state struct {
 
 func Init() _state {
 	return _state{
-		offset: 0,
+		offset:    0,
+		maxOffset: 0,
 	}
 }
 
@@ -43,6 +44,7 @@ func (s _state) Draw() {
 		return
 	}
 
+	var halveWidth = state.GetDisplayAreaWidth() / 2
 	var length = 0
 	if len(state.GlobalFlightData.JetEngines)-s.offset*4 < 4 {
 		length = len(state.GlobalFlightData.JetEngines) - s.offset*4
@@ -50,12 +52,18 @@ func (s _state) Draw() {
 		length = 4
 	}
 	for i := 0; i < length; i++ {
-		s.drawEngineStatistics(state.Scale(60)+state.Scale(300)*int32(i%2), state.Scale(60)+state.Scale(300)*int32(math.Floor(float64(i/2))), i+(s.offset*4), true)
+		s.drawEngineStatistics(
+			state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE)+halveWidth*int32(i%2),
+			state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE)+halveWidth*int32(math.Floor(float64(i/2))),
+			halveWidth,
+			i+(s.offset*4),
+			true,
+		)
 		if i < 2 && (length > 2 || len(state.GlobalFlightData.PistonEngines) >= 2) {
-			rl.DrawRectangle(state.Scale(60)+state.Scale(300)*int32((i)%2)+state.Scale(20), state.Scale(60)+state.Scale(300)*int32(math.Floor(float64(i/2)))+state.Scale(300), state.Scale(260), 2, state.COLOR_SELECT)
+			rl.DrawRectangle(state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE)+halveWidth*int32(i%2)+state.Scale(20), state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE)+halveWidth*int32(math.Floor(float64(i/2)))+halveWidth, halveWidth-state.Scale(40), 2, state.COLOR_SELECT)
 		}
 		if i%2 == 0 && (length > 1 || len(state.GlobalFlightData.PistonEngines) > 0) {
-			rl.DrawRectangle(state.Scale(60)+state.Scale(300)*int32((i+1)%2)-1, state.Scale(60)+state.Scale(300)*int32(math.Floor(float64(i/2)))+state.Scale(20), 2, state.Scale(260), state.COLOR_SELECT)
+			rl.DrawRectangle(state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE)+halveWidth*int32((i+1)%2)-1, state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE)+halveWidth*int32(math.Floor(float64(i/2)))+state.Scale(20), 2, halveWidth-state.Scale(40), state.COLOR_SELECT)
 		}
 	}
 
@@ -72,26 +80,31 @@ func (s _state) Draw() {
 			length = 4 - o
 		}
 		for i := 0; i < length; i++ {
-			s.drawEngineStatistics(state.Scale(60)+state.Scale(300)*int32((i+o)%2), state.Scale(60)+state.Scale(300)*int32(math.Floor(float64((i+o)/2))), i+o+(s.offset*4)-len(state.GlobalFlightData.JetEngines), false)
+			s.drawEngineStatistics(
+				state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE)+halveWidth*int32((i+o)%2),
+				state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE)+halveWidth*int32(math.Floor(float64((i+o)/2))),
+				halveWidth,
+				i+o+(s.offset*4)-len(state.GlobalFlightData.JetEngines),
+				false,
+			)
 			if i+o < 2 && length > 2 {
-				rl.DrawRectangle(state.Scale(60)+state.Scale(300)*int32((i+o)%2)+state.Scale(20), state.Scale(60)+state.Scale(300)*int32(math.Floor(float64((i+o)/2)))+state.Scale(300), state.Scale(260), 2, state.COLOR_SELECT)
+				rl.DrawRectangle(state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE)+halveWidth*int32((i+o)%2)+state.Scale(20), state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE)+halveWidth*int32(math.Floor(float64((i+o)/2)))+halveWidth, halveWidth-state.Scale(40), 2, state.COLOR_SELECT)
 			}
 			if (i+o)%2 == 0 && length > 1 {
-				rl.DrawRectangle(state.Scale(60)+state.Scale(300)*int32(((i+o)+1)%2)-1, state.Scale(60)+state.Scale(300)*int32(math.Floor(float64((i+o)/2)))+state.Scale(20), 2, state.Scale(260), state.COLOR_SELECT)
+				rl.DrawRectangle(state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE)+halveWidth*int32(((i+o)+1)%2)-1, state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE)+halveWidth*int32(math.Floor(float64((i+o)/2)))+state.Scale(20), 2, halveWidth-state.Scale(40), state.COLOR_SELECT)
 			}
 		}
 	}
 	anchorY, diff := state.DrawArrowButtons(0)
-	str := strconv.FormatInt(int64(s.offset), 10) + " - " + strconv.FormatInt(int64(s.maxOffset), 10)
-	center := (state.Scale(state.MENU_BUTTON_SIZE)-rl.MeasureText(str, state.Scale(12)))/2 + state.SCREEN_MARGIN
-	rl.DrawText(str, center, anchorY+(diff-state.Scale(12))/2, state.Scale(12), state.COLOR_SELECT)
+	str := strconv.FormatInt(int64(s.offset), 10) + "-" + strconv.FormatInt(int64(s.maxOffset), 10)
+	center := (state.Scale(state.MENU_BUTTON_SIZE)-rl.MeasureText(str, state.Scale(20)))/2 + state.Scale(state.SCREEN_MARGIN)
+	rl.DrawText(str, center, anchorY+(diff-state.Scale(20))/2, state.Scale(20), state.COLOR_SELECT)
 }
 
 var COLOR_AFTERBURNER_BACKGROUND = rl.Color{R: 153, G: 102, B: 0, A: 255}
 var COLOR_AFTERBURNER_FORGROUND = rl.Color{R: 255, G: 153, B: 0, A: 255}
 
-func (s _state) drawEngineStatistics(anchorX, anchorY int32, engine int, turbine bool) {
-	var boxSize = state.Scale(300)
+func (s _state) drawEngineStatistics(anchorX, anchorY, boxSize int32, engine int, turbine bool) {
 	var margin = state.Scale(20)
 	var ringWidth = state.Scale(20)
 	var ringOffset = state.Scale(8)

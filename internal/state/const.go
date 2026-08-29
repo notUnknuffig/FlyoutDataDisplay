@@ -11,5 +11,6 @@ const MENU_BUTTON_SIZE = 36
 
 const BUTTON_LENGTH = 5
 
-const SCREEN_MARGIN = 20
+const SCREEN_MARGIN = 16
+
 const FONT_SIZE = 30

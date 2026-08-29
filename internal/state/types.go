@@ -67,9 +67,9 @@ type FlightData struct {
 }
 
 type Options struct {
-	Resolution_x int
-	Resolution_y int
-	AspectRatio  string
-	Fullscreen   bool
-	Scale        float32
+	ResolutionX int
+	ResolutionY int
+	AspectRatio string
+	Fullscreen  bool
+	Scale       float32
 }
