@@ -25,6 +25,14 @@ type PistonEngine struct {
 	Power        float32 `json:"Power"`
 }
 
+type FuelTank struct {
+	Priority    int     `json:"Priority"`
+	IsEmpty     bool    `json:"IsEmpty"`
+	Fuel        float32 `json:"Fuel"`
+	FuelPercent float32 `json:"FuelPercent"`
+	Capacity    float32 `json:"Capacity"`
+}
+
 type Missile struct {
 	Count int    `json:"Count"`
 	Type  string `json:"Type"`
@@ -49,6 +57,11 @@ type FlightData struct {
 	Longitude     float32        `json:"Longitude"`
 	JetEngines    []JetEngine    `json:"JetEngines"`
 	PistonEngines []PistonEngine `json:"PistonEngines"`
+	Fuel          float32        `json:"Fuel"`
+	FuelCapacity  float32        `json:"FuelCapacity"`
+	TimeToEmpty   float32        `json:"TimeToEmpty"`
+	FuelRatio     float32        `json:"FuelRatio"`
+	FuelTanks     []FuelTank     `json:"FuelTanks"`
 	Missiles      []Missile      `json:"Missiles"`
 	ActiveMissile string         `json:"ActiveMissile"`
 }

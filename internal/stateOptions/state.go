@@ -161,10 +161,10 @@ func (s OptionState) drawOptions() {
 		var textColor rl.Color
 		var backgroundColor rl.Color
 		if i == s.selection {
-			textColor = state.COLOR_TEXT_SELECT
+			textColor = state.COLOR_UNSELECT
 			backgroundColor = state.COLOR_SELECT
 		} else {
-			textColor = state.COLOR_TEXT_UNSELECT
+			textColor = state.COLOR_SELECT
 			backgroundColor = state.COLOR_UNSELECT
 		}
 		rl.DrawRectangle(centerBoxX, centerBoxY+gap*int32(i), buttonWidth, buttonHeight, backgroundColor)

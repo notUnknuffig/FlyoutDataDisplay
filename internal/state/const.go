@@ -7,6 +7,8 @@ var COLOR_SELECT = rl.Green
 var COLOR_TEXT_SELECT = rl.White
 var COLOR_TEXT_UNSELECT = rl.Gray
 
+const MENU_BUTTON_SIZE = 36
+
 const BUTTON_LENGTH = 5
 
 const SCREEN_MARGIN = 20

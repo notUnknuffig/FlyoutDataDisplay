@@ -65,6 +65,13 @@ func object() state.FlightData {
 		Type:  "Infrared Missile",
 		Name:  "Aim-9X",
 	}
+	tank := state.FuelTank{
+		Priority:    1,
+		IsEmpty:     false,
+		Fuel:        3000,
+		FuelPercent: 1.0,
+		Capacity:    3000,
+	}
 	return state.FlightData{
 		Time:          0,
 		Name:          "J-8 MFD Test",
@@ -83,6 +90,11 @@ func object() state.FlightData {
 		Longitude:     -36.313252323,
 		JetEngines:    []state.JetEngine{eng, eng, eng, eng, eng},
 		PistonEngines: []state.PistonEngine{pist, pist, pist, pist},
+		FuelTanks:     []state.FuelTank{tank, tank},
+		Fuel:          6000,
+		FuelCapacity:  6000,
+		FuelRatio:     1.0,
+		TimeToEmpty:   13000,
 		Missiles:      []state.Missile{mis},
 		ActiveMissile: "Aim-9X",
 	}

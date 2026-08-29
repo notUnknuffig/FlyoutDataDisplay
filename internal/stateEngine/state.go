@@ -17,7 +17,8 @@ const (
 )
 
 type _state struct {
-	offset int
+	offset    int
+	maxOffset int
 }
 
 func Init() _state {
@@ -27,7 +28,8 @@ func Init() _state {
 }
 
 func (s _state) Input() state.State {
-	if rl.IsKeyPressed(KEY_DOWN) && s.offset < int(math.Ceil(float64(len(state.GlobalFlightData.JetEngines)+len(state.GlobalFlightData.PistonEngines))/4)-1) {
+	s.maxOffset = int(math.Ceil(float64(len(state.GlobalFlightData.JetEngines)+len(state.GlobalFlightData.PistonEngines))/4) - 1)
+	if rl.IsKeyPressed(KEY_DOWN) && s.offset < s.maxOffset {
 		s.offset = s.offset + 1
 	} else if rl.IsKeyPressed(KEY_UP) && s.offset > 0 {
 		s.offset = s.offset - 1
@@ -79,7 +81,10 @@ func (s _state) Draw() {
 			}
 		}
 	}
-	state.DrawArrowButtons(0)
+	anchorY, diff := state.DrawArrowButtons(0)
+	str := strconv.FormatInt(int64(s.offset), 10) + " - " + strconv.FormatInt(int64(s.maxOffset), 10)
+	center := (state.Scale(state.MENU_BUTTON_SIZE)-rl.MeasureText(str, state.Scale(12)))/2 + state.SCREEN_MARGIN
+	rl.DrawText(str, center, anchorY+(diff-state.Scale(12))/2, state.Scale(12), state.COLOR_SELECT)
 }
 
 var COLOR_AFTERBURNER_BACKGROUND = rl.Color{R: 153, G: 102, B: 0, A: 255}
@@ -96,13 +101,13 @@ func (s _state) drawEngineStatistics(anchorX, anchorY int32, engine int, turbine
 	var fontSize = state.Scale(20)
 
 	var throttle = float32(0.0)
-	var rpm = 0
+	var rpm = float32(0.0)
 	if turbine {
 		throttle = state.GlobalFlightData.JetEngines[engine].Throttle
 		// rpm = int(state.GlobalFlightData.JetEngines[engine].RPM)
 	} else {
 		throttle = state.GlobalFlightData.PistonEngines[engine].Throttle
-		rpm = int(state.GlobalFlightData.PistonEngines[engine].RPM)
+		rpm = state.GlobalFlightData.PistonEngines[engine].RPM
 	}
 
 	// rl.DrawRectangle(int32(anchorX), int32(anchorY), int32(boxSize), int32(boxSize), state.COLOR_TEXT_UNSELECT)
@@ -130,9 +135,17 @@ func (s _state) drawEngineStatistics(anchorX, anchorY int32, engine int, turbine
 			)
 		}
 
-		rl.DrawText("Fuel Flow "+strconv.FormatFloat(math.Round(float64(state.GlobalFlightData.JetEngines[engine].FuelFlow)), 'f', 1, 64)+"kg/s", anchorX+int32(margin), int32(centerY)+margin, fontSize, state.COLOR_SELECT)
-		rl.DrawText("Alt Power "+strconv.FormatFloat(math.Round(float64(state.GlobalFlightData.JetEngines[engine].AlternatorPower/100))/10, 'f', 1, 64)+"kw/h", anchorX+int32(margin), int32(centerY)+margin+fontSize, fontSize, state.COLOR_SELECT)
-		rl.DrawText("Hydr Pres "+strconv.FormatFloat(math.Round(float64(state.GlobalFlightData.JetEngines[engine].HydraulicPower)), 'f', 1, 64)+"--", anchorX+int32(margin), int32(centerY)+margin+fontSize*2, fontSize, state.COLOR_SELECT)
+		textFuelFlow := strconv.FormatFloat(math.Round(float64(state.GlobalFlightData.JetEngines[engine].FuelFlow*100))/100, 'f', 1, 64) + "kg/s"
+		rl.DrawText("Fuel Flow", anchorX+int32(margin), int32(centerY)+margin, fontSize, state.COLOR_SELECT)
+		rl.DrawText(textFuelFlow, anchorX+boxSize-int32(margin)-rl.MeasureText(textFuelFlow, fontSize), int32(centerY)+margin, fontSize, state.COLOR_SELECT)
+
+		textAltPwr := strconv.FormatFloat(math.Round(float64(state.GlobalFlightData.JetEngines[engine].AlternatorPower/100))/10, 'f', 1, 64) + "kw/h"
+		rl.DrawText("Alt Pwr", anchorX+int32(margin), int32(centerY)+margin+fontSize*2, fontSize, state.COLOR_SELECT)
+		rl.DrawText(textAltPwr, anchorX+boxSize-int32(margin)-rl.MeasureText(textAltPwr, fontSize), int32(centerY)+margin+fontSize, fontSize, state.COLOR_SELECT)
+
+		textHydrPwr := strconv.FormatFloat(math.Round(float64(state.GlobalFlightData.JetEngines[engine].HydraulicPower/100))/10, 'f', 1, 64) + "kw/h"
+		rl.DrawText("Hydr Pwr", anchorX+int32(margin), int32(centerY)+margin+fontSize, fontSize, state.COLOR_SELECT)
+		rl.DrawText(textHydrPwr, anchorX+boxSize-int32(margin)-rl.MeasureText(textHydrPwr, fontSize), int32(centerY)+margin+fontSize*2, fontSize, state.COLOR_SELECT)
 	} else {
 		ringGap = state.Scale(25)
 		rl.DrawRectangle(anchorX+int32(margin), int32(centerY), int32(ringWidth), ringOffset/2, COLOR_AFTERBURNER_BACKGROUND)
@@ -154,6 +167,18 @@ func (s _state) drawEngineStatistics(anchorX, anchorY int32, engine int, turbine
 			0,
 			COLOR_AFTERBURNER_FORGROUND,
 		)
+
+		textFuelFlow := strconv.FormatFloat(math.Round(float64(state.GlobalFlightData.PistonEngines[engine].FuelFlow*100))/100, 'f', 1, 64) + "kg/s"
+		rl.DrawText("Fuel Flow", anchorX+int32(margin), int32(centerY)+margin, fontSize, state.COLOR_SELECT)
+		rl.DrawText(textFuelFlow, anchorX+boxSize-int32(margin)-rl.MeasureText(textFuelFlow, fontSize), int32(centerY)+margin, fontSize, state.COLOR_SELECT)
+
+		textPower := strconv.FormatFloat(math.Round(float64(state.GlobalFlightData.PistonEngines[engine].Power/100))/10, 'f', 1, 64) + "kw/h"
+		rl.DrawText("Power", anchorX+int32(margin), int32(centerY)+margin+fontSize, fontSize, state.COLOR_SELECT)
+		rl.DrawText(textPower, anchorX+boxSize-int32(margin)-rl.MeasureText(textPower, fontSize), int32(centerY)+margin+fontSize, fontSize, state.COLOR_SELECT)
+
+		textTemp := strconv.FormatFloat(math.Round(float64(state.GlobalFlightData.PistonEngines[engine].Temperature*100))/100, 'f', 1, 64) + "°k"
+		rl.DrawText("Temp", anchorX+int32(margin), int32(centerY)+margin+fontSize*2, fontSize, state.COLOR_SELECT)
+		rl.DrawText(textTemp, anchorX+boxSize-int32(margin)-rl.MeasureText(textTemp, fontSize), int32(centerY)+margin+fontSize*2, fontSize, state.COLOR_SELECT)
 	}
 	rl.DrawRing(
 		rl.Vector2{X: float32(centerX), Y: float32(centerY)},
