@@ -158,7 +158,6 @@ func (s _state) drawNavPoints(anchorX, anchorY int32, width int32) {
 	var lastX = 0.0
 	var lastY = 0.0
 	for i := 0; i < len(s.navMan.NavPoints); i++ {
-		fmt.Printf("---------- Point (%f°, %f°) ----------\n", s.navMan.NavPoints[i].Latitude, s.navMan.NavPoints[i].Longitude)
 		x, y, _, _ := coordToDistance(
 			float64(state.GlobalFlightData.Latitude),
 			float64(state.GlobalFlightData.Longitude),
@@ -168,9 +167,6 @@ func (s _state) drawNavPoints(anchorX, anchorY int32, width int32) {
 		)
 		relX := (x / float64(s.scale)) * float64(width/4) * 3
 		relY := (y / float64(s.scale)) * float64(width/4) * 3
-		/*fmt.Printf("Distance %f (%fkm, %fkm)\n", dist, x, y)
-		fmt.Printf("Pixel Space (%fpx, %fpx)\n", relX, relY)
-		fmt.Printf("Bearing %f°\n", RadToDeg(bearing))*/
 		if i > 0 {
 			rl.DrawLineEx(
 				rl.Vector2{

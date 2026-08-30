@@ -14,17 +14,24 @@ const (
 	KEY_LEFT  = rl.KeyLeft
 	KEY_RIGHT = rl.KeyRight
 	KEY_APPLY = rl.KeyEnter
+	KEY_F6    = rl.KeyF6
+	KEY_F5    = rl.KeyF6
+	KEY_F7    = rl.KeyF6
+	KEY_F8    = rl.KeyF6
+	KEY_F9    = rl.KeyF6
 )
 
 type _state struct {
 	offset    int
 	maxOffset int
+	fuelState state.State
 }
 
-func Init() _state {
+func Init(fuelState state.State) _state {
 	return _state{
 		offset:    0,
 		maxOffset: 0,
+		fuelState: fuelState,
 	}
 }
 
@@ -32,6 +39,11 @@ func (s _state) Input() state.State {
 	if state.GlobalFlightData == nil {
 		return s
 	}
+
+	if rl.IsKeyPressed(KEY_F6) {
+		return s.fuelState
+	}
+
 	s.maxOffset = int(math.Ceil(float64(len(state.GlobalFlightData.JetEngines)+len(state.GlobalFlightData.PistonEngines))/4) - 1)
 	if rl.IsKeyPressed(KEY_DOWN) && s.offset < s.maxOffset {
 		s.offset = s.offset + 1
@@ -102,9 +114,17 @@ func (s _state) Draw() {
 	str := strconv.FormatInt(int64(s.offset), 10) + "-" + strconv.FormatInt(int64(s.maxOffset), 10)
 	center := (state.Scale(state.MENU_BUTTON_SIZE)-rl.MeasureText(str, state.Scale(20)))/2 + state.Scale(state.SCREEN_MARGIN)
 	rl.DrawText(str, center, anchorY+(diff-state.Scale(20))/2, state.Scale(20), state.COLOR_SELECT)
+
+	fuelButtonX := int32(rl.GetRenderWidth()) - state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE)
+	fuelButtonY := state.Scale(state.SCREEN_MARGIN) + ((int32(rl.GetRenderWidth())-2*state.Scale(state.SCREEN_MARGIN))/(state.BUTTON_LENGTH+1))*(1) - state.Scale(state.MENU_BUTTON_SIZE)/2
+	rl.DrawRectangle(fuelButtonX, fuelButtonY, state.Scale(state.MENU_BUTTON_SIZE), state.Scale(60), state.COLOR_UNSELECT)
+	rl.DrawText("F", fuelButtonX+state.Scale(10), fuelButtonY+state.Scale(2), state.Scale(16), state.COLOR_SELECT)
+	rl.DrawText("E", fuelButtonX+state.Scale(10), fuelButtonY+state.Scale(16), state.Scale(16), state.COLOR_SELECT)
+	rl.DrawText("U", fuelButtonX+state.Scale(10), fuelButtonY+state.Scale(16*2-2), state.Scale(16), state.COLOR_SELECT)
+	rl.DrawText("L", fuelButtonX+state.Scale(10), fuelButtonY+state.Scale(16*3-4), state.Scale(16), state.COLOR_SELECT)
 }
 
-var COLOR_AFTERBURNER_BACKGROUND = rl.Color{R: 153, G: 102, B: 0, A: 255}
+var COLOR_AFTERBURNER_BACKGROUND = rl.Color{R: 119, G: 79, B: 0, A: 255}
 var COLOR_AFTERBURNER_FORGROUND = rl.Color{R: 255, G: 153, B: 0, A: 255}
 
 func (s _state) drawEngineStatistics(anchorX, anchorY, boxSize int32, engine int, turbine bool) {

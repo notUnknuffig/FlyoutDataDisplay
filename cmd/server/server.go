@@ -66,13 +66,18 @@ func object(i int) state.FlightData {
 		Type:  "Infrared Missile",
 		Name:  "Aim-9X",
 	}
+	var b = false
+	if i > 3000 {
+		b = true
+	}
 	tank := state.FuelTank{
 		Priority:    1,
-		IsEmpty:     false,
-		Fuel:        3000,
-		FuelPercent: 1.0,
+		IsEmpty:     b,
+		Fuel:        (3000 - float32(i)),
+		FuelPercent: (3000 - float32(i)) / 3000,
 		Capacity:    3000,
 	}
+
 	return state.FlightData{
 		Time:          0,
 		Name:          "J-8 MFD Test",
@@ -82,19 +87,19 @@ func object(i int) state.FlightData {
 		Roll:          0.16135134,
 		G:             1.1365341,
 		AGL:           0.13561342,
-		Heading:       (0.1 * float32(i%360_0)),
+		Heading:       180, // (float32(i%3600) * 0.1),
 		Climb:         12.135123,
 		Mass:          10000.135123,
 		Mach:          0.21353,
 		Alpha:         3.05135343,
-		Latitude:      -51.0,
-		Longitude:     -36.0,
+		Latitude:      35.604,
+		Longitude:     51.8061,
 		JetEngines:    []state.JetEngine{eng, eng, eng, eng, eng},
 		PistonEngines: []state.PistonEngine{pist, pist, pist, pist},
-		FuelTanks:     []state.FuelTank{tank, tank},
-		Fuel:          6000,
+		FuelTanks:     []state.FuelTank{tank, tank, tank},
+		Fuel:          6000 - float32(i),
 		FuelCapacity:  6000,
-		FuelRatio:     1.0,
+		FuelRatio:     (6000 - float32(i*2)) / 6000,
 		TimeToEmpty:   13000,
 		Missiles:      []state.Missile{mis},
 		ActiveMissile: "Aim-9X",

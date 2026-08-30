@@ -30,7 +30,6 @@ type MappedObjects struct {
 }
 
 func (n MappedObjects) DrawNavObject(x, y int32) {
-	n.Heading = 0
 	var color rl.Color
 	switch n.Type {
 	case AIRFIELD:
@@ -40,20 +39,23 @@ func (n MappedObjects) DrawNavObject(x, y int32) {
 		} else {
 			color = COLOR_ENEMY
 		}
-		height := state.ScaleF(12)
-		width := state.ScaleF(32)
+		height := state.ScaleF(32)
+		width := state.ScaleF(12)
 		rl.DrawRectanglePro(
 			rl.NewRectangle(float32(x), float32(y), width, height),
 			rl.Vector2{X: width / 2, Y: height / 2},
-			n.Heading,
+			n.Heading-state.GlobalFlightData.Heading,
 			color,
 		)
+		height = state.ScaleF(32 - 4)
+		width = state.ScaleF(12 - 4)
 		rl.DrawRectanglePro(
-			rl.NewRectangle(float32(x)-state.ScaleF(1), float32(y)-state.ScaleF(1), width-state.ScaleF(6), height-state.ScaleF(6)),
-			rl.Vector2{X: (width - state.ScaleF(8)) / 2, Y: (height - state.ScaleF(8)) / 2},
-			n.Heading,
+			rl.NewRectangle(float32(x), float32(y), width, height),
+			rl.Vector2{X: (width) / 2, Y: (height) / 2},
+			n.Heading-state.GlobalFlightData.Heading,
 			rl.Black,
 		)
+		// rl.DrawRing(rl.Vector2{float32(x), float32(y)}, 8, 12, 0, 360, 0, state.COLOR_SELECT)
 	case AIRCRAFT:
 
 	case NAV_POINT:

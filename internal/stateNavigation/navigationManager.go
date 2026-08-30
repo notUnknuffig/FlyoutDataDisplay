@@ -1,7 +1,6 @@
 package stateNavigation
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -30,11 +29,8 @@ func coordToDistance(aLat, aLong, bLat, bLong float64, heading float64) (float64
 	deltaPhi := phi2 - phi1
 	deltaLambda := lambda2 - lambda1
 
-	fmt.Printf("Delta Phi: %f°\nDelta Lambda: %f°\n", RadToDeg(deltaPhi), RadToDeg(deltaLambda))
-
 	theta := math.Pi - Archaversine(Haversine(deltaPhi)+math.Cos(phi1)*math.Cos(phi2)*Haversine(deltaLambda))
 	bearing := math.Atan2(math.Sin(deltaLambda)*math.Cos(lambda2), math.Cos(phi1)*math.Sin(phi2)-math.Sin(phi1)*math.Cos(phi2)*math.Cos(deltaLambda))
-	fmt.Printf("Angle Theta: %f°\n", RadToDeg(theta))
 
 	distanceKm := theta * WORLD_DIAMETER
 

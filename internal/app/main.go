@@ -6,6 +6,7 @@ import (
 	"example.com/MFDTest/internal/state"
 	"example.com/MFDTest/internal/stateAttitude"
 	"example.com/MFDTest/internal/stateEngine"
+	"example.com/MFDTest/internal/stateFuel"
 	"example.com/MFDTest/internal/stateNavigation"
 	"example.com/MFDTest/internal/stateOptions"
 	"example.com/MFDTest/internal/stateSystems"
@@ -58,55 +59,63 @@ func (a App) Init() {
 	navigation := stateNavigation.NavManager{
 		NavPoints: []stateNavigation.MappedObjects{
 			{
-				Latitude:  -51.0,
-				Longitude: -36.0,
+				Latitude:  -36.0,
+				Longitude: -51.0,
 				Type:      stateNavigation.TURNING_POINT,
 				Heading:   0,
 				Allied:    true,
 			},
 			{
-				Latitude:  -50.99,
-				Longitude: -36.0,
+				Latitude:  -36.0,
+				Longitude: -50.99,
 				Type:      stateNavigation.TURNING_POINT,
 				Heading:   0,
 				Allied:    true,
 			},
 			{
-				Latitude:  -50.99,
-				Longitude: -35.99,
+				Latitude:  -35.99,
+				Longitude: -50.99,
 				Type:      stateNavigation.TURNING_POINT,
 				Heading:   0,
 				Allied:    true,
 			},
 			{
-				Latitude:  -51.0,
-				Longitude: -35.99,
+				Latitude:  -35.99,
+				Longitude: -51.0,
 				Type:      stateNavigation.NAV_POINT,
 				Heading:   0,
 				Allied:    true,
 			},
 		},
 		Airfields: []stateNavigation.MappedObjects{
+			/* {
+				Latitude:  -35.604,
+				Longitude: -51.8061,
+				Heading:   17.32,
+				Allied:    true,
+				Type:      stateNavigation.AIRFIELD,
+			}, */
 			{
-				Latitude:  -51.8061,
-				Longitude: -35.604,
+				Latitude:  35.614,
+				Longitude: 51.8161,
 				Heading:   0,
 				Allied:    true,
 				Type:      stateNavigation.AIRFIELD,
 			},
 			{
-				Latitude:  -63.3045,
-				Longitude: 11.6763,
-				Heading:   0,
+				Latitude:  11.6763,
+				Longitude: -63.3045,
+				Heading:   90,
 				Allied:    true,
 				Type:      stateNavigation.AIRFIELD,
 			},
 		},
 	}
 	state.GlobalOptions = &config
+	var fuelState state.State = stateFuel.Init()
 	a.availableStates = []state.State{
 		stateAttitude.Init(),
-		stateEngine.Init(),
+		stateEngine.Init(fuelState),
 		stateNavigation.Init(&navigation),
 		stateSystems.Init(),
 		stateWeapons.Init(),
@@ -182,7 +191,6 @@ func (a App) Draw() {
 	var buttonMarginY = (buttonHeight - fontSize) / 2
 	for i := 0; i < state.BUTTON_LENGTH; i++ {
 		var baseX = int(state.Scale(state.SCREEN_MARGIN)) + ((rl.GetRenderWidth()-int(2*state.Scale(state.SCREEN_MARGIN)))/(state.BUTTON_LENGTH+1))*(i+1) - int(buttonWidth/2)
-
 		var baseY = rl.GetRenderHeight() - int(state.Scale(state.SCREEN_MARGIN)) - int(buttonHeight)
 		rl.DrawRectangle(int32(baseX), int32(baseY), buttonWidth, buttonHeight, state.COLOR_UNSELECT)
 		switch i {
