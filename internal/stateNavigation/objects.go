@@ -15,7 +15,10 @@ const (
 )
 
 var (
-	COLOR_NAVPOINT = rl.DarkGreen
+	COLOR_NAVPOINT = rl.White
+	COLOR_ALLIED   = rl.White
+	COLOR_ENEMY    = rl.Orange
+	COLOR_NAV_LINE = rl.White
 )
 
 type MappedObjects struct {
@@ -27,16 +30,38 @@ type MappedObjects struct {
 }
 
 func (n MappedObjects) DrawNavObject(x, y int32) {
+	n.Heading = 0
 	var color rl.Color
 	switch n.Type {
 	case AIRFIELD:
+		var color rl.Color
+		if n.Allied {
+			color = COLOR_ALLIED
+		} else {
+			color = COLOR_ENEMY
+		}
+		height := state.ScaleF(12)
+		width := state.ScaleF(32)
+		rl.DrawRectanglePro(
+			rl.NewRectangle(float32(x), float32(y), width, height),
+			rl.Vector2{X: width / 2, Y: height / 2},
+			n.Heading,
+			color,
+		)
+		rl.DrawRectanglePro(
+			rl.NewRectangle(float32(x)-state.ScaleF(1), float32(y)-state.ScaleF(1), width-state.ScaleF(6), height-state.ScaleF(6)),
+			rl.Vector2{X: (width - state.ScaleF(8)) / 2, Y: (height - state.ScaleF(8)) / 2},
+			n.Heading,
+			rl.Black,
+		)
 	case AIRCRAFT:
+
 	case NAV_POINT:
-		color = COLOR_NAV_POINT
+		color = COLOR_NAVPOINT
 		rl.DrawRectangle(x-state.Scale(8), y-state.Scale(8), state.Scale(16), state.Scale(16), color)
-		rl.DrawRectangle(x-state.Scale(4), y-state.Scale(4), state.Scale(8), state.Scale(8), rl.Black)
+		rl.DrawRectangle(x-state.Scale(5), y-state.Scale(5), state.Scale(10), state.Scale(10), rl.Black)
 	case TURNING_POINT:
-		color = COLOR_NAV_POINT
-		rl.DrawRing(rl.Vector2{X: float32(x), Y: float32(y)}, float32(state.Scale(2)), float32(state.Scale(4)), 0, 360, -1, color)
+		color = COLOR_NAVPOINT
+		rl.DrawRing(rl.Vector2{X: float32(x), Y: float32(y)}, state.ScaleF(4), state.ScaleF(6), 0, 360, -1, color)
 	}
 }

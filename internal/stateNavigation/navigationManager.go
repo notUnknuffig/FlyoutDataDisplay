@@ -1,6 +1,9 @@
 package stateNavigation
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 const WORLD_DIAMETER = 10_254
 
@@ -27,12 +30,22 @@ func coordToDistance(aLat, aLong, bLat, bLong float64, heading float64) (float64
 	deltaPhi := phi2 - phi1
 	deltaLambda := lambda2 - lambda1
 
-	theta := Archaversine(Haversine(degToRad(deltaPhi)) + math.Cos(degToRad(aLat))*math.Cos(degToRad(bLat))*Haversine(degToRad(deltaLambda)))
+	fmt.Printf("Delta Phi: %f°\nDelta Lambda: %f°\n", RadToDeg(deltaPhi), RadToDeg(deltaLambda))
+
+	theta := math.Pi - Archaversine(Haversine(deltaPhi)+math.Cos(phi1)*math.Cos(phi2)*Haversine(deltaLambda))
 	bearing := math.Atan2(math.Sin(deltaLambda)*math.Cos(lambda2), math.Cos(phi1)*math.Sin(phi2)-math.Sin(phi1)*math.Cos(phi2)*math.Cos(deltaLambda))
+	fmt.Printf("Angle Theta: %f°\n", RadToDeg(theta))
+
 	distanceKm := theta * WORLD_DIAMETER
+
 	distanceX := math.Sin(bearing+degToRad(heading)) * distanceKm
 	distanceY := math.Cos(bearing+degToRad(heading)) * distanceKm
+
 	return distanceX, distanceY, distanceKm, bearing
+}
+
+func RadToDeg(a float64) float64 {
+	return a * 180 / math.Pi
 }
 
 func degToRad(a float64) float64 {

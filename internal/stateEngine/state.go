@@ -29,6 +29,9 @@ func Init() _state {
 }
 
 func (s _state) Input() state.State {
+	if state.GlobalFlightData == nil {
+		return s
+	}
 	s.maxOffset = int(math.Ceil(float64(len(state.GlobalFlightData.JetEngines)+len(state.GlobalFlightData.PistonEngines))/4) - 1)
 	if rl.IsKeyPressed(KEY_DOWN) && s.offset < s.maxOffset {
 		s.offset = s.offset + 1

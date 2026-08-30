@@ -17,7 +17,6 @@ func main() {
 	}
 	defer ln.Close()
 	log.Println("listening on", addr)
-
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
@@ -25,23 +24,25 @@ func main() {
 		}
 		defer conn.Close()
 
-		json, err := state.WriteString(object())
 		if err != nil {
 			log.Fatal(err)
 		} else {
+			i := 0
 			for {
+				json, err := state.WriteString(object(i))
 				_, err = fmt.Fprintf(conn, json)
 				if err != nil {
 					log.Print(err)
 					break
 				}
+				i++
 				time.Sleep(20 * time.Millisecond)
 			}
 		}
 	}
 }
 
-func object() state.FlightData {
+func object(i int) state.FlightData {
 	eng := state.JetEngine{
 		Throttle:            0.815123,
 		IdleThrottle:        0.3,
@@ -81,13 +82,13 @@ func object() state.FlightData {
 		Roll:          0.16135134,
 		G:             1.1365341,
 		AGL:           0.13561342,
-		Heading:       -330.12323512,
+		Heading:       (0.1 * float32(i%360_0)),
 		Climb:         12.135123,
 		Mass:          10000.135123,
 		Mach:          0.21353,
 		Alpha:         3.05135343,
-		Latitude:      -51.51123523,
-		Longitude:     -36.313252323,
+		Latitude:      -51.0,
+		Longitude:     -36.0,
 		JetEngines:    []state.JetEngine{eng, eng, eng, eng, eng},
 		PistonEngines: []state.PistonEngine{pist, pist, pist, pist},
 		FuelTanks:     []state.FuelTank{tank, tank},
