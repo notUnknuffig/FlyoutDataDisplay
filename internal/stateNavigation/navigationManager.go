@@ -38,8 +38,8 @@ func coordToDistanceHaversine(aLat, aLong, bLat, bLong float64, heading float64)
 
 	distanceKm := theta * WORLD_DIAMETER
 
-	distanceX := math.Cos(bearing-DegToRad(heading)) * distanceKm
-	distanceY := math.Sin(bearing-DegToRad(heading)) * distanceKm
+	distanceY := -math.Cos(bearing-DegToRad(heading)) * distanceKm
+	distanceX := math.Sin(bearing-DegToRad(heading)) * distanceKm
 
 	return distanceX, distanceY, distanceKm, bearing
 }
@@ -64,8 +64,8 @@ func coordToDistance(aLat, aLong, bLat, bLong float64, heading float64) (float64
 
 	distanceKm := theta * WORLD_DIAMETER
 
-	distanceX := math.Cos(bearing-DegToRad(heading)) * distanceKm
-	distanceY := math.Sin(bearing-DegToRad(heading)) * distanceKm
+	distanceY := -math.Cos(bearing-DegToRad(heading)) * distanceKm
+	distanceX := math.Sin(bearing-DegToRad(heading)) * distanceKm
 
 	return distanceX, distanceY, distanceKm, bearing
 }

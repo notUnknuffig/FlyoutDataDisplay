@@ -226,8 +226,17 @@ func (s _state) drawNavInfo(anchorX, anchorY int32, width int32) {
 	rl.DrawText(distStr, recAnchorX+state.Scale(200)-outline*2-rl.MeasureText(distStr, fontSize), recAnchorY+outline*4+fontSize*2, fontSize, state.COLOR_SELECT)
 
 	rl.DrawText("Bear:", recAnchorX+outline*2, recAnchorY+outline*5+fontSize*3, fontSize, state.COLOR_SELECT)
-	bearStr := strconv.FormatFloat(RadToDeg(obj.bearing), 'f', 3, 64) + "°"
+	bearStr := strconv.FormatFloat(math.Mod(360+RadToDeg(obj.bearing), 360), 'f', 2, 64) + "°"
 	rl.DrawText(bearStr, recAnchorX+state.Scale(200)-outline*2-rl.MeasureText(bearStr, fontSize), recAnchorY+outline*5+fontSize*3, fontSize, state.COLOR_SELECT)
+
+	if obj.dist/float64(s.scale) > 0.75 {
+		xOff := float32(math.Sin(math.Pi-obj.bearing+DegToRad(float64(state.GlobalFlightData.Heading))) * float64(state.ScaleF(150)))
+		yOff := float32(math.Cos(math.Pi-obj.bearing+DegToRad(float64(state.GlobalFlightData.Heading))) * float64(state.ScaleF(150)))
+		rectOut := rl.Rectangle{X: float32(anchorX) + xOff, Y: float32(anchorY) + yOff, Width: state.ScaleF(18), Height: state.ScaleF(18)}
+		rectIn := rl.Rectangle{X: float32(anchorX) + xOff, Y: float32(anchorY) + yOff, Width: state.ScaleF(12), Height: state.ScaleF(12)}
+		rl.DrawRectanglePro(rectOut, rl.Vector2{X: state.ScaleF(9), Y: state.ScaleF(9)}, float32(45+RadToDeg(obj.bearing)-float64(state.GlobalFlightData.Heading)), state.COLOR_SELECT)
+		rl.DrawRectanglePro(rectIn, rl.Vector2{X: state.ScaleF(6), Y: state.ScaleF(6)}, float32(45+RadToDeg(obj.bearing)-float64(state.GlobalFlightData.Heading)), rl.Black)
+	}
 }
 
 func (s _state) drawAirfields(anchorX, anchorY int32, width int32) {
