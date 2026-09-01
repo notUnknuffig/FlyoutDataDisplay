@@ -8,10 +8,10 @@ import (
 type ObjectType int
 
 const (
-	AIRFIELD ObjectType = iota
-	AIRCRAFT
-	NAV_POINT
-	TURNING_POINT
+	AIRFIELD      ObjectType = 0
+	AIRCRAFT      ObjectType = 1
+	NAV_POINT     ObjectType = 2
+	TURNING_POINT ObjectType = 3
 )
 
 var (
@@ -22,14 +22,17 @@ var (
 )
 
 type MappedObjects struct {
+	Name      string
 	Latitude  float32
 	Longitude float32
 	Heading   float32
 	Allied    bool
 	Type      ObjectType
+	dist      float64
+	bearing   float64
 }
 
-func (n MappedObjects) DrawNavObject(x, y int32) {
+func (n MappedObjects) DrawNavObject(x, y int32, sel bool) {
 	var color rl.Color
 	switch n.Type {
 	case AIRFIELD:
@@ -61,9 +64,15 @@ func (n MappedObjects) DrawNavObject(x, y int32) {
 	case NAV_POINT:
 		color = COLOR_NAVPOINT
 		rl.DrawRectangle(x-state.Scale(8), y-state.Scale(8), state.Scale(16), state.Scale(16), color)
-		rl.DrawRectangle(x-state.Scale(5), y-state.Scale(5), state.Scale(10), state.Scale(10), rl.Black)
+		if !sel {
+			rl.DrawRectangle(x-state.Scale(5), y-state.Scale(5), state.Scale(10), state.Scale(10), rl.Black)
+		}
 	case TURNING_POINT:
 		color = COLOR_NAVPOINT
-		rl.DrawRing(rl.Vector2{X: float32(x), Y: float32(y)}, state.ScaleF(4), state.ScaleF(6), 0, 360, -1, color)
+		selR := state.ScaleF(4)
+		if sel {
+			selR = 0
+		}
+		rl.DrawRing(rl.Vector2{X: float32(x), Y: float32(y)}, selR, state.ScaleF(8), 0, 360, -1, color)
 	}
 }

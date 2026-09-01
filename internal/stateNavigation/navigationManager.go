@@ -21,21 +21,51 @@ func distance(aLat, aLong, bLat, bLong float32) (float32, float32, float32) {
 } */
 
 // Returns x and y distance from coordinates
-func coordToDistance(aLat, aLong, bLat, bLong float64, heading float64) (float64, float64, float64, float64) {
-	phi1 := degToRad(aLat)
-	phi2 := degToRad(bLat)
-	lambda1 := degToRad(aLong)
-	lambda2 := degToRad(bLong)
+func coordToDistanceHaversine(aLat, aLong, bLat, bLong float64, heading float64) (float64, float64, float64, float64) {
+	phi1 := DegToRad(aLat)
+	phi2 := DegToRad(bLat)
+	lambda1 := DegToRad(aLong)
+	lambda2 := DegToRad(bLong)
 	deltaPhi := phi2 - phi1
 	deltaLambda := lambda2 - lambda1
 
 	theta := math.Pi - Archaversine(Haversine(deltaPhi)+math.Cos(phi1)*math.Cos(phi2)*Haversine(deltaLambda))
-	bearing := math.Atan2(math.Sin(deltaLambda)*math.Cos(lambda2), math.Cos(phi1)*math.Sin(phi2)-math.Sin(phi1)*math.Cos(phi2)*math.Cos(deltaLambda))
+	// atan2(sin(lon2 - lon1) * cos(lat2), cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(lon2 - lon1))
+	bearing := math.Atan2(
+		math.Sin(deltaLambda)*math.Cos(phi2),
+		math.Cos(phi1)*math.Sin(phi2)-math.Sin(phi1)*math.Cos(phi2)*math.Cos(deltaLambda),
+	)
 
 	distanceKm := theta * WORLD_DIAMETER
 
-	distanceX := math.Sin(bearing+degToRad(heading)) * distanceKm
-	distanceY := math.Cos(bearing+degToRad(heading)) * distanceKm
+	distanceX := math.Cos(bearing-DegToRad(heading)) * distanceKm
+	distanceY := math.Sin(bearing-DegToRad(heading)) * distanceKm
+
+	return distanceX, distanceY, distanceKm, bearing
+}
+
+func coordToDistance(aLat, aLong, bLat, bLong float64, heading float64) (float64, float64, float64, float64) {
+	phi1 := DegToRad(aLat)
+	phi2 := DegToRad(bLat)
+	lambda1 := DegToRad(aLong)
+	lambda2 := DegToRad(bLong)
+	deltaPhi := phi2 - phi1
+	deltaLambda := lambda2 - lambda1
+
+	theta := math.Sqrt(math.Pow(deltaPhi, 2) + math.Pow(deltaLambda, 2))
+	var bearing float64
+	if theta == 0 {
+		bearing = 0
+	} else if math.Cos(phi1)*math.Sin(phi2)-math.Sin(phi1)*math.Cos(phi2)*math.Cos(deltaLambda) >= 0 {
+		bearing = math.Asin(deltaLambda / theta)
+	} else {
+		bearing = math.Mod(math.Pi-math.Asin(deltaLambda/theta), 2*math.Pi)
+	}
+
+	distanceKm := theta * WORLD_DIAMETER
+
+	distanceX := math.Cos(bearing-DegToRad(heading)) * distanceKm
+	distanceY := math.Sin(bearing-DegToRad(heading)) * distanceKm
 
 	return distanceX, distanceY, distanceKm, bearing
 }
@@ -44,7 +74,7 @@ func RadToDeg(a float64) float64 {
 	return a * 180 / math.Pi
 }
 
-func degToRad(a float64) float64 {
+func DegToRad(a float64) float64 {
 	return a / 180 * math.Pi
 }
 

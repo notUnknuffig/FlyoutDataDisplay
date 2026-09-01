@@ -47,7 +47,7 @@ func (a App) Init() {
 	rl.InitWindow(720, 720, "Multi-Function Display")
 	defer rl.CloseWindow()
 	rl.SetTargetFPS(30)
-	// rl.SetExitKey(-1)
+	rl.SetExitKey(-1)
 
 	config := state.Options{
 		ResolutionX: 720,
@@ -59,50 +59,49 @@ func (a App) Init() {
 	navigation := stateNavigation.NavManager{
 		NavPoints: []stateNavigation.MappedObjects{
 			{
-				Latitude:  -36.0,
-				Longitude: -51.0,
+				Name:      "Steer Point 1",
+				Latitude:  35.604,
+				Longitude: 51.8061,
 				Type:      stateNavigation.TURNING_POINT,
 				Heading:   0,
 				Allied:    true,
 			},
 			{
-				Latitude:  -36.0,
-				Longitude: -50.99,
+				Name:      "Steer Point 2",
+				Latitude:  35.604,
+				Longitude: 52.0061,
 				Type:      stateNavigation.TURNING_POINT,
 				Heading:   0,
 				Allied:    true,
 			},
 			{
-				Latitude:  -35.99,
-				Longitude: -50.99,
+				Name:      "Steer Point 3",
+				Latitude:  35.804,
+				Longitude: 52.0061,
 				Type:      stateNavigation.TURNING_POINT,
 				Heading:   0,
 				Allied:    true,
 			},
 			{
-				Latitude:  -35.99,
-				Longitude: -51.0,
+				Name:      "Steer Point 4",
+				Latitude:  35.804,
+				Longitude: 51.6061,
 				Type:      stateNavigation.NAV_POINT,
 				Heading:   0,
 				Allied:    true,
 			},
 		},
 		Airfields: []stateNavigation.MappedObjects{
-			/* {
+			{
+				Name:      "Default Airfield",
 				Latitude:  -35.604,
 				Longitude: -51.8061,
 				Heading:   17.32,
 				Allied:    true,
 				Type:      stateNavigation.AIRFIELD,
-			}, */
-			{
-				Latitude:  35.614,
-				Longitude: 51.8161,
-				Heading:   0,
-				Allied:    true,
-				Type:      stateNavigation.AIRFIELD,
 			},
 			{
+				Name:      "Desert Airfield",
 				Latitude:  11.6763,
 				Longitude: -63.3045,
 				Heading:   90,
