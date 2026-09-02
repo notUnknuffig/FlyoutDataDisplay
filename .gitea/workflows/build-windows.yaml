@@ -1,0 +1,41 @@
+name: Build Library
+run-name: Building new version of the flyout multifunction display app.
+on: [push]
+
+jobs:
+  Builder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.26"
+
+      - name: Clone the repository
+        uses: actions/checkout@v4
+
+      - name: Verify that build path exists
+        run: mkdir -p ./out
+
+      - name: Run Build Command.
+        run: bash ./build.sh
+
+      - name: Get Meta
+        id: meta
+        run: |
+          echo REPO_NAME=$(echo ${{ github.repository }} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
+          echo REPO_VERSION=$(git describe --tags --always | sed 's/^v//') >> $GITHUB_OUTPUT
+
+      - name: Release
+        uses: akkuman/gitea-release-action@v1
+        with:
+          files: |-
+            ./out/MFD.exe
+            ./out/MFD (Debug).exe
+
+      - name: Send ntfy ping
+        uses: niniyas/ntfy-action@master
+        with:
+          url: "${{ secrets.NTFY_URL }}"
+          topic: "${{ secrets.NTFY_TOPIC }}"
+          details: Workflow has been successfully completed!
