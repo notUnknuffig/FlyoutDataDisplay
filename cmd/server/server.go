@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"net"
 	"time"
 
@@ -78,20 +79,25 @@ func object(i int) state.FlightData {
 		Capacity:    3000,
 	}
 
+	var randomVal float32
+	if i%3600 == 0 {
+		randomVal = 0.5 - rand.Float32()
+	}
+
 	return state.FlightData{
 		Time:          0,
 		Name:          "J-8 MFD Test",
-		Altitude:      165.151365514,
-		Airspeed:      43.161341234,
+		Altitude:      165.151365514 + float32(i),
+		Airspeed:      43.161341234 + float32(i)*1,
 		Pitch:         5.136514,
 		Roll:          (float32(i%1800) * 0.5),
 		G:             1.1365341,
-		AGL:           0.13561342,
+		AGL:           0.13561342 + float32(i),
 		Heading:       (float32(i%360) * 1),
 		Climb:         12.135123,
 		Mass:          10000.135123,
 		Mach:          0.21353,
-		Alpha:         3.05135343,
+		Alpha:         3.05135343 + (float32(i) * (randomVal / float32(i%3600))),
 		Latitude:      35.604,  //+ float32(math.Sin(stateNavigation.DegToRad((float64(i%360)*1)))*0.1),
 		Longitude:     51.8061, // + float32(math.Cos(stateNavigation.DegToRad((float64(i%360)*1)))*0.1),
 		JetEngines:    []state.JetEngine{eng, eng, eng, eng, eng},
