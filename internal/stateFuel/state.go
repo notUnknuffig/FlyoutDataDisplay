@@ -116,6 +116,19 @@ func drawFuelState(fuelTank state.FuelTank, xOffset int32) int32 {
 		rl.DrawLineEx(rl.Vector2{X: float32(x + width - state.Scale(2)), Y: float32(y + state.Scale(2))}, rl.Vector2{X: float32(x + state.Scale(2)), Y: float32(y + height)}, state.ScaleF(4), bColor)
 	}
 
+	fontSize := state.Scale(20)
+	var fulStr string
+	var capStr string
+	if fuelTank.Capacity > 1000 {
+		fulStr = strconv.FormatFloat(float64(fuelTank.Fuel/1000), 'f', 1, 64) + "t"
+		capStr = strconv.FormatFloat(float64(fuelTank.Capacity/1000), 'f', 1, 64) + "t"
+	} else {
+		fulStr = strconv.FormatFloat(float64(fuelTank.Fuel), 'f', 1, 64) + "kg"
+		capStr = strconv.FormatFloat(float64(fuelTank.Capacity), 'f', 1, 64) + "kg"
+	}
+	rl.DrawText(fulStr, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE)+margin+xOffset+(rl.MeasureText(fulStr, fontSize)-width)/2, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE)+margin+height+margin, fontSize, state.COLOR_SELECT)
+	rl.DrawText(capStr, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE)+margin+xOffset+(rl.MeasureText(capStr, fontSize)-width)/2, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE)+margin+height+margin+fontSize, fontSize, state.COLOR_SELECT)
+
 	for i := 0; i < 21; i++ {
 		var scaleWidth = state.Scale(2)
 		if i%5 == 0 {
@@ -192,6 +205,19 @@ func drawMirroredFuelState(aFuelTank state.FuelTank, bFuelTank state.FuelTank, x
 		rl.DrawLineEx(rl.Vector2{X: float32(x + width + margin + state.Scale(2)), Y: float32(y + state.Scale(2))}, rl.Vector2{X: float32(x + width*2 + margin - state.Scale(2)), Y: float32(y + height)}, state.ScaleF(4), bColor)
 		rl.DrawLineEx(rl.Vector2{X: float32(x + width*2 + margin - state.Scale(2)), Y: float32(y + state.Scale(2))}, rl.Vector2{X: float32(x + width + margin + state.Scale(2)), Y: float32(y + height)}, state.ScaleF(4), bColor)
 	}
+
+	fontSize := state.Scale(20)
+	var fulStr string
+	var capStr string
+	if aFuelTank.Capacity > 1000 {
+		fulStr = strconv.FormatFloat(float64((aFuelTank.Fuel+bFuelTank.Fuel)/1000), 'f', 1, 64) + "t"
+		capStr = strconv.FormatFloat(float64((aFuelTank.Capacity+bFuelTank.Capacity)/1000), 'f', 1, 64) + "t"
+	} else {
+		fulStr = strconv.FormatFloat(float64(aFuelTank.Fuel+bFuelTank.Fuel), 'f', 1, 64) + "t"
+		capStr = strconv.FormatFloat(float64(aFuelTank.Capacity+bFuelTank.Capacity), 'f', 1, 64) + "t"
+	}
+	rl.DrawText(fulStr, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE)+margin+xOffset+width+(rl.MeasureText(fulStr, fontSize)-width-margin)/2, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE)+margin+height+margin, fontSize, state.COLOR_SELECT)
+	rl.DrawText(capStr, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE)+margin+xOffset+width+(rl.MeasureText(capStr, fontSize)-width-margin)/2, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE)+margin+height+margin+fontSize, fontSize, state.COLOR_SELECT)
 
 	for i := 0; i < 21; i++ {
 		var scaleWidth = state.Scale(2)

@@ -84,7 +84,7 @@ func object(i int) state.FlightData {
 		Altitude:      165.151365514,
 		Airspeed:      43.161341234,
 		Pitch:         5.136514,
-		Roll:          0.16135134,
+		Roll:          (float32(i%1800) * 0.5),
 		G:             1.1365341,
 		AGL:           0.13561342,
 		Heading:       (float32(i%360) * 1),
