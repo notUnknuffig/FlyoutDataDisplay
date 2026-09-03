@@ -53,6 +53,7 @@ type FlightData struct {
 	Mass          float32        `json:"Mass"`
 	Mach          float32        `json:"Mach"`
 	Alpha         float32        `json:"Alpha"`
+	Beta          float32        `json:"Beta"`
 	Latitude      float32        `json:"Latitude"`
 	Longitude     float32        `json:"Longitude"`
 	JetEngines    []JetEngine    `json:"JetEngines"`

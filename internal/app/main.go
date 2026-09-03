@@ -48,6 +48,8 @@ func (a App) Init() {
 	defer rl.CloseWindow()
 	rl.SetTargetFPS(30)
 	rl.SetExitKey(-1)
+	icon := rl.LoadImage("icon.png")
+	rl.SetWindowIcon(*icon)
 
 	config := state.Options{
 		ResolutionX: 720,

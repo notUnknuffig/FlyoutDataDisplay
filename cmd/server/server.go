@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"math/rand"
 	"net"
 	"time"
 
@@ -79,10 +78,10 @@ func object(i int) state.FlightData {
 		Capacity:    3000,
 	}
 
-	var randomVal float32
-	if i%3600 == 0 {
-		randomVal = 0.5 - rand.Float32()
-	}
+	// var randomVal float32
+	// if i%3600 == 0 {
+	// 	randomVal = 0.5 - rand.Float32()
+	// }
 
 	return state.FlightData{
 		Time:          0,
@@ -97,7 +96,8 @@ func object(i int) state.FlightData {
 		Climb:         12.135123,
 		Mass:          10000.135123,
 		Mach:          0.21353,
-		Alpha:         3.05135343 + (float32(i) * (randomVal / float32(i%3600))),
+		Alpha:         3.05135343,
+		Beta:          3.05135343,
 		Latitude:      35.604,  //+ float32(math.Sin(stateNavigation.DegToRad((float64(i%360)*1)))*0.1),
 		Longitude:     51.8061, // + float32(math.Cos(stateNavigation.DegToRad((float64(i%360)*1)))*0.1),
 		JetEngines:    []state.JetEngine{eng, eng, eng, eng, eng},
