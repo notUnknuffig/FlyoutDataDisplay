@@ -298,6 +298,7 @@ func (s _state) drawNavPoints(anchorX, anchorY int32, width int32) {
 		s.navMan.NavPoints[i].bearing = bearing
 		relX := (x / float64(s.scale)) * float64(width/4) * 3
 		relY := (y / float64(s.scale)) * float64(width/4) * 3
+		rl.SetLineWidth(state.ScaleF(3))
 		if i > 0 {
 			rl.DrawLineEx(
 				rl.Vector2{

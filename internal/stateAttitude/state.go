@@ -50,6 +50,8 @@ func (s _state) drawHorizon(maxDegree float32) {
 	outX := cos * float64(outerRadius)
 	outY := sin * float64(outerRadius)
 
+	rl.SetLineWidth(state.ScaleF(3))
+
 	rl.DrawLine(anchorX-int32(inX), anchorY-int32(inY), anchorX-int32(outX), anchorY-int32(outY), state.COLOR_SELECT)
 	rl.DrawLine(anchorX-int32(outX)-int32(float32(sin)*state.ScaleF(18)), anchorY-int32(outY)+int32(float32(cos)*state.ScaleF(18)), anchorX-int32(outX), anchorY-int32(outY), state.COLOR_SELECT)
 
@@ -65,24 +67,24 @@ func (s _state) drawHorizon(maxDegree float32) {
 	glideSlopeOffsetY := float32(math.Cos(stateNavigation.DegToRad(float64(state.GlobalFlightData.Roll))) * glideSlopeOffset)
 	rl.DrawRing(rl.Vector2{X: float32(anchorX) - glideSlopeOffsetX, Y: float32(anchorY) - glideSlopeOffsetY}, state.ScaleF(8), state.ScaleF(10), 0, 360, 0, state.COLOR_SELECT)
 	rl.DrawLine(
-		anchorX-int32(glideSlopeOffsetX)+int32(cos*float64(state.Scale(10))),
-		anchorY-int32(glideSlopeOffsetY)+int32(sin*float64(state.Scale(10))),
-		anchorX-int32(glideSlopeOffsetX)+int32(cos*float64(state.Scale(24))),
-		anchorY-int32(glideSlopeOffsetY)+int32(sin*float64(state.Scale(24))),
+		anchorX-int32(glideSlopeOffsetX),
+		anchorY-int32(glideSlopeOffsetY)+state.Scale(10),
+		anchorX-int32(glideSlopeOffsetX),
+		anchorY-int32(glideSlopeOffsetY)+state.Scale(24),
 		state.COLOR_SELECT,
 	)
 	rl.DrawLine(
-		anchorX-int32(glideSlopeOffsetX)-int32(cos*float64(state.Scale(10))),
-		anchorY-int32(glideSlopeOffsetY)-int32(sin*float64(state.Scale(10))),
-		anchorX-int32(glideSlopeOffsetX)-int32(cos*float64(state.Scale(24))),
-		anchorY-int32(glideSlopeOffsetY)-int32(sin*float64(state.Scale(24))),
+		anchorX-int32(glideSlopeOffsetX)+state.Scale(10),
+		anchorY-int32(glideSlopeOffsetY),
+		anchorX-int32(glideSlopeOffsetX)+state.Scale(24),
+		anchorY-int32(glideSlopeOffsetY),
 		state.COLOR_SELECT,
 	)
 	rl.DrawLine(
-		anchorX-int32(glideSlopeOffsetX)-int32(math.Cos(stateNavigation.DegToRad(float64(state.GlobalFlightData.Roll)-90))*float64(state.Scale(10))),
-		anchorY-int32(glideSlopeOffsetY)-int32(math.Sin(stateNavigation.DegToRad(float64(state.GlobalFlightData.Roll)-90))*float64(state.Scale(10))),
-		anchorX-int32(glideSlopeOffsetX)-int32(math.Cos(stateNavigation.DegToRad(float64(state.GlobalFlightData.Roll)-90))*float64(state.Scale(24))),
-		anchorY-int32(glideSlopeOffsetY)-int32(math.Sin(stateNavigation.DegToRad(float64(state.GlobalFlightData.Roll)-90))*float64(state.Scale(24))),
+		anchorX-int32(glideSlopeOffsetX)-state.Scale(10),
+		anchorY-int32(glideSlopeOffsetY),
+		anchorX-int32(glideSlopeOffsetX)-state.Scale(24),
+		anchorY-int32(glideSlopeOffsetY),
 		state.COLOR_SELECT,
 	)
 
