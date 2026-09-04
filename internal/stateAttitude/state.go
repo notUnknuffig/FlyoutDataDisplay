@@ -1,7 +1,6 @@
 package stateAttitude
 
 import (
-	"fmt"
 	"math"
 	"strconv"
 
@@ -11,10 +10,13 @@ import (
 )
 
 type _state struct {
+	navMan *stateNavigation.NavManager
 }
 
-func Init() _state {
-	return _state{}
+func Init(navMan *stateNavigation.NavManager) _state {
+	return _state{
+		navMan: navMan,
+	}
 }
 
 func (s _state) Input() state.State {
@@ -31,7 +33,7 @@ func (s _state) Draw() {
 		return
 	}
 
-	s.drawHorizon(20)
+	s.drawHorizon(30)
 }
 
 func (s _state) drawHorizon(maxDegree float32) {
@@ -65,7 +67,7 @@ func (s _state) drawHorizon(maxDegree float32) {
 
 	// Glide Slope
 	alphaOffset := float64((-state.GlobalFlightData.Alpha)/maxDegree) * float64(height)
-	betaOffset := float64((-state.GlobalFlightData.Beta)/maxDegree) * float64(height)
+	betaOffset := float64((state.GlobalFlightData.Beta)/maxDegree) * float64(height)
 	glideSlopeOffsetX := -float32(sin*alphaOffset) + float32(cos*betaOffset)
 	glideSlopeOffsetY := float32(cos*alphaOffset) + float32(sin*betaOffset)
 	rl.DrawRing(rl.Vector2{X: float32(anchorX) - glideSlopeOffsetX, Y: float32(anchorY) - glideSlopeOffsetY}, state.ScaleF(13), state.ScaleF(16), 0, 360, 0, state.COLOR_UNSELECT)
@@ -98,14 +100,42 @@ func (s _state) drawHorizon(maxDegree float32) {
 	for i := 0; i < 7; i++ {
 		hdgCos := math.Cos(stateNavigation.DegToRad(35 - math.Mod(float64(state.GlobalFlightData.Heading)+float64(i*10), 70)))
 		hdgSin := math.Sin(stateNavigation.DegToRad(35 - math.Mod(float64(state.GlobalFlightData.Heading)+float64(i*10), 70)))
-		fmt.Printf("Sin: %f, Cos: %f\n", hdgSin, hdgCos)
 		rl.DrawLine(
 			anchorY+int32(hdgSin*float64(state.ScaleF(250))),
 			anchorX+int32(hdgCos*float64(state.ScaleF(250))),
 			anchorY+int32(hdgSin*float64(state.ScaleF(270))),
 			anchorX+int32(hdgCos*float64(state.ScaleF(270))),
-			state.COLOR_SELECT,
+			state.COLOR_UNSELECT,
 		)
+	}
+
+	// Nav Heading
+	if s.navMan.SelectedObject >= 0 {
+		var obj stateNavigation.MappedObject
+		switch s.navMan.SelectedType {
+		case stateNavigation.NAV_POINT:
+			obj = s.navMan.NavPoints[s.navMan.SelectedObject]
+		case stateNavigation.AIRFIELD:
+			obj = s.navMan.Airfields[s.navMan.SelectedObject]
+		}
+		_, _, _, bearing := s.navMan.CoordToDistance(
+			float64(state.GlobalFlightData.Latitude),
+			float64(state.GlobalFlightData.Longitude),
+			float64(obj.Latitude),
+			float64(obj.Longitude),
+			float64(state.GlobalFlightData.Heading),
+		)
+
+		// TODO: Limit Angle between -20 and 20
+		navAngleDiff := math.Mod(math.Mod(bearing, math.Pi*2)-math.Mod(stateNavigation.DegToRad(float64(state.GlobalFlightData.Heading)), math.Pi*2)+math.Pi*3, math.Pi*2) - math.Pi
+		navAngleClamp := math.Min(math.Max(navAngleDiff, stateNavigation.DegToRad(-35)), stateNavigation.DegToRad(35))
+		xOff := float32(math.Sin(navAngleClamp) * float64(state.ScaleF(260)))
+		yOff := float32(math.Cos(navAngleClamp) * float64(state.ScaleF(260)))
+		rectOut := rl.Rectangle{X: float32(anchorX) + xOff, Y: float32(anchorY) + yOff, Width: state.ScaleF(18), Height: state.ScaleF(18)}
+		rectIn := rl.Rectangle{X: float32(anchorX) + xOff, Y: float32(anchorY) + yOff, Width: state.ScaleF(12), Height: state.ScaleF(12)}
+		rl.DrawRectanglePro(rectOut, rl.Vector2{X: state.ScaleF(9), Y: state.ScaleF(9)}, float32(45+stateNavigation.RadToDeg(-navAngleClamp)), state.COLOR_SELECT)
+		rl.DrawRectanglePro(rectIn, rl.Vector2{X: state.ScaleF(6), Y: state.ScaleF(6)}, float32(45+stateNavigation.RadToDeg(-navAngleClamp)), rl.Black)
+
 	}
 
 	// Spd Info
@@ -125,7 +155,7 @@ func (s _state) drawHorizon(maxDegree float32) {
 			(anchorY-wheelOffset)+(int32(i)*state.Scale(20))+int32(math.Round(20*relSpeed)),
 			spdWidth,
 			state.Scale(2),
-			state.COLOR_SELECT,
+			state.COLOR_UNSELECT,
 		)
 	}
 	rl.DrawRectangle(infoAnchorX+state.Scale(30), infoAnchorY, infoOutline*2+rl.MeasureText(strSpd, uiFontSize)+infoMargin*2, infoMargin*2+infoOutline*2+uiFontSize, state.COLOR_SELECT)
@@ -146,7 +176,7 @@ func (s _state) drawHorizon(maxDegree float32) {
 			(anchorY-wheelOffset)+(int32(i)*state.Scale(20))+int32(math.Round(20*relAlt)),
 			state.Scale(20),
 			state.Scale(2),
-			state.COLOR_SELECT,
+			state.COLOR_UNSELECT,
 		)
 	}
 	rl.DrawRectangle(infoAnchorX-state.Scale(50)-rl.MeasureText(strAlt, uiFontSize), infoAnchorY, infoOutline*2+rl.MeasureText(strAlt, uiFontSize)+infoMargin*2, infoMargin*2+infoOutline*2+uiFontSize, state.COLOR_SELECT)

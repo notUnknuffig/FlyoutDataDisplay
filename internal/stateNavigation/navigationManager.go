@@ -7,21 +7,16 @@ import (
 const WORLD_DIAMETER = 10_254
 
 type NavManager struct {
-	NavPoints []MappedObjects
-	Airfields []MappedObjects
+	NavPoints      []MappedObject
+	Airfields      []MappedObject
+	UseHaversine   bool
+	SelectedObject int
+	SelectedType   ObjectType
+	IsSelecting    bool
 }
 
-/*
-// Returns: Dist X, Dist Y, Dist Diagonal in km
-func distance(aLat, aLong, bLat, bLong float32) (float32, float32, float32) {
-	distLat := bLat - aLat
-	distLong := bLong - aLong
-	dist := float32(math.Sqrt(math.Pow(float64(distLat), 2) + math.Pow(float64(distLong), 2)))
-	return distLat * 10_254, distLong * 10_254, dist * 10_254
-} */
-
 // Returns x and y distance from coordinates
-func coordToDistanceHaversine(aLat, aLong, bLat, bLong float64, heading float64) (float64, float64, float64, float64) {
+func (n NavManager) coordToDistanceHaversine(aLat, aLong, bLat, bLong float64, heading float64) (float64, float64, float64, float64) {
 	phi1 := DegToRad(aLat)
 	phi2 := DegToRad(bLat)
 	lambda1 := DegToRad(aLong)
@@ -44,7 +39,7 @@ func coordToDistanceHaversine(aLat, aLong, bLat, bLong float64, heading float64)
 	return distanceX, distanceY, distanceKm, bearing
 }
 
-func coordToDistance(aLat, aLong, bLat, bLong float64, heading float64) (float64, float64, float64, float64) {
+func (n NavManager) coordToDistanceTrigonometry(aLat, aLong, bLat, bLong float64, heading float64) (float64, float64, float64, float64) {
 	phi1 := DegToRad(aLat)
 	phi2 := DegToRad(bLat)
 	lambda1 := DegToRad(aLong)
@@ -68,6 +63,28 @@ func coordToDistance(aLat, aLong, bLat, bLong float64, heading float64) (float64
 	distanceX := math.Sin(bearing-DegToRad(heading)) * distanceKm
 
 	return distanceX, distanceY, distanceKm, bearing
+}
+
+func (n NavManager) CoordToDistance(aLat, aLong, bLat, bLong float64, heading float64) (float64, float64, float64, float64) {
+	var x, y, dist, bearing float64
+	if n.UseHaversine {
+		x, y, dist, bearing = n.coordToDistanceHaversine(
+			float64(aLat),
+			float64(aLong),
+			float64(bLat),
+			float64(bLong),
+			float64(heading),
+		)
+	} else {
+		x, y, dist, bearing = n.coordToDistanceTrigonometry(
+			float64(aLat),
+			float64(aLong),
+			float64(bLat),
+			float64(bLong),
+			float64(heading),
+		)
+	}
+	return x, y, dist, bearing
 }
 
 func RadToDeg(a float64) float64 {

@@ -12,6 +12,7 @@ const (
 	AIRCRAFT      ObjectType = 1
 	NAV_POINT     ObjectType = 2
 	TURNING_POINT ObjectType = 3
+	OBJECT        ObjectType = 4 // Unknown, not set as startlocation in Areas.txt
 )
 
 var (
@@ -21,18 +22,19 @@ var (
 	COLOR_NAV_LINE = rl.White
 )
 
-type MappedObjects struct {
+type MappedObject struct {
 	Name      string
 	Latitude  float32
 	Longitude float32
 	Heading   float32
+	Altitude  float32
 	Allied    bool
 	Type      ObjectType
 	dist      float64
 	bearing   float64
 }
 
-func (n MappedObjects) DrawNavObject(x, y int32, sel bool) {
+func (n MappedObject) DrawNavObject(x, y int32, sel bool) {
 	var color rl.Color
 	switch n.Type {
 	case AIRFIELD:

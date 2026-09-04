@@ -92,7 +92,7 @@ func object(i int) state.FlightData {
 		Roll:          (float32(i%1800) * 0.5),
 		G:             1.1365341,
 		AGL:           0.13561342 + float32(i),
-		Heading:       (float32(i%360) * 1),
+		Heading:       (float32(i%3600) * 0.1),
 		Climb:         12.135123,
 		Mass:          10000.135123,
 		Mach:          0.21353,

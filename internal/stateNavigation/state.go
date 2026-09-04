@@ -9,26 +9,18 @@ import (
 )
 
 type _state struct {
-	scale          int
-	maxScale       int
-	minScale       int
-	navMan         *NavManager
-	useHaversine   bool
-	selectedObject int
-	selectedType   ObjectType
-	isSelecting    bool
+	scale    int
+	maxScale int
+	minScale int
+	navMan   *NavManager
 }
 
 func Init(nav *NavManager) _state {
 	return _state{
-		scale:          30,
-		maxScale:       150,
-		minScale:       10,
-		navMan:         nav,
-		useHaversine:   false,
-		selectedObject: -1,
-		selectedType:   NAV_POINT,
-		isSelecting:    false,
+		scale:    30,
+		maxScale: 150,
+		minScale: 10,
+		navMan:   nav,
 	}
 }
 
@@ -48,28 +40,28 @@ func (s _state) Input() state.State {
 		return s
 	}
 	if rl.IsKeyPressed(KEY_F6) {
-		s.useHaversine = !s.useHaversine
+		s.navMan.UseHaversine = !s.navMan.UseHaversine
 	}
 	if rl.IsKeyPressed(KEY_F7) {
-		s.isSelecting = !s.isSelecting
+		s.navMan.IsSelecting = !s.navMan.IsSelecting
 	}
-	if s.isSelecting && rl.IsKeyPressed(KEY_RIGHT) {
-		if (s.selectedType == AIRFIELD) && s.selectedObject < len(s.navMan.Airfields)-1 {
-			s.selectedObject += 1
-		} else if (s.selectedType == NAV_POINT) && s.selectedObject < len(s.navMan.NavPoints)-1 {
-			s.selectedObject += 1
+	if s.navMan.IsSelecting && rl.IsKeyPressed(KEY_RIGHT) {
+		if (s.navMan.SelectedType == AIRFIELD) && s.navMan.SelectedObject < len(s.navMan.Airfields)-1 {
+			s.navMan.SelectedObject += 1
+		} else if (s.navMan.SelectedType == NAV_POINT) && s.navMan.SelectedObject < len(s.navMan.NavPoints)-1 {
+			s.navMan.SelectedObject += 1
 		}
-	} else if s.isSelecting && rl.IsKeyPressed(KEY_LEFT) && s.selectedObject >= 0 {
-		s.selectedObject -= 1
+	} else if s.navMan.IsSelecting && rl.IsKeyPressed(KEY_LEFT) && s.navMan.SelectedObject >= 0 {
+		s.navMan.SelectedObject -= 1
 	}
-	if s.isSelecting && rl.IsKeyPressed(KEY_F8) {
-		switch s.selectedType {
+	if s.navMan.IsSelecting && rl.IsKeyPressed(KEY_F8) {
+		switch s.navMan.SelectedType {
 		case AIRFIELD:
-			s.selectedType = NAV_POINT
-			s.selectedObject = -1
+			s.navMan.SelectedType = NAV_POINT
+			s.navMan.SelectedObject = -1
 		case NAV_POINT:
-			s.selectedType = AIRFIELD
-			s.selectedObject = 0
+			s.navMan.SelectedType = AIRFIELD
+			s.navMan.SelectedObject = 0
 		}
 	}
 	if rl.IsKeyPressed(KEY_UP) && s.scale < s.maxScale {
@@ -102,7 +94,7 @@ func (s _state) Draw() {
 	fontSize := state.Scale(20)
 	color := state.COLOR_SELECT
 	bColor := state.COLOR_UNSELECT
-	if s.isSelecting {
+	if s.navMan.IsSelecting {
 		color = state.COLOR_UNSELECT
 		bColor = state.COLOR_SELECT
 	}
@@ -118,7 +110,7 @@ func (s _state) Draw() {
 	rl.DrawText("P", int32(rl.GetRenderWidth())-state.Scale(state.SCREEN_MARGIN)-state.Scale(state.MENU_BUTTON_SIZE)+state.Scale(10), state.GetButtonAnchorByIndex(1)+state.Scale(-4)+fontSize*2, fontSize, state.COLOR_SELECT)
 
 	rl.DrawRectangle(state.Scale(state.SCREEN_MARGIN), state.GetButtonAnchorByIndex(2), state.Scale(state.MENU_BUTTON_SIZE), state.Scale(60), state.COLOR_UNSELECT)
-	if s.useHaversine {
+	if s.navMan.UseHaversine {
 		rl.DrawText("H", state.Scale(state.SCREEN_MARGIN)+state.Scale(10), state.GetButtonAnchorByIndex(2)+state.Scale(4), fontSize, state.COLOR_SELECT)
 		rl.DrawText("A", state.Scale(state.SCREEN_MARGIN)+state.Scale(10), state.GetButtonAnchorByIndex(2)+state.Scale(0)+fontSize, fontSize, state.COLOR_SELECT)
 		rl.DrawText("V", state.Scale(state.SCREEN_MARGIN)+state.Scale(10), state.GetButtonAnchorByIndex(2)+state.Scale(-4)+fontSize*2, fontSize, state.COLOR_SELECT)
@@ -198,15 +190,15 @@ func (s _state) drawNavigation() {
 }
 
 func (s _state) drawNavInfo(anchorX, anchorY int32, width int32) {
-	if s.selectedObject < 0 {
+	if s.navMan.SelectedObject < 0 {
 		return
 	}
-	var obj MappedObjects
-	switch s.selectedType {
+	var obj MappedObject
+	switch s.navMan.SelectedType {
 	case NAV_POINT:
-		obj = s.navMan.NavPoints[s.selectedObject]
+		obj = s.navMan.NavPoints[s.navMan.SelectedObject]
 	case AIRFIELD:
-		obj = s.navMan.Airfields[s.selectedObject]
+		obj = s.navMan.Airfields[s.navMan.SelectedObject]
 	}
 
 	recAnchorX := int32(rl.GetRenderWidth()) - state.Scale(state.SCREEN_MARGIN*2) - state.Scale(state.MENU_BUTTON_SIZE) - state.Scale(200)
@@ -241,31 +233,20 @@ func (s _state) drawNavInfo(anchorX, anchorY int32, width int32) {
 
 func (s _state) drawAirfields(anchorX, anchorY int32, width int32) {
 	for i := 0; i < len(s.navMan.Airfields); i++ {
-		var x, y, dist, bearing float64
-		if s.useHaversine {
-			x, y, dist, bearing = coordToDistanceHaversine(
-				float64(state.GlobalFlightData.Latitude),
-				float64(state.GlobalFlightData.Longitude),
-				float64(s.navMan.Airfields[i].Latitude),
-				float64(s.navMan.Airfields[i].Longitude),
-				float64(state.GlobalFlightData.Heading),
-			)
-		} else {
-			x, y, dist, bearing = coordToDistance(
-				float64(state.GlobalFlightData.Latitude),
-				float64(state.GlobalFlightData.Longitude),
-				float64(s.navMan.Airfields[i].Latitude),
-				float64(s.navMan.Airfields[i].Longitude),
-				float64(state.GlobalFlightData.Heading),
-			)
-		}
+		x, y, dist, bearing := s.navMan.CoordToDistance(
+			float64(state.GlobalFlightData.Latitude),
+			float64(state.GlobalFlightData.Longitude),
+			float64(s.navMan.Airfields[i].Latitude),
+			float64(s.navMan.Airfields[i].Longitude),
+			float64(state.GlobalFlightData.Heading),
+		)
 		s.navMan.Airfields[i].dist = dist
 		s.navMan.Airfields[i].bearing = bearing
 		relX := (x / float64(s.scale)) * float64(width/4) * 3
 		relY := (y / float64(s.scale)) * float64(width/4) * 3
 
 		selected := false
-		if s.selectedType == AIRFIELD && s.selectedObject == i {
+		if s.navMan.SelectedType == AIRFIELD && s.navMan.SelectedObject == i {
 			selected = true
 		}
 		s.navMan.Airfields[i].DrawNavObject(anchorX+int32(math.Round(relX)), anchorY+int32(math.Round(relY)), selected)
@@ -276,24 +257,13 @@ func (s _state) drawNavPoints(anchorX, anchorY int32, width int32) {
 	var lastX = 0.0
 	var lastY = 0.0
 	for i := 0; i < len(s.navMan.NavPoints); i++ {
-		var x, y, dist, bearing float64
-		if s.useHaversine {
-			x, y, dist, bearing = coordToDistanceHaversine(
-				float64(state.GlobalFlightData.Latitude),
-				float64(state.GlobalFlightData.Longitude),
-				float64(s.navMan.NavPoints[i].Latitude),
-				float64(s.navMan.NavPoints[i].Longitude),
-				float64(state.GlobalFlightData.Heading),
-			)
-		} else {
-			x, y, dist, bearing = coordToDistance(
-				float64(state.GlobalFlightData.Latitude),
-				float64(state.GlobalFlightData.Longitude),
-				float64(s.navMan.NavPoints[i].Latitude),
-				float64(s.navMan.NavPoints[i].Longitude),
-				float64(state.GlobalFlightData.Heading),
-			)
-		}
+		x, y, dist, bearing := s.navMan.CoordToDistance(
+			float64(state.GlobalFlightData.Latitude),
+			float64(state.GlobalFlightData.Longitude),
+			float64(s.navMan.NavPoints[i].Latitude),
+			float64(s.navMan.NavPoints[i].Longitude),
+			float64(state.GlobalFlightData.Heading),
+		)
 		s.navMan.NavPoints[i].dist = dist
 		s.navMan.NavPoints[i].bearing = bearing
 		relX := (x / float64(s.scale)) * float64(width/4) * 3
@@ -317,7 +287,7 @@ func (s _state) drawNavPoints(anchorX, anchorY int32, width int32) {
 		lastY = relY
 
 		selected := false
-		if s.selectedType == NAV_POINT && s.selectedObject == i {
+		if s.navMan.SelectedType == NAV_POINT && s.navMan.SelectedObject == i {
 			selected = true
 		}
 		s.navMan.NavPoints[i].DrawNavObject(anchorX+int32(math.Round(relX)), anchorY+int32(math.Round(relY)), selected)

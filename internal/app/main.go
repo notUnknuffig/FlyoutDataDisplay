@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"math"
 
 	"example.com/MFDTest/internal/state"
@@ -58,8 +59,34 @@ func (a App) Init() {
 		Fullscreen:  false,
 		Scale:       1,
 	}
+
+	var airFields []stateNavigation.MappedObject
+	// var objects []stateNavigation.MappedObject
+	var err error
+	airFields, _, err = readAreaData()
+	if err != nil {
+		fmt.Print("WARNING: Unable to display custom airfields. Defaulting to default airfield coordinates.")
+		airFields = []stateNavigation.MappedObject{
+			{
+				Name:      "Default Airfield",
+				Latitude:  -35.604,
+				Longitude: -51.8061,
+				Heading:   0,
+				Allied:    true,
+				Type:      stateNavigation.AIRFIELD,
+			},
+			{
+				Name:      "Desert Airfield",
+				Latitude:  11.6763,
+				Longitude: -63.3045,
+				Heading:   17.32,
+				Allied:    true,
+				Type:      stateNavigation.AIRFIELD,
+			},
+		}
+	}
 	navigation := stateNavigation.NavManager{
-		NavPoints: []stateNavigation.MappedObjects{
+		NavPoints: []stateNavigation.MappedObject{
 			{
 				Name:      "Steer Point 1",
 				Latitude:  35.604,
@@ -93,29 +120,16 @@ func (a App) Init() {
 				Allied:    true,
 			},
 		},
-		Airfields: []stateNavigation.MappedObjects{
-			{
-				Name:      "Default Airfield",
-				Latitude:  -35.604,
-				Longitude: -51.8061,
-				Heading:   17.32,
-				Allied:    true,
-				Type:      stateNavigation.AIRFIELD,
-			},
-			{
-				Name:      "Desert Airfield",
-				Latitude:  11.6763,
-				Longitude: -63.3045,
-				Heading:   90,
-				Allied:    true,
-				Type:      stateNavigation.AIRFIELD,
-			},
-		},
+		Airfields:      airFields,
+		UseHaversine:   false,
+		SelectedObject: -1,
+		SelectedType:   stateNavigation.NAV_POINT,
+		IsSelecting:    false,
 	}
 	state.GlobalOptions = &config
 	var fuelState state.State = stateFuel.Init()
 	a.availableStates = []state.State{
-		stateAttitude.Init(),
+		stateAttitude.Init(&navigation),
 		stateEngine.Init(fuelState),
 		stateNavigation.Init(&navigation),
 		stateSystems.Init(),
