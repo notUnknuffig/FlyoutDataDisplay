@@ -53,7 +53,10 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 
 	// Area Data
 	airfield := false
-	currentObj := stateNavigation.MappedObject{}
+	currentObj := stateNavigation.MappedObject{
+		Type:   stateNavigation.OBJECT,
+		Allied: true,
+	}
 
 	// Area Object Data
 	isStartLoc := false
@@ -78,13 +81,15 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 				rot = 0.0
 			} else if depth == 1 {
 				if airfield {
+					currentObj.Type = stateNavigation.AIRFIELD
 					Airfields = append(Airfields, currentObj)
 				} else {
 					Objects = append(Objects, currentObj)
 				}
 				airfield = false
 				currentObj = stateNavigation.MappedObject{
-					Type: stateNavigation.OBJECT,
+					Type:   stateNavigation.OBJECT,
+					Allied: true,
 				}
 			}
 			depth--
