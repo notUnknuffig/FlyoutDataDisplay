@@ -34,12 +34,6 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 	}
 	defer f.Close()
 
-	/* areaString, err := os.ReadFile(path)
-	if err != nil {
-		fmt.Printf("WARNING: Unable to locate Areas.txt from '%%appdata%%\\..\\LocalLow\\Stonext Games\\Flyout\\AreaData'. Airports and Objects wont be displayed.\n")
-		return []stateNavigation.MappedObject{}, []stateNavigation.MappedObject{}, err
-	} */
-
 	// fmt.Println("------------------------- Area Data -------------------------")
 	// fmt.Println(string(areaString))
 	// fmt.Println("------------------------- Parsing Area Data -------------------------")
@@ -54,11 +48,12 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 	// Area Data
 	airfield := false
 	currentObj := stateNavigation.MappedObject{}
+	hdgQuat := []float32{0, 0, 0, 0}
 
 	// Area Object Data
 	isStartLoc := false
 	pos := []float32{0, 0, 0}
-	rot := 0.0
+	rot := []float32{0, 0, 0, 0}
 
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
@@ -71,12 +66,13 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 		case "}":
 			if depth >= 2 && header == "Obj" {
 				if isStartLoc {
-					currentObj.Heading = float32(stateNavigation.RadToDeg(rot))
+					hdgQuat = rot
 				}
 				isStartLoc = false
 				pos = []float32{0, 0, 0}
-				rot = 0.0
+				rot = []float32{0, 0, 0, 0}
 			} else if depth == 1 {
+				fmt.Printf("Quat: %v\n", hdgQuat)
 				if airfield {
 					Airfields = append(Airfields, currentObj)
 				} else {
@@ -152,16 +148,15 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 					}
 				case "rot":
 					str := strings.Split(val, ",")
-					if len(str) < 2 {
-						fmt.Println("Unable to read number in 'Areas.txt', aborting.")
-						return []stateNavigation.MappedObject{}, []stateNavigation.MappedObject{}, err
+					fmt.Printf("%s    |    %v\n", val, str)
+					for i := 0; i < len(str); i++ {
+						floatVal, err := strconv.ParseFloat(str[i], 64)
+						if err != nil {
+							fmt.Println("Unable to read number in 'Areas.txt', aborting.")
+							return []stateNavigation.MappedObject{}, []stateNavigation.MappedObject{}, err
+						}
+						rot[i] = float32(floatVal)
 					}
-					floatVal, err := strconv.ParseFloat(str[1], 64)
-					if err != nil {
-						fmt.Println("Unable to read number in 'Areas.txt', aborting.")
-						return []stateNavigation.MappedObject{}, []stateNavigation.MappedObject{}, err
-					}
-					rot = floatVal
 				}
 			}
 		}

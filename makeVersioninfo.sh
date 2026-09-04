@@ -1,0 +1,1 @@
+goversioninfo -icon icon.ico -o ./cmd/client/goversioninfo_windows_amd64.syso versioninfo.json
