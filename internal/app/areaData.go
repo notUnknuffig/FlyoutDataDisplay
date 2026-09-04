@@ -47,8 +47,11 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 
 	// Area Data
 	airfield := false
-	currentObj := stateNavigation.MappedObject{}
 	hdgQuat := []float32{0, 0, 0, 0}
+	currentObj := stateNavigation.MappedObject{
+		Type:   stateNavigation.OBJECT,
+		Allied: true,
+	}
 
 	// Area Object Data
 	isStartLoc := false
@@ -74,13 +77,15 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 			} else if depth == 1 {
 				fmt.Printf("Quat: %v\n", hdgQuat)
 				if airfield {
+					currentObj.Type = stateNavigation.AIRFIELD
 					Airfields = append(Airfields, currentObj)
 				} else {
 					Objects = append(Objects, currentObj)
 				}
 				airfield = false
 				currentObj = stateNavigation.MappedObject{
-					Type: stateNavigation.OBJECT,
+					Type:   stateNavigation.OBJECT,
+					Allied: true,
 				}
 			}
 			depth--
