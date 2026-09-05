@@ -27,7 +27,7 @@ jobs:
           echo REPO_VERSION=$(git describe --tags --always | sed 's/^v//') >> $GITHUB_OUTPUT
 
       - name: Release
-        uses: akkuman/gitea-release-action@v1
+        uses: softprops/action-gh-release@v3
         with:
           prerelease: false
           draft: false
@@ -36,10 +36,3 @@ jobs:
             ./out/MFD.exe
             ./out/MFD (Debug).exe
             ./icon.png
-
-      - name: Send ntfy ping
-        uses: niniyas/ntfy-action@master
-        with:
-          url: "${{ secrets.NTFY_URL }}"
-          topic: "${{ secrets.NTFY_TOPIC }}"
-          details: Workflow has been successfully completed!
