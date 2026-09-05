@@ -35,12 +35,6 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 	}
 	defer f.Close()
 
-	/* areaString, err := os.ReadFile(path)
-	if err != nil {
-		fmt.Printf("WARNING: Unable to locate Areas.txt from '%%appdata%%\\..\\LocalLow\\Stonext Games\\Flyout\\AreaData'. Airports and Objects wont be displayed.\n")
-		return []stateNavigation.MappedObject{}, []stateNavigation.MappedObject{}, err
-	} */
-
 	// fmt.Println("------------------------- Area Data -------------------------")
 	// fmt.Println(string(areaString))
 	// fmt.Println("------------------------- Parsing Area Data -------------------------")
@@ -101,8 +95,6 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 				rot = 0.0
 			} else if depth == 1 {
 				currentObj.Heading = float32(math.Mod(270+stateNavigation.RadToDeg(2*math.Acos(wHdg))-float64(-currentObj.Longitude+90), 360))
-				fmt.Printf("Long: %f, Adjusted to: %f\nwHdg: %f\nReading heading from Quaternion as: %f\n", currentObj.Longitude, (-currentObj.Longitude + 90), wHdg, currentObj.Heading)
-
 				if airfield {
 					currentObj.Type = stateNavigation.AIRFIELD
 					Airfields = append(Airfields, currentObj)

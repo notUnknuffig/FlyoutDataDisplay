@@ -44,7 +44,7 @@ func (s _state) drawHorizon(maxDegree float32) {
 
 	// Bank Angle Idicator
 	innnerRadius := state.ScaleF(50)
-	outerRadius := state.ScaleF(150)
+	outerRadius := state.ScaleF(100)
 
 	sin := math.Sin(-stateNavigation.DegToRad(float64(state.GlobalFlightData.Roll)))
 	cos := math.Cos(-stateNavigation.DegToRad(float64(state.GlobalFlightData.Roll)))
@@ -96,7 +96,6 @@ func (s _state) drawHorizon(maxDegree float32) {
 	// Heading
 	hdgStr := strconv.FormatFloat(float64(state.GlobalFlightData.Heading), 'f', 1, 64)
 	hdgWidth := rl.MeasureText(hdgStr, uiFontSize)
-	rl.DrawText(hdgStr, anchorX-hdgWidth/2, anchorY+state.Scale(200)+uiFontSize/2, uiFontSize, state.COLOR_SELECT)
 	for i := 0; i < 7; i++ {
 		hdgCos := math.Cos(stateNavigation.DegToRad(35 - math.Mod(float64(state.GlobalFlightData.Heading)+float64(i*10), 70)))
 		hdgSin := math.Sin(stateNavigation.DegToRad(35 - math.Mod(float64(state.GlobalFlightData.Heading)+float64(i*10), 70)))
@@ -108,6 +107,13 @@ func (s _state) drawHorizon(maxDegree float32) {
 			state.COLOR_UNSELECT,
 		)
 	}
+	rl.DrawTriangle(
+		rl.Vector2{X: float32(anchorX) + state.ScaleF(12), Y: float32(anchorY + state.Scale(200) + uiFontSize*2)},
+		rl.Vector2{X: float32(anchorX) - state.ScaleF(12), Y: float32(anchorY + state.Scale(200) + uiFontSize*2)},
+		rl.Vector2{X: float32(anchorX), Y: float32(anchorY+state.Scale(200)+uiFontSize*2) + state.ScaleF(20)},
+		state.COLOR_SELECT,
+	)
+	rl.DrawText(hdgStr, anchorX-hdgWidth/2, anchorY+state.Scale(200)+uiFontSize/2, uiFontSize, state.COLOR_SELECT)
 
 	// Nav Heading
 	if s.navMan.SelectedObject >= 0 {
@@ -144,6 +150,8 @@ func (s _state) drawHorizon(maxDegree float32) {
 	infoOutline := state.Scale(2)
 	infoAnchorX := state.Scale(state.SCREEN_MARGIN*2 + state.MENU_BUTTON_SIZE)
 	infoAnchorY := int32(rl.GetScreenHeight()/2) - infoMargin*2 - uiFontSize/2
+	alphaStr := "a: " + strconv.FormatFloat(float64(state.GlobalFlightData.Alpha), 'f', 1, 64) + "°"
+	gStr := "g: " + strconv.FormatFloat(float64(state.GlobalFlightData.G), 'f', 1, 64)
 
 	wheelOffset := state.Scale(200)
 	relSpeed := math.Mod(float64(state.GlobalFlightData.Airspeed), 10) / 10
@@ -160,7 +168,15 @@ func (s _state) drawHorizon(maxDegree float32) {
 	}
 	rl.DrawRectangle(infoAnchorX+state.Scale(30), infoAnchorY, infoOutline*2+rl.MeasureText(strSpd, uiFontSize)+infoMargin*2, infoMargin*2+infoOutline*2+uiFontSize, state.COLOR_SELECT)
 	rl.DrawRectangle(infoAnchorX+state.Scale(30)+infoOutline, infoAnchorY+infoOutline, infoMargin*2+rl.MeasureText(strSpd, uiFontSize), infoMargin*2+uiFontSize, state.COLOR_UNSELECT)
+	rl.DrawTriangle(
+		rl.Vector2{X: float32(infoAnchorX) + state.ScaleF(30), Y: float32(infoAnchorY + infoMargin + infoOutline)},
+		rl.Vector2{X: float32(infoAnchorX) + state.ScaleF(10), Y: float32(infoAnchorY + infoMargin + infoOutline + uiFontSize/2)},
+		rl.Vector2{X: float32(infoAnchorX) + state.ScaleF(30), Y: float32(infoAnchorY + infoMargin + infoOutline + uiFontSize)},
+		state.COLOR_SELECT,
+	)
 	rl.DrawText(strSpd, infoAnchorX+state.Scale(30)+infoMargin+infoOutline, infoAnchorY+infoMargin+infoOutline, uiFontSize, state.COLOR_SELECT)
+	rl.DrawText(alphaStr, infoAnchorX+state.Scale(30)+infoMargin+infoOutline, infoAnchorY+uiFontSize+infoMargin*4+infoOutline*2, state.Scale(18), state.COLOR_SELECT)
+	rl.DrawText(gStr, infoAnchorX+state.Scale(30)+infoMargin+infoOutline, infoAnchorY+uiFontSize*2+infoMargin*5+infoOutline*2, state.Scale(18), state.COLOR_SELECT)
 
 	// Alt Info
 	strAlt := strconv.FormatInt(int64(math.Round(float64(state.GlobalFlightData.Altitude))), 10) + "m"
@@ -181,6 +197,12 @@ func (s _state) drawHorizon(maxDegree float32) {
 	}
 	rl.DrawRectangle(infoAnchorX-state.Scale(50)-rl.MeasureText(strAlt, uiFontSize), infoAnchorY, infoOutline*2+rl.MeasureText(strAlt, uiFontSize)+infoMargin*2, infoMargin*2+infoOutline*2+uiFontSize, state.COLOR_SELECT)
 	rl.DrawRectangle(infoAnchorX-state.Scale(50)-rl.MeasureText(strAlt, uiFontSize)+infoOutline, infoAnchorY+infoOutline, infoMargin*2+rl.MeasureText(strAlt, uiFontSize), infoMargin*2+uiFontSize, state.COLOR_UNSELECT)
+	rl.DrawTriangle(
+		rl.Vector2{X: float32(infoAnchorX) - state.ScaleF(10), Y: float32(infoAnchorY + infoMargin + infoOutline + uiFontSize/2)},
+		rl.Vector2{X: float32(infoAnchorX) - state.ScaleF(30), Y: float32(infoAnchorY + infoMargin + infoOutline)},
+		rl.Vector2{X: float32(infoAnchorX) - state.ScaleF(30), Y: float32(infoAnchorY + infoMargin + infoOutline + uiFontSize)},
+		state.COLOR_SELECT,
+	)
 	rl.DrawText(strAlt, infoAnchorX-state.Scale(50)-rl.MeasureText(strAlt, uiFontSize)+infoMargin+infoOutline, infoAnchorY+infoMargin+infoOutline, uiFontSize, state.COLOR_SELECT)
 
 }
