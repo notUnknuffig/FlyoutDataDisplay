@@ -65,7 +65,7 @@ func (a App) Init() {
 	var err error
 	airFields, _, err = readAreaData()
 	if err != nil {
-		fmt.Print("WARNING: Unable to display custom airfields. Defaulting to default airfield coordinates.")
+		fmt.Print("WARNING: Unable to display custom airfields. Only loading default airfield coordinates.")
 		airFields = []stateNavigation.MappedObject{
 			{
 				Name:      "Default Airfield",
@@ -79,47 +79,14 @@ func (a App) Init() {
 				Name:      "Desert Airfield",
 				Latitude:  11.6763,
 				Longitude: -63.3045,
-				Heading:   17.32,
+				Heading:   309,
 				Allied:    true,
 				Type:      stateNavigation.AIRFIELD,
 			},
 		}
 	}
 	navigation := stateNavigation.NavManager{
-		NavPoints: []stateNavigation.MappedObject{
-			{
-				Name:      "Steer Point 1",
-				Latitude:  35.604,
-				Longitude: 51.8061,
-				Type:      stateNavigation.TURNING_POINT,
-				Heading:   0,
-				Allied:    true,
-			},
-			{
-				Name:      "Steer Point 2",
-				Latitude:  35.604,
-				Longitude: 52.0061,
-				Type:      stateNavigation.TURNING_POINT,
-				Heading:   0,
-				Allied:    true,
-			},
-			{
-				Name:      "Steer Point 3",
-				Latitude:  35.804,
-				Longitude: 52.0061,
-				Type:      stateNavigation.TURNING_POINT,
-				Heading:   0,
-				Allied:    true,
-			},
-			{
-				Name:      "Steer Point 4",
-				Latitude:  35.804,
-				Longitude: 51.6061,
-				Type:      stateNavigation.NAV_POINT,
-				Heading:   0,
-				Allied:    true,
-			},
-		},
+		NavPoints:      []stateNavigation.MappedObject{},
 		Airfields:      airFields,
 		UseHaversine:   false,
 		SelectedObject: -1,

@@ -48,7 +48,7 @@ func initTCPConnection(a app.App) {
 				if err := state.ReadString(msg, &obj); err == nil {
 					state.GlobalFlightData = &obj
 				} else {
-					fmt.Println("Error decoding json")
+					fmt.Printf("Error decoding json:\n%s\n", err.Error())
 				}
 				ms = time.Now().Nanosecond() - ms
 				state.SmoothData(ms)

@@ -3,6 +3,7 @@ package app
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -44,7 +45,25 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 	// fmt.Println(string(areaString))
 	// fmt.Println("------------------------- Parsing Area Data -------------------------")
 
-	var Airfields []stateNavigation.MappedObject
+	// Load Default Airfields
+	var Airfields []stateNavigation.MappedObject = []stateNavigation.MappedObject{
+		{
+			Name:      "Default Airfield",
+			Latitude:  -35.604,
+			Longitude: -51.8061,
+			Heading:   0,
+			Allied:    true,
+			Type:      stateNavigation.AIRFIELD,
+		},
+		{
+			Name:      "Desert Airfield",
+			Latitude:  11.6763,
+			Longitude: -63.3045,
+			Heading:   309,
+			Allied:    true,
+			Type:      stateNavigation.AIRFIELD,
+		},
+	}
 	var Objects []stateNavigation.MappedObject
 	scanner := bufio.NewScanner(f)
 
@@ -53,6 +72,7 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 
 	// Area Data
 	airfield := false
+	wHdg := 0.0
 	currentObj := stateNavigation.MappedObject{
 		Type:   stateNavigation.OBJECT,
 		Allied: true,
@@ -74,19 +94,24 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 		case "}":
 			if depth >= 2 && header == "Obj" {
 				if isStartLoc {
-					currentObj.Heading = float32(stateNavigation.RadToDeg(rot))
+					wHdg = rot
 				}
 				isStartLoc = false
 				pos = []float32{0, 0, 0}
 				rot = 0.0
 			} else if depth == 1 {
+				currentObj.Heading = float32(math.Mod(270+stateNavigation.RadToDeg(2*math.Acos(wHdg))-float64(-currentObj.Longitude+90), 360))
+				fmt.Printf("Long: %f, Adjusted to: %f\nwHdg: %f\nReading heading from Quaternion as: %f\n", currentObj.Longitude, (-currentObj.Longitude + 90), wHdg, currentObj.Heading)
+
 				if airfield {
 					currentObj.Type = stateNavigation.AIRFIELD
 					Airfields = append(Airfields, currentObj)
 				} else {
 					Objects = append(Objects, currentObj)
 				}
+
 				airfield = false
+				wHdg = 0.0
 				currentObj = stateNavigation.MappedObject{
 					Type:   stateNavigation.OBJECT,
 					Allied: true,
@@ -157,15 +182,16 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 					}
 				case "rot":
 					str := strings.Split(val, ",")
-					if len(str) < 2 {
+					if len(str) < 4 {
 						fmt.Println("Unable to read number in 'Areas.txt', aborting.")
 						return []stateNavigation.MappedObject{}, []stateNavigation.MappedObject{}, err
 					}
-					floatVal, err := strconv.ParseFloat(str[1], 64)
+					floatVal, err := strconv.ParseFloat(str[3], 64)
 					if err != nil {
 						fmt.Println("Unable to read number in 'Areas.txt', aborting.")
 						return []stateNavigation.MappedObject{}, []stateNavigation.MappedObject{}, err
 					}
+					// W from Quaternion -> Assuming that i and k are 0
 					rot = floatVal
 				}
 			}
