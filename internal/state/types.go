@@ -73,4 +73,25 @@ type Options struct {
 	AspectRatio string
 	Fullscreen  bool
 	Scale       float32
+	Units       *Units
+}
+
+type Units struct {
+	DistanceUnit       string
+	DistanceConversion float64
+	SpeedUnit          string
+	SpeedConversion    float64
+	HightUnit          string
+	HightConversion    float64
+	ClimbUnit          string
+	ClimbConversion    float64
+	HeatUnit           string
+	HeatConversion     float64
+	HeatFreezingPoint  float64
+	WeightUnit         string
+	WeightConversion   float64
+	TonUnit            string // Useless because its going to be "t"
+	TonConversion      float64
+	FlowRateUnit       string
+	FlowRateConversion float64
 }

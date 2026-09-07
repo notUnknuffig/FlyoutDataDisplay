@@ -7,12 +7,13 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-const OPTION_LENGTH = 4
+const OPTION_LENGTH = 5
 const (
 	OPTION_RESOLUTION   = 0
 	OPTION_ASPECT_RATIO = 1
 	OPTION_FULLSCREEN   = 2
-	OPTION_APPLY        = 3
+	OPTION_UNITS        = 3
+	OPTION_APPLY        = 4
 )
 const (
 	KEY_UP    = rl.KeyUp
@@ -44,6 +45,92 @@ var resolutions [][][]int = [][][]int{
 	{{300, 533}, {512, 910}, {720, 1280}, {910, 1618}, {1080, 1920}}, // 9x16 1.777777778
 }
 
+const (
+	UNITS_SI    = 0
+	UNITS_AM    = 1
+	UNITS_SI_AV = 2
+	UNITS_AM_AV = 3
+)
+
+var units []state.Units = []state.Units{
+	{ // SI
+		DistanceUnit:       "km",
+		DistanceConversion: 1,
+		SpeedUnit:          "m/s",
+		SpeedConversion:    1,
+		HightUnit:          "m",
+		HightConversion:    1,
+		ClimbUnit:          "m/s",
+		ClimbConversion:    1,
+		HeatUnit:           "k",
+		HeatConversion:     1,
+		HeatFreezingPoint:  0,
+		WeightUnit:         "kg",
+		WeightConversion:   1,
+		TonUnit:            "t",
+		TonConversion:      1_000,
+		FlowRateUnit:       "kg/s",
+		FlowRateConversion: 1,
+	},
+	{ // Imperial
+		DistanceUnit:       "mi",
+		DistanceConversion: 0.6213712,
+		SpeedUnit:          "mph",
+		SpeedConversion:    2.236936,
+		HightUnit:          "ft",
+		HightConversion:    3.280839895,
+		ClimbUnit:          "ft/s",
+		ClimbConversion:    3.280839895,
+		HeatUnit:           "°F",
+		HeatConversion:     1.8,
+		HeatFreezingPoint:  -459.67,
+		WeightUnit:         "lbs",
+		WeightConversion:   2.204623,
+		TonUnit:            "t",
+		TonConversion:      907.18,
+		FlowRateUnit:       "lbs/s",
+		FlowRateConversion: 2.204623,
+	},
+	{ // SI Aviation
+		DistanceUnit:       "nm",
+		DistanceConversion: 0.5399568,
+		SpeedUnit:          "kt",
+		SpeedConversion:    1.943844,
+		HightUnit:          "m",
+		HightConversion:    1,
+		ClimbUnit:          "m/s",
+		ClimbConversion:    1,
+		HeatUnit:           "°C",
+		HeatConversion:     1,
+		HeatFreezingPoint:  -273.15,
+		WeightUnit:         "kg",
+		WeightConversion:   1,
+		TonUnit:            "t",
+		TonConversion:      1_000,
+		FlowRateUnit:       "kg/s",
+		FlowRateConversion: 1,
+	},
+	{ // Imperial Aviation
+		DistanceUnit:       "nm",
+		DistanceConversion: 0.5399568,
+		SpeedUnit:          "kt",
+		SpeedConversion:    1.943844,
+		HightUnit:          "ft",
+		HightConversion:    3.280839895,
+		ClimbUnit:          "ft/s",
+		ClimbConversion:    3.280839895,
+		HeatUnit:           "°F",
+		HeatConversion:     1.8,
+		HeatFreezingPoint:  -459.67,
+		WeightUnit:         "lbs",
+		WeightConversion:   0.453592,
+		TonUnit:            "t",
+		TonConversion:      907.18,
+		FlowRateUnit:       "lbs/s",
+		FlowRateConversion: 0.453592,
+	},
+}
+
 /*
  * Options:
  * - Resolution
@@ -59,6 +146,7 @@ type OptionState struct {
 	resolutionIndex         int // index
 	aspectRatioIndex        int // index in reselutions
 	previousFullscreenState bool
+	unitIndex               int
 }
 
 func Init(cfg *state.Options) OptionState {
@@ -116,6 +204,14 @@ func (s OptionState) Input() state.State {
 			s.options.ResolutionX = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
 			s.options.ResolutionY = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
 
+		}
+	case OPTION_UNITS:
+		if rl.IsKeyPressed(KEY_LEFT) && s.unitIndex > 0 {
+			s.unitIndex -= 1
+			s.options.Units = &units[s.unitIndex]
+		} else if rl.IsKeyPressed(KEY_RIGHT) && s.unitIndex < len(aspectRatios)-1 {
+			s.unitIndex += 1
+			s.options.Units = &units[s.unitIndex]
 		}
 	case OPTION_APPLY:
 		if rl.IsKeyPressed(KEY_APPLY) {
@@ -178,6 +274,17 @@ func (s OptionState) drawOptions() {
 				rl.DrawText("Fullscreen: on", centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
 			} else {
 				rl.DrawText("Fullscreen: off", centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
+			}
+		case OPTION_UNITS:
+			switch s.unitIndex {
+			case UNITS_SI:
+				rl.DrawText("Units: Scientific", centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
+			case UNITS_AM:
+				rl.DrawText("Units: Imperial", centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
+			case UNITS_SI_AV:
+				rl.DrawText("Units: Aviation (SI)", centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
+			case UNITS_AM_AV:
+				rl.DrawText("Units: Aviation (Imp)", centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
 			}
 		case OPTION_APPLY:
 			rl.DrawText("Apply", centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
