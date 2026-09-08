@@ -145,7 +145,7 @@ func (s _state) drawHorizon(maxDegree float32) {
 	}
 
 	// Spd Info
-	strSpd := strconv.FormatInt(int64(math.Round(float64(state.GlobalFlightData.Airspeed))), 10) + "m/s"
+	strSpd := strconv.FormatInt(int64(math.Round(float64(state.GlobalFlightData.Airspeed)*state.GlobalOptions.Units.SpeedConversion)), 10) + state.GlobalOptions.Units.SpeedUnit
 	infoMargin := state.Scale(8)
 	infoOutline := state.Scale(2)
 	infoAnchorX := state.Scale(state.SCREEN_MARGIN*2 + state.MENU_BUTTON_SIZE)
@@ -179,7 +179,7 @@ func (s _state) drawHorizon(maxDegree float32) {
 	rl.DrawText(gStr, infoAnchorX+state.Scale(30)+infoMargin+infoOutline, infoAnchorY+uiFontSize*2+infoMargin*5+infoOutline*2, state.Scale(18), state.COLOR_SELECT)
 
 	// Alt Info
-	strAlt := strconv.FormatInt(int64(math.Round(float64(state.GlobalFlightData.Altitude))), 10) + "m"
+	strAlt := strconv.FormatInt(int64(math.Round(float64(state.GlobalFlightData.Altitude)*state.GlobalOptions.Units.HightConversion)), 10) + state.GlobalOptions.Units.HightUnit
 	infoAnchorX = int32(rl.GetRenderWidth()) - state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE)
 
 	wheelOffset = state.Scale(200)

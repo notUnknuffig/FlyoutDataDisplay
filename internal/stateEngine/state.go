@@ -171,7 +171,7 @@ func (s _state) drawEngineStatistics(anchorX, anchorY, boxSize int32, engine int
 			)
 		}
 
-		textFuelFlow := strconv.FormatFloat(math.Round(float64(state.GlobalFlightData.JetEngines[engine].FuelFlow*100))/100, 'f', 1, 64) + "kg/s"
+		textFuelFlow := strconv.FormatFloat(math.Round(float64(state.GlobalFlightData.JetEngines[engine].FuelFlow*100*float32(state.GlobalOptions.Units.FlowRateConversion)))/100, 'f', 1, 64) + state.GlobalOptions.Units.FlowRateUnit
 		rl.DrawText("Fuel Flow", anchorX+int32(margin), int32(centerY)+margin, fontSize, state.COLOR_SELECT)
 		rl.DrawText(textFuelFlow, anchorX+boxSize-int32(margin)-rl.MeasureText(textFuelFlow, fontSize), int32(centerY)+margin, fontSize, state.COLOR_SELECT)
 
@@ -204,7 +204,7 @@ func (s _state) drawEngineStatistics(anchorX, anchorY, boxSize int32, engine int
 			COLOR_AFTERBURNER_FORGROUND,
 		)
 
-		textFuelFlow := strconv.FormatFloat(math.Round(float64(state.GlobalFlightData.PistonEngines[engine].FuelFlow*100))/100, 'f', 1, 64) + "kg/s"
+		textFuelFlow := strconv.FormatFloat(math.Round(float64(state.GlobalFlightData.PistonEngines[engine].FuelFlow*100)*state.GlobalOptions.Units.FlowRateConversion)/100, 'f', 1, 64) + state.GlobalOptions.Units.FlowRateUnit
 		rl.DrawText("Fuel Flow", anchorX+int32(margin), int32(centerY)+margin, fontSize, state.COLOR_SELECT)
 		rl.DrawText(textFuelFlow, anchorX+boxSize-int32(margin)-rl.MeasureText(textFuelFlow, fontSize), int32(centerY)+margin, fontSize, state.COLOR_SELECT)
 
@@ -212,7 +212,7 @@ func (s _state) drawEngineStatistics(anchorX, anchorY, boxSize int32, engine int
 		rl.DrawText("Power", anchorX+int32(margin), int32(centerY)+margin+fontSize, fontSize, state.COLOR_SELECT)
 		rl.DrawText(textPower, anchorX+boxSize-int32(margin)-rl.MeasureText(textPower, fontSize), int32(centerY)+margin+fontSize, fontSize, state.COLOR_SELECT)
 
-		textTemp := strconv.FormatFloat(math.Round(float64(state.GlobalFlightData.PistonEngines[engine].Temperature*100))/100, 'f', 1, 64) + "°k"
+		textTemp := strconv.FormatFloat((math.Round(float64(state.GlobalFlightData.PistonEngines[engine].Temperature*100)*state.GlobalOptions.Units.HeatConversion)/100)+state.GlobalOptions.Units.HeatFreezingPoint, 'f', 1, 64) + state.GlobalOptions.Units.HeatUnit
 		rl.DrawText("Temp", anchorX+int32(margin), int32(centerY)+margin+fontSize*2, fontSize, state.COLOR_SELECT)
 		rl.DrawText(textTemp, anchorX+boxSize-int32(margin)-rl.MeasureText(textTemp, fontSize), int32(centerY)+margin+fontSize*2, fontSize, state.COLOR_SELECT)
 	}

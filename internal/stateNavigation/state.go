@@ -214,7 +214,7 @@ func (s _state) drawNavInfo(anchorX, anchorY int32, width int32) {
 	rl.DrawText(longStr, recAnchorX+state.Scale(200)-outline*2-rl.MeasureText(longStr, fontSize), recAnchorY+outline*3+fontSize, fontSize, state.COLOR_SELECT)
 
 	rl.DrawText("Dist:", recAnchorX+outline*2, recAnchorY+outline*4+fontSize*2, fontSize, state.COLOR_SELECT)
-	distStr := strconv.FormatFloat(obj.dist, 'f', 3, 64) + "km"
+	distStr := strconv.FormatFloat(obj.dist*state.GlobalOptions.Units.DistanceConversion, 'f', 3, 64) + state.GlobalOptions.Units.DistanceUnit
 	rl.DrawText(distStr, recAnchorX+state.Scale(200)-outline*2-rl.MeasureText(distStr, fontSize), recAnchorY+outline*4+fontSize*2, fontSize, state.COLOR_SELECT)
 
 	rl.DrawText("Bear:", recAnchorX+outline*2, recAnchorY+outline*5+fontSize*3, fontSize, state.COLOR_SELECT)
@@ -242,8 +242,8 @@ func (s _state) drawAirfields(anchorX, anchorY int32, width int32) {
 		)
 		s.navMan.Airfields[i].dist = dist
 		s.navMan.Airfields[i].bearing = bearing
-		relX := (x / float64(s.scale)) * float64(width/4) * 3
-		relY := (y / float64(s.scale)) * float64(width/4) * 3
+		relX := (x / (float64(s.scale) * state.GlobalOptions.Units.DistanceConversion)) * float64(width/4) * 3
+		relY := (y / (float64(s.scale) * state.GlobalOptions.Units.DistanceConversion)) * float64(width/4) * 3
 
 		selected := false
 		if s.navMan.SelectedType == AIRFIELD && s.navMan.SelectedObject == i {

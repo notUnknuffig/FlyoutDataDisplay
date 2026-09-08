@@ -50,6 +50,7 @@ const (
 	UNITS_AM    = 1
 	UNITS_SI_AV = 2
 	UNITS_AM_AV = 3
+	UNITS_RU    = 4
 )
 
 var units []state.Units = []state.Units{
@@ -129,6 +130,25 @@ var units []state.Units = []state.Units{
 		FlowRateUnit:       "lbs/s",
 		FlowRateConversion: 0.453592,
 	},
+	{ // Russian (SI)
+		DistanceUnit:       "km",
+		DistanceConversion: 1,
+		SpeedUnit:          "km/h",
+		SpeedConversion:    3.6,
+		HightUnit:          "m",
+		HightConversion:    1,
+		ClimbUnit:          "m/s",
+		ClimbConversion:    1,
+		HeatUnit:           "°C",
+		HeatConversion:     1,
+		HeatFreezingPoint:  -273.15,
+		WeightUnit:         "kg",
+		WeightConversion:   1,
+		TonUnit:            "t",
+		TonConversion:      1_000,
+		FlowRateUnit:       "kg/s",
+		FlowRateConversion: 1,
+	},
 }
 
 /*
@@ -150,6 +170,7 @@ type OptionState struct {
 }
 
 func Init(cfg *state.Options) OptionState {
+	cfg.Units = &units[0]
 	return OptionState{
 		options:          cfg,
 		selection:        0,
@@ -209,7 +230,7 @@ func (s OptionState) Input() state.State {
 		if rl.IsKeyPressed(KEY_LEFT) && s.unitIndex > 0 {
 			s.unitIndex -= 1
 			s.options.Units = &units[s.unitIndex]
-		} else if rl.IsKeyPressed(KEY_RIGHT) && s.unitIndex < len(aspectRatios)-1 {
+		} else if rl.IsKeyPressed(KEY_RIGHT) && s.unitIndex < len(units)-1 {
 			s.unitIndex += 1
 			s.options.Units = &units[s.unitIndex]
 		}
@@ -285,6 +306,8 @@ func (s OptionState) drawOptions() {
 				rl.DrawText("Units: Aviation (SI)", centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
 			case UNITS_AM_AV:
 				rl.DrawText("Units: Aviation (Imp)", centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
+			case UNITS_RU:
+				rl.DrawText("Units: European", centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
 			}
 		case OPTION_APPLY:
 			rl.DrawText("Apply", centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
