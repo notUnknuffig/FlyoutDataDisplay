@@ -38,8 +38,8 @@ func (s _state) Draw() {
 
 func (s _state) drawHorizon(maxDegree float32) {
 	anchorX := int32(rl.GetRenderWidth() / 2)
-	anchorY := int32(rl.GetRenderHeight() / 2)
-	height := rl.GetRenderHeight() - int(state.Scale(state.MENU_BUTTON_SIZE+state.MENU_BUTTON_SIZE)*2)
+	anchorY := int32(rl.GetRenderWidth() / 2)
+	height := rl.GetRenderWidth() - int(state.Scale(state.MENU_BUTTON_SIZE+state.MENU_BUTTON_SIZE)*2)
 	uiFontSize := state.Scale(20)
 
 	// Bank Angle Idicator
@@ -149,7 +149,7 @@ func (s _state) drawHorizon(maxDegree float32) {
 	infoMargin := state.Scale(8)
 	infoOutline := state.Scale(2)
 	infoAnchorX := state.Scale(state.SCREEN_MARGIN*2 + state.MENU_BUTTON_SIZE)
-	infoAnchorY := int32(rl.GetScreenHeight()/2) - infoMargin*2 - uiFontSize/2
+	infoAnchorY := int32(rl.GetRenderWidth()/2) - infoMargin*2 - uiFontSize/2
 	alphaStr := "a: " + strconv.FormatFloat(float64(state.GlobalFlightData.Alpha), 'f', 1, 64) + "°"
 	gStr := "g: " + strconv.FormatFloat(float64(state.GlobalFlightData.G), 'f', 1, 64)
 
