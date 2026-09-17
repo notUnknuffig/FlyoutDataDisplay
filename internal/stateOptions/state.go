@@ -25,24 +25,25 @@ const (
 
 var aspectRatios []string = []string{
 	"1x1",
-	"3x4",
 	"4x5",
+	"3x4",
 	"9x16",
 }
 
 var scales []float32 = []float32{
-	0.5,
+	0.45,
 	0.75,
+	0.9,
 	1,
 	1.25,
 	1.5,
 }
 
 var resolutions [][][]int = [][][]int{
-	{{300, 300}, {512, 512}, {720, 720}, {910, 910}, {1080, 1080}},   // 1x1  1
-	{{300, 400}, {512, 683}, {720, 960}, {910, 1213}, {1080, 1440}},  // 3x4  1.333333333
-	{{300, 375}, {512, 640}, {720, 900}, {910, 1138}, {1080, 1350}},  // 4x5  1.25
-	{{300, 533}, {512, 910}, {720, 1280}, {910, 1618}, {1080, 1920}}, // 9x16 1.777777778
+	{{300, 300}, {512, 512}, {720, 720}, {800, 800}, {910, 910}, {1080, 1080}},    // 1x1  1
+	{{300, 375}, {512, 640}, {720, 900}, {800, 1000}, {910, 1138}, {1080, 1350}},  // 4x5  1.25
+	{{300, 400}, {512, 683}, {720, 960}, {800, 1067}, {910, 1213}, {1080, 1440}},  // 3x4  1.333333333
+	{{300, 533}, {512, 910}, {720, 1280}, {800, 1422}, {910, 1618}, {1080, 1920}}, // 9x16 1.777777778
 }
 
 const (
@@ -194,7 +195,7 @@ func (s OptionState) Input() state.State {
 			s.resolutionIndex -= 1
 			s.options.ResolutionX = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
 			s.options.ResolutionY = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
-		} else if rl.IsKeyPressed(KEY_RIGHT) && s.resolutionIndex < len(resolutions) {
+		} else if rl.IsKeyPressed(KEY_RIGHT) && s.resolutionIndex < len(resolutions[0])-1 {
 			s.resolutionIndex += 1
 			s.options.ResolutionX = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
 			s.options.ResolutionY = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]

@@ -61,10 +61,15 @@ func object(i int) state.FlightData {
 		Temperature:  400.0,
 		Power:        660000,
 	}
-	mis := state.Missile{
-		Count: 1,
+	mis1 := state.Missile{
+		Count: 10,
 		Type:  "Infrared Missile",
 		Name:  "Aim-9X",
+	}
+	mis2 := state.Missile{
+		Count: 12,
+		Type:  "Radar Missile",
+		Name:  "ARAAM-120",
 	}
 	var b = false
 	if i > 3000 {
@@ -107,7 +112,7 @@ func object(i int) state.FlightData {
 		FuelCapacity:  6000,
 		FuelRatio:     (6000 - float32(i*2)) / 6000,
 		TimeToEmpty:   13000,
-		Missiles:      []state.Missile{mis},
+		Missiles:      []state.Missile{mis1, mis2, mis1, mis1, mis1, mis2, mis1, mis1},
 		ActiveMissile: "Aim-9X",
 	}
 }
