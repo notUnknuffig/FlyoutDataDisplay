@@ -25,7 +25,7 @@ The hud or attitude display shows some values you would find in the hud in flyou
 
 -> I want to add some more stuff rigth here...
 
-<img src ="assets/image_hud.png" style="position:relative; width:50%; left: 25%; right: 25%;">
+<img src ="assets/image_hud.png">
 
 ### Engines
 
@@ -35,13 +35,13 @@ You can name your engines `MFD-invis-some-engine` (`MFD-invis` just needs to be 
 
 With `<up-arrow>` and `<down-arrow>` you can scroll through the engines if you have more than four.
 
-<img src ="assets/image_engine.png" style="position:relative; width:50%; left: 25%; right: 25%;">
+<img src ="assets/image_engine.png">
 
 With `<F6>` you can view detailed stats of fuel tanks. Each fuel tank is listed with it's capacity.
 
 -> I currently plan the rewrite some stuff, so that the fuel tanks are properly ordered and the total fuel display thingy also shows max fuel as well as fuel flow.
 
-<img src ="assets/image_fuel.png" style="position:relative; width:50%; left: 25%; right: 25%;">
+<img src ="assets/image_fuel.png">
 
 ### Navigation
 
@@ -57,9 +57,7 @@ With `<F7>` you can enter select mode, while in select mode you can use `<left-a
 
 -> I don't know how big the world of flyout is, i found a number of about 10,000km radius. But i have also seen a navigation tool which used around 9,000km. Because i didn't do any testing so the distances might be off by a bit.
 
-<img src ="assets/image_navigation_unselected.png" style="position:relative; width:50%; left: 25%; right: 25%;">
-
-<img src ="assets/image_navigation_selected.png" style="position:relative; width:50%; left: 25%; right: 25%;">
+<img src ="assets/image_navigation.png">
 
 ### Systems
 
