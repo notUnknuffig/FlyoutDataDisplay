@@ -23,8 +23,8 @@ jobs:
       - name: Get Meta
         id: meta
         run: |
-          echo REPO_NAME=$(echo ${{ github.repository }} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
-          echo REPO_VERSION=$(git describe --tags --always | sed 's/^v//') >> $GITHUB_OUTPUT
+          echo REPO_VERSION=$(cat ./versioninfo.json | grep -i '"ProductVersion": "' | sed 's/    "ProductVersion": "/v/' | sed 's/"//') >> $GITHUB_ENV
+          echo ${{ env.REPO_VERSION }}
 
       - name: Release
         uses: akkuman/gitea-release-action@v1
@@ -32,6 +32,7 @@ jobs:
           prerelease: false
           draft: false
           tag_name: latest
+          name: ${{ env.REPO_VERSION }}
           files: |
             ./out/MFD.exe
             ./out/MFD (Debug).exe
