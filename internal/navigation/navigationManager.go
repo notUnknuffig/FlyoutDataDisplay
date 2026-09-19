@@ -1,4 +1,4 @@
-package stateNavigation
+package navigation
 
 import (
 	"math"
@@ -12,7 +12,6 @@ type NavManager struct {
 	UseHaversine   bool
 	SelectedObject int
 	SelectedType   ObjectType
-	IsSelecting    bool
 }
 
 // Returns x and y distance from coordinates

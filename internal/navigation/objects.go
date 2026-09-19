@@ -1,4 +1,4 @@
-package stateNavigation
+package navigation
 
 import (
 	"example.com/MFDTest/internal/state"
@@ -30,8 +30,8 @@ type MappedObject struct {
 	Altitude  float32
 	Allied    bool
 	Type      ObjectType
-	dist      float64
-	bearing   float64
+	Dist      float64
+	Bearing   float64
 }
 
 func (n MappedObject) DrawNavObject(x, y int32, sel bool) {

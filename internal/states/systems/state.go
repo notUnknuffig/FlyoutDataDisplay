@@ -1,4 +1,4 @@
-package stateSystems
+package systems
 
 import "example.com/MFDTest/internal/state"
 

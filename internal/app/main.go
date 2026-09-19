@@ -4,30 +4,16 @@ import (
 	"fmt"
 	"math"
 
+	"example.com/MFDTest/internal/navigation"
 	"example.com/MFDTest/internal/state"
-	"example.com/MFDTest/internal/stateAttitude"
-	"example.com/MFDTest/internal/stateEngine"
-	"example.com/MFDTest/internal/stateFuel"
-	"example.com/MFDTest/internal/stateNavigation"
-	"example.com/MFDTest/internal/stateOptions"
-	"example.com/MFDTest/internal/stateSystems"
-	"example.com/MFDTest/internal/stateWeapons"
+	"example.com/MFDTest/internal/states/attitude"
+	"example.com/MFDTest/internal/states/engine"
+	"example.com/MFDTest/internal/states/fuel"
+	"example.com/MFDTest/internal/states/navigator"
+	"example.com/MFDTest/internal/states/stateOptions"
+	"example.com/MFDTest/internal/states/systems"
+	"example.com/MFDTest/internal/states/weapons"
 	rl "github.com/gen2brain/raylib-go/raylib"
-)
-
-const (
-	KEY_F1  = rl.KeyF1
-	KEY_F2  = rl.KeyF2
-	KEY_F3  = rl.KeyF3
-	KEY_F4  = rl.KeyF4
-	KEY_F5  = rl.KeyF5
-	KEY_F6  = rl.KeyF6
-	KEY_F7  = rl.KeyF7
-	KEY_F8  = rl.KeyF8
-	KEY_F9  = rl.KeyF9
-	KEY_F10 = rl.KeyF10
-	KEY_F11 = rl.KeyF11
-	KEY_F12 = rl.KeyF12
 )
 
 const (
@@ -52,28 +38,22 @@ func (a App) Init() {
 	icon := rl.LoadImage("icon.png")
 	rl.SetWindowIcon(*icon)
 
-	config := state.Options{
-		ResolutionX: 720,
-		ResolutionY: 720,
-		AspectRatio: "1x1",
-		Fullscreen:  false,
-		Scale:       1,
-	}
+	config := a.readSettings()
 
-	var airFields []stateNavigation.MappedObject
-	// var objects []stateNavigation.MappedObject
+	var airFields []navigation.MappedObject
+	// var objects []navigation.MappedObject
 	var err error
 	airFields, _, err = readAreaData()
 	if err != nil {
 		fmt.Print("WARNING: Unable to display custom airfields. Only loading default airfield coordinates.")
-		airFields = []stateNavigation.MappedObject{
+		airFields = []navigation.MappedObject{
 			{
 				Name:      "Default Airfield",
 				Latitude:  -35.604,
 				Longitude: -51.8061,
 				Heading:   0,
 				Allied:    true,
-				Type:      stateNavigation.AIRFIELD,
+				Type:      navigation.AIRFIELD,
 			},
 			{
 				Name:      "Desert Airfield",
@@ -81,26 +61,25 @@ func (a App) Init() {
 				Longitude: -63.3045,
 				Heading:   309,
 				Allied:    true,
-				Type:      stateNavigation.AIRFIELD,
+				Type:      navigation.AIRFIELD,
 			},
 		}
 	}
-	navigation := stateNavigation.NavManager{
-		NavPoints:      []stateNavigation.MappedObject{},
+	nav := navigation.NavManager{
+		NavPoints:      []navigation.MappedObject{},
 		Airfields:      airFields,
 		UseHaversine:   false,
 		SelectedObject: -1,
-		SelectedType:   stateNavigation.NAV_POINT,
-		IsSelecting:    false,
+		SelectedType:   navigation.NAV_POINT,
 	}
 	state.GlobalOptions = &config
-	var fuelState state.State = stateFuel.Init()
+	var fuelState state.State = fuel.Init()
 	a.availableStates = []state.State{
-		stateAttitude.Init(&navigation),
-		stateEngine.Init(fuelState),
-		stateNavigation.Init(&navigation),
-		stateSystems.Init(),
-		stateWeapons.Init(),
+		attitude.Init(&nav),
+		engine.Init(fuelState),
+		navigator.Init(&nav),
+		systems.Init(),
+		weapons.Init(),
 		stateOptions.Init(&config),
 	}
 
@@ -147,45 +126,34 @@ func (a App) Init() {
 		rl.EndDrawing()
 		i++
 	}
+
+	a.writeSettings()
 }
 
 func (a App) Input() state.State {
 	switch rl.GetKeyPressed() {
-	case KEY_F1:
+	case state.KEY_F1:
 		return a.availableStates[Attidude]
-	case KEY_F2:
+	case state.KEY_F2:
 		return a.availableStates[Engine]
-	case KEY_F3:
+	case state.KEY_F3:
 		return a.availableStates[Navigation]
-	case KEY_F4:
+	case state.KEY_F4:
 		return a.availableStates[Systems]
-	case KEY_F5:
+	case state.KEY_F5:
 		return a.availableStates[Weapons]
 	}
 	return a.state
 }
 
 func (a App) Draw() {
-	var buttonHeight = state.Scale(state.MENU_BUTTON_SIZE) // Square
-	var buttonWidth = state.Scale(64)
-	var fontSize = state.Scale(24)
-	// var buttonMarginX = state.Scale(8)
-	var buttonMarginY = (buttonHeight - fontSize) / 2
-	for i := 0; i < state.BUTTON_LENGTH; i++ {
-		var baseX = int(state.Scale(state.SCREEN_MARGIN)) + ((rl.GetRenderWidth()-int(2*state.Scale(state.SCREEN_MARGIN)))/(state.BUTTON_LENGTH+1))*(i+1) - int(buttonWidth/2)
-		var baseY = rl.GetRenderHeight() - int(state.Scale(state.SCREEN_MARGIN)) - int(buttonHeight)
-		rl.DrawRectangle(int32(baseX), int32(baseY), buttonWidth, buttonHeight, state.COLOR_UNSELECT)
-		switch i {
-		case Attidude:
-			rl.DrawText("ATT", int32(baseX)+(buttonWidth-rl.MeasureText("ATT", fontSize))/2, int32(baseY)+buttonMarginY, fontSize, state.COLOR_SELECT)
-		case Engine:
-			rl.DrawText("ENG", int32(baseX)+(buttonWidth-rl.MeasureText("ENG", fontSize))/2, int32(baseY)+buttonMarginY, fontSize, state.COLOR_SELECT)
-		case Navigation:
-			rl.DrawText("NAV", int32(baseX)+(buttonWidth-rl.MeasureText("NAV", fontSize))/2, int32(baseY)+buttonMarginY, fontSize, state.COLOR_SELECT)
-		case Systems:
-			rl.DrawText("SYS", int32(baseX)+(buttonWidth-rl.MeasureText("SYS", fontSize))/2, int32(baseY)+buttonMarginY, fontSize, state.COLOR_SELECT)
-		case Weapons:
-			rl.DrawText("WPN", int32(baseX)+(buttonWidth-rl.MeasureText("WPN", fontSize))/2, int32(baseY)+buttonMarginY, fontSize, state.COLOR_SELECT)
-		}
-	}
+	// state.DrawMarginBox(true)
+	// for i := 0; i < 20; i++ {
+	// 	state.DrawButton(strconv.FormatInt(int64(i+1), 10), i)
+	// }
+	state.DrawButton("ATT", Attidude)
+	state.DrawButton("ENG", Engine)
+	state.DrawButton("NAV", Navigation)
+	state.DrawButton("SYS", Systems)
+	state.DrawButton("WPN", Weapons)
 }

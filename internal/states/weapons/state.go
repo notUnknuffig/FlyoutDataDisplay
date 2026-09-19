@@ -1,4 +1,4 @@
-package stateWeapons
+package weapons
 
 import (
 	"math"

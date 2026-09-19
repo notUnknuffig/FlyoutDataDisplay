@@ -9,29 +9,29 @@ import (
 	"strconv"
 	"strings"
 
-	"example.com/MFDTest/internal/stateNavigation"
+	"example.com/MFDTest/internal/navigation"
 )
 
-func readAreaData() ([]stateNavigation.MappedObject, []stateNavigation.MappedObject, error) {
+func readAreaData() ([]navigation.MappedObject, []navigation.MappedObject, error) {
 	dir, err := os.UserConfigDir()
 	if err != nil {
 		fmt.Printf("WARNING: Unable read from '%%appdata%%\\..\\LocalLow\\Stonext Games\\Flyout\\AreaData'. Airports and Objects wont be displayed.\n")
-		return []stateNavigation.MappedObject{}, []stateNavigation.MappedObject{}, err
+		return []navigation.MappedObject{}, []navigation.MappedObject{}, err
 	}
 	path, err := filepath.Abs(filepath.Join(dir, "..", "LocalLow", "Stonext Games", "Flyout", "AreaData", "Areas.txt"))
 	if err != nil {
 		fmt.Printf("WARNING: Unable to reach '%%appdata%%\\..\\LocalLow\\Stonext Games\\Flyout\\AreaData'. Airports and Objects wont be displayed.\n")
-		return []stateNavigation.MappedObject{}, []stateNavigation.MappedObject{}, err
+		return []navigation.MappedObject{}, []navigation.MappedObject{}, err
 	}
 
 	return parseAreaData(path)
 }
 
-func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigation.MappedObject, error) {
+func parseAreaData(path string) ([]navigation.MappedObject, []navigation.MappedObject, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		fmt.Printf("WARNING: Unable to locate Areas.txt from '%%appdata%%\\..\\LocalLow\\Stonext Games\\Flyout\\AreaData'. Airports and Objects wont be displayed.\n")
-		return []stateNavigation.MappedObject{}, []stateNavigation.MappedObject{}, err
+		return []navigation.MappedObject{}, []navigation.MappedObject{}, err
 	}
 	defer f.Close()
 
@@ -40,14 +40,14 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 	// fmt.Println("------------------------- Parsing Area Data -------------------------")
 
 	// Load Default Airfields
-	var Airfields []stateNavigation.MappedObject = []stateNavigation.MappedObject{
+	var Airfields []navigation.MappedObject = []navigation.MappedObject{
 		{
 			Name:      "Default Airfield",
 			Latitude:  -35.604,
 			Longitude: -51.8061,
 			Heading:   0,
 			Allied:    true,
-			Type:      stateNavigation.AIRFIELD,
+			Type:      navigation.AIRFIELD,
 		},
 		{
 			Name:      "Desert Airfield",
@@ -55,10 +55,10 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 			Longitude: -63.3045,
 			Heading:   309,
 			Allied:    true,
-			Type:      stateNavigation.AIRFIELD,
+			Type:      navigation.AIRFIELD,
 		},
 	}
-	var Objects []stateNavigation.MappedObject
+	var Objects []navigation.MappedObject
 	scanner := bufio.NewScanner(f)
 
 	depth := 0
@@ -67,8 +67,8 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 	// Area Data
 	airfield := false
 	wHdg := 0.0
-	currentObj := stateNavigation.MappedObject{
-		Type:   stateNavigation.OBJECT,
+	currentObj := navigation.MappedObject{
+		Type:   navigation.OBJECT,
 		Allied: true,
 	}
 
@@ -94,9 +94,9 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 				pos = []float32{0, 0, 0}
 				rot = 0.0
 			} else if depth == 1 {
-				currentObj.Heading = float32(math.Mod(270+stateNavigation.RadToDeg(2*math.Acos(wHdg))-float64(-currentObj.Longitude+90), 360))
+				currentObj.Heading = float32(math.Mod(270+navigation.RadToDeg(2*math.Acos(wHdg))-float64(-currentObj.Longitude+90), 360))
 				if airfield {
-					currentObj.Type = stateNavigation.AIRFIELD
+					currentObj.Type = navigation.AIRFIELD
 					Airfields = append(Airfields, currentObj)
 				} else {
 					Objects = append(Objects, currentObj)
@@ -104,8 +104,8 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 
 				airfield = false
 				wHdg = 0.0
-				currentObj = stateNavigation.MappedObject{
-					Type:   stateNavigation.OBJECT,
+				currentObj = navigation.MappedObject{
+					Type:   navigation.OBJECT,
 					Allied: true,
 				}
 			}
@@ -132,21 +132,21 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 					floatVal, err := strconv.ParseFloat(val, 64)
 					if err != nil {
 						fmt.Println("Unable to read number in 'Areas.txt', aborting.")
-						return []stateNavigation.MappedObject{}, []stateNavigation.MappedObject{}, err
+						return []navigation.MappedObject{}, []navigation.MappedObject{}, err
 					}
 					currentObj.Altitude = float32(floatVal)
 				case "lat":
 					floatVal, err := strconv.ParseFloat(val, 64)
 					if err != nil {
 						fmt.Println("Unable to read number in 'Areas.txt', aborting.")
-						return []stateNavigation.MappedObject{}, []stateNavigation.MappedObject{}, err
+						return []navigation.MappedObject{}, []navigation.MappedObject{}, err
 					}
 					currentObj.Latitude = float32(floatVal) - 90
 				case "lon":
 					floatVal, err := strconv.ParseFloat(val, 64)
 					if err != nil {
 						fmt.Println("Unable to read number in 'Areas.txt', aborting.")
-						return []stateNavigation.MappedObject{}, []stateNavigation.MappedObject{}, err
+						return []navigation.MappedObject{}, []navigation.MappedObject{}, err
 					}
 					currentObj.Longitude = float32(floatVal) - 90
 				case "name":
@@ -168,7 +168,7 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 						floatVal, err := strconv.ParseFloat(str[i], 64)
 						if err != nil {
 							fmt.Println("Unable to read number in 'Areas.txt', aborting.")
-							return []stateNavigation.MappedObject{}, []stateNavigation.MappedObject{}, err
+							return []navigation.MappedObject{}, []navigation.MappedObject{}, err
 						}
 						pos[i] = float32(floatVal)
 					}
@@ -176,12 +176,12 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 					str := strings.Split(val, ",")
 					if len(str) < 4 {
 						fmt.Println("Unable to read number in 'Areas.txt', aborting.")
-						return []stateNavigation.MappedObject{}, []stateNavigation.MappedObject{}, err
+						return []navigation.MappedObject{}, []navigation.MappedObject{}, err
 					}
 					floatVal, err := strconv.ParseFloat(str[3], 64)
 					if err != nil {
 						fmt.Println("Unable to read number in 'Areas.txt', aborting.")
-						return []stateNavigation.MappedObject{}, []stateNavigation.MappedObject{}, err
+						return []navigation.MappedObject{}, []navigation.MappedObject{}, err
 					}
 					// W from Quaternion -> Assuming that i and k are 0
 					rot = floatVal
@@ -190,7 +190,7 @@ func parseAreaData(path string) ([]stateNavigation.MappedObject, []stateNavigati
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		return []stateNavigation.MappedObject{}, []stateNavigation.MappedObject{}, err
+		return []navigation.MappedObject{}, []navigation.MappedObject{}, err
 	}
 	return Airfields, Objects, nil
 

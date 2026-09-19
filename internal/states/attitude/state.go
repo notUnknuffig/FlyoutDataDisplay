@@ -1,19 +1,19 @@
-package stateAttitude
+package attitude
 
 import (
 	"math"
 	"strconv"
 
+	"example.com/MFDTest/internal/navigation"
 	"example.com/MFDTest/internal/state"
-	"example.com/MFDTest/internal/stateNavigation"
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 type _state struct {
-	navMan *stateNavigation.NavManager
+	navMan *navigation.NavManager
 }
 
-func Init(navMan *stateNavigation.NavManager) _state {
+func Init(navMan *navigation.NavManager) _state {
 	return _state{
 		navMan: navMan,
 	}
@@ -39,15 +39,15 @@ func (s _state) Draw() {
 func (s _state) drawHorizon(maxDegree float32) {
 	anchorX := int32(rl.GetRenderWidth() / 2)
 	anchorY := int32(rl.GetRenderWidth() / 2)
-	height := rl.GetRenderWidth() - int(state.Scale(state.MENU_BUTTON_SIZE+state.MENU_BUTTON_SIZE)*2)
+	height := rl.GetRenderWidth() - int(state.Scale(state.MENU_BUTTON_HEIGHT+state.MENU_BUTTON_HEIGHT)*2)
 	uiFontSize := state.Scale(20)
 
 	// Bank Angle Idicator
 	innnerRadius := state.ScaleF(50)
 	outerRadius := state.ScaleF(100)
 
-	sin := math.Sin(-stateNavigation.DegToRad(float64(state.GlobalFlightData.Roll)))
-	cos := math.Cos(-stateNavigation.DegToRad(float64(state.GlobalFlightData.Roll)))
+	sin := math.Sin(-navigation.DegToRad(float64(state.GlobalFlightData.Roll)))
+	cos := math.Cos(-navigation.DegToRad(float64(state.GlobalFlightData.Roll)))
 
 	inX := cos * float64(innnerRadius)
 	inY := sin * float64(innnerRadius)
@@ -97,8 +97,8 @@ func (s _state) drawHorizon(maxDegree float32) {
 	hdgStr := strconv.FormatFloat(float64(state.GlobalFlightData.Heading), 'f', 1, 64)
 	hdgWidth := rl.MeasureText(hdgStr, uiFontSize)
 	for i := 0; i < 7; i++ {
-		hdgCos := math.Cos(stateNavigation.DegToRad(35 - math.Mod(float64(state.GlobalFlightData.Heading)+float64(i*10), 70)))
-		hdgSin := math.Sin(stateNavigation.DegToRad(35 - math.Mod(float64(state.GlobalFlightData.Heading)+float64(i*10), 70)))
+		hdgCos := math.Cos(navigation.DegToRad(35 - math.Mod(float64(state.GlobalFlightData.Heading)+float64(i*10), 70)))
+		hdgSin := math.Sin(navigation.DegToRad(35 - math.Mod(float64(state.GlobalFlightData.Heading)+float64(i*10), 70)))
 		rl.DrawLine(
 			anchorY+int32(hdgSin*float64(state.ScaleF(250))),
 			anchorX+int32(hdgCos*float64(state.ScaleF(250))),
@@ -117,11 +117,11 @@ func (s _state) drawHorizon(maxDegree float32) {
 
 	// Nav Heading
 	if s.navMan.SelectedObject >= 0 {
-		var obj stateNavigation.MappedObject
+		var obj navigation.MappedObject
 		switch s.navMan.SelectedType {
-		case stateNavigation.NAV_POINT:
+		case navigation.NAV_POINT:
 			obj = s.navMan.NavPoints[s.navMan.SelectedObject]
-		case stateNavigation.AIRFIELD:
+		case navigation.AIRFIELD:
 			obj = s.navMan.Airfields[s.navMan.SelectedObject]
 		}
 		_, _, _, bearing := s.navMan.CoordToDistance(
@@ -133,14 +133,14 @@ func (s _state) drawHorizon(maxDegree float32) {
 		)
 
 		// TODO: Limit Angle between -20 and 20
-		navAngleDiff := math.Mod(math.Mod(bearing, math.Pi*2)-math.Mod(stateNavigation.DegToRad(float64(state.GlobalFlightData.Heading)), math.Pi*2)+math.Pi*3, math.Pi*2) - math.Pi
-		navAngleClamp := math.Min(math.Max(navAngleDiff, stateNavigation.DegToRad(-35)), stateNavigation.DegToRad(35))
+		navAngleDiff := math.Mod(math.Mod(bearing, math.Pi*2)-math.Mod(navigation.DegToRad(float64(state.GlobalFlightData.Heading)), math.Pi*2)+math.Pi*3, math.Pi*2) - math.Pi
+		navAngleClamp := math.Min(math.Max(navAngleDiff, navigation.DegToRad(-35)), navigation.DegToRad(35))
 		xOff := float32(math.Sin(navAngleClamp) * float64(state.ScaleF(260)))
 		yOff := float32(math.Cos(navAngleClamp) * float64(state.ScaleF(260)))
 		rectOut := rl.Rectangle{X: float32(anchorX) + xOff, Y: float32(anchorY) + yOff, Width: state.ScaleF(18), Height: state.ScaleF(18)}
 		rectIn := rl.Rectangle{X: float32(anchorX) + xOff, Y: float32(anchorY) + yOff, Width: state.ScaleF(12), Height: state.ScaleF(12)}
-		rl.DrawRectanglePro(rectOut, rl.Vector2{X: state.ScaleF(9), Y: state.ScaleF(9)}, float32(45+stateNavigation.RadToDeg(-navAngleClamp)), state.COLOR_SELECT)
-		rl.DrawRectanglePro(rectIn, rl.Vector2{X: state.ScaleF(6), Y: state.ScaleF(6)}, float32(45+stateNavigation.RadToDeg(-navAngleClamp)), rl.Black)
+		rl.DrawRectanglePro(rectOut, rl.Vector2{X: state.ScaleF(9), Y: state.ScaleF(9)}, float32(45+navigation.RadToDeg(-navAngleClamp)), state.COLOR_SELECT)
+		rl.DrawRectanglePro(rectIn, rl.Vector2{X: state.ScaleF(6), Y: state.ScaleF(6)}, float32(45+navigation.RadToDeg(-navAngleClamp)), rl.Black)
 
 	}
 
@@ -148,7 +148,7 @@ func (s _state) drawHorizon(maxDegree float32) {
 	strSpd := strconv.FormatInt(int64(math.Round(float64(state.GlobalFlightData.Airspeed)*state.GlobalOptions.Units.SpeedConversion)), 10) + state.GlobalOptions.Units.SpeedUnit
 	infoMargin := state.Scale(8)
 	infoOutline := state.Scale(2)
-	infoAnchorX := state.Scale(state.SCREEN_MARGIN*2 + state.MENU_BUTTON_SIZE)
+	infoAnchorX := state.Scale(state.SCREEN_MARGIN*2 + state.MENU_BUTTON_HEIGHT)
 	infoAnchorY := int32(rl.GetRenderWidth()/2) - infoMargin*2 - uiFontSize/2
 	alphaStr := "a: " + strconv.FormatFloat(float64(state.GlobalFlightData.Alpha), 'f', 1, 64) + "°"
 	gStr := "g: " + strconv.FormatFloat(float64(state.GlobalFlightData.G), 'f', 1, 64)
@@ -159,7 +159,7 @@ func (s _state) drawHorizon(maxDegree float32) {
 	for i := 0; i < 20; i++ {
 		spdWidth = state.Scale(20)
 		rl.DrawRectangle(
-			state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE),
+			state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_HEIGHT),
 			(anchorY-wheelOffset)+(int32(i)*state.Scale(20))+int32(math.Round(20*relSpeed)),
 			spdWidth,
 			state.Scale(2),
@@ -180,7 +180,7 @@ func (s _state) drawHorizon(maxDegree float32) {
 
 	// Alt Info
 	strAlt := strconv.FormatInt(int64(math.Round(float64(state.GlobalFlightData.Altitude)*state.GlobalOptions.Units.HightConversion)), 10) + state.GlobalOptions.Units.HightUnit
-	infoAnchorX = int32(rl.GetRenderWidth()) - state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE)
+	infoAnchorX = int32(rl.GetRenderWidth()) - state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_HEIGHT)
 
 	wheelOffset = state.Scale(200)
 	relAlt := math.Mod(float64(state.GlobalFlightData.Altitude), 10) / 10
@@ -188,7 +188,7 @@ func (s _state) drawHorizon(maxDegree float32) {
 	for i := 0; i < 20; i++ {
 		// spdWidth = state.Scale(20)
 		rl.DrawRectangle(
-			int32(rl.GetRenderWidth())-state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE)-state.Scale(20),
+			int32(rl.GetRenderWidth())-state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_HEIGHT)-state.Scale(20),
 			(anchorY-wheelOffset)+(int32(i)*state.Scale(20))+int32(math.Round(20*relAlt)),
 			state.Scale(20),
 			state.Scale(2),

@@ -1,10 +1,12 @@
-package stateNavigation
+package navigator
 
 import (
 	"math"
 	"strconv"
 
+	"example.com/MFDTest/internal/navigation"
 	"example.com/MFDTest/internal/state"
+	"example.com/MFDTest/internal/states/navPointEntry"
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
@@ -12,62 +14,52 @@ type _state struct {
 	scale    int
 	maxScale int
 	minScale int
-	navMan   *NavManager
+	navMan   *navigation.NavManager
 }
 
-func Init(nav *NavManager) _state {
-	return _state{
+func Init(nav *navigation.NavManager) _state {
+	s := _state{
 		scale:    30,
 		maxScale: 150,
 		minScale: 10,
 		navMan:   nav,
 	}
+	return s
 }
-
-const (
-	KEY_UP    = rl.KeyUp
-	KEY_DOWN  = rl.KeyDown
-	KEY_LEFT  = rl.KeyLeft
-	KEY_RIGHT = rl.KeyRight
-	KEY_F6    = rl.KeyF6
-	KEY_F7    = rl.KeyF7
-	KEY_F8    = rl.KeyF8
-	KEY_F9    = rl.KeyF9
-)
 
 func (s _state) Input() state.State {
 	if state.GlobalFlightData == nil {
 		return s
 	}
-	if rl.IsKeyPressed(KEY_F6) {
+	if rl.IsKeyPressed(state.KEY_F8) {
 		s.navMan.UseHaversine = !s.navMan.UseHaversine
 	}
-	if rl.IsKeyPressed(KEY_F7) {
-		s.navMan.IsSelecting = !s.navMan.IsSelecting
-	}
-	if s.navMan.IsSelecting && rl.IsKeyPressed(KEY_RIGHT) {
-		if (s.navMan.SelectedType == AIRFIELD) && s.navMan.SelectedObject < len(s.navMan.Airfields)-1 {
+	if rl.IsKeyPressed(state.KEY_F12) {
+		if (s.navMan.SelectedType == navigation.AIRFIELD) && s.navMan.SelectedObject < len(s.navMan.Airfields)-1 {
 			s.navMan.SelectedObject += 1
-		} else if (s.navMan.SelectedType == NAV_POINT) && s.navMan.SelectedObject < len(s.navMan.NavPoints)-1 {
+		} else if (s.navMan.SelectedType == navigation.NAV_POINT) && s.navMan.SelectedObject < len(s.navMan.NavPoints)-1 {
 			s.navMan.SelectedObject += 1
 		}
-	} else if s.navMan.IsSelecting && rl.IsKeyPressed(KEY_LEFT) && s.navMan.SelectedObject >= 0 {
+	} else if rl.IsKeyPressed(state.KEY_F11) && s.navMan.SelectedObject >= 0 {
 		s.navMan.SelectedObject -= 1
 	}
-	if s.navMan.IsSelecting && rl.IsKeyPressed(KEY_F8) {
+	if rl.IsKeyPressed(state.KEY_F9) {
 		switch s.navMan.SelectedType {
-		case AIRFIELD:
-			s.navMan.SelectedType = NAV_POINT
+		case navigation.AIRFIELD:
+			s.navMan.SelectedType = navigation.NAV_POINT
 			s.navMan.SelectedObject = -1
-		case NAV_POINT:
-			s.navMan.SelectedType = AIRFIELD
+		case navigation.NAV_POINT:
+			s.navMan.SelectedType = navigation.AIRFIELD
 			s.navMan.SelectedObject = 0
 		}
 	}
-	if rl.IsKeyPressed(KEY_UP) && s.scale < s.maxScale {
+	if rl.IsKeyPressed(state.KEY_F6) && s.scale < s.maxScale {
 		s.scale = s.scale + 20
-	} else if rl.IsKeyPressed(KEY_DOWN) && s.scale > s.minScale {
+	} else if rl.IsKeyPressed(state.KEY_F7) && s.scale > s.minScale {
 		s.scale = s.scale - 20
+	}
+	if s.navMan.SelectedType == navigation.NAV_POINT && rl.IsKeyPressed(state.KEY_F10) {
+		return navPointEntry.Init(s.navMan, s)
 	}
 	return s
 }
@@ -83,54 +75,63 @@ func (s _state) Draw() {
 	// Draw Nav Screen
 	s.drawNavigation()
 
-	anchorY, diff := state.DrawArrowButtons(0)
+	anchorY, diffY := state.DrawArrowButtonsHorizontal(0)
 	scaleFontSize := state.Scale(24)
 	scaleStr := strconv.FormatInt(int64(s.scale), 10)
-	scaleCenter := (state.Scale(state.MENU_BUTTON_SIZE)-rl.MeasureText(scaleStr, scaleFontSize))/2 + state.Scale(state.SCREEN_MARGIN)
-	rl.DrawRectangle(scaleCenter-state.Scale(8), anchorY, rl.MeasureText(scaleStr, scaleFontSize)+state.Scale(16), diff, rl.Black)
-	rl.DrawText(scaleStr, scaleCenter, anchorY+(diff/2)-scaleFontSize+state.Scale(4), scaleFontSize, state.COLOR_SELECT)
-	rl.DrawText("km", state.Scale(state.SCREEN_MARGIN)+state.Scale(8), anchorY+(diff/2)+state.Scale(4), scaleFontSize, state.COLOR_SELECT)
+	scaleCenter := (state.Scale(state.MENU_BUTTON_HEIGHT)-rl.MeasureText(scaleStr, scaleFontSize))/2 + state.Scale(state.SCREEN_MARGIN)
+	rl.DrawRectangle(state.Scale(state.SCREEN_MARGIN), anchorY, state.Scale(state.MENU_BUTTON_HEIGHT), diffY, rl.Black)
+	rl.DrawText(scaleStr, scaleCenter, anchorY+(diffY/2)-scaleFontSize+state.Scale(4), scaleFontSize, state.COLOR_SELECT)
+	rl.DrawText(state.GlobalOptions.Units.DistanceUnit, state.Scale(state.SCREEN_MARGIN)+state.Scale(state.MENU_BUTTON_HEIGHT)/2-rl.MeasureText(state.GlobalOptions.Units.DistanceUnit, scaleFontSize)/2, anchorY+(diffY/2)+state.Scale(4), scaleFontSize, state.COLOR_SELECT)
 
-	fontSize := state.Scale(20)
-	color := state.COLOR_SELECT
-	bColor := state.COLOR_UNSELECT
-	if s.navMan.IsSelecting {
-		color = state.COLOR_UNSELECT
-		bColor = state.COLOR_SELECT
-	}
-
-	rl.DrawRectangle(int32(rl.GetRenderWidth())-state.Scale(state.SCREEN_MARGIN)-state.Scale(state.MENU_BUTTON_SIZE), state.GetButtonAnchorByIndex(0), state.Scale(state.MENU_BUTTON_SIZE), state.Scale(60), bColor)
-	rl.DrawText("S", int32(rl.GetRenderWidth())-state.Scale(state.SCREEN_MARGIN)-state.Scale(state.MENU_BUTTON_SIZE)+state.Scale(10), state.GetButtonAnchorByIndex(0)+state.Scale(4), fontSize, color)
-	rl.DrawText("E", int32(rl.GetRenderWidth())-state.Scale(state.SCREEN_MARGIN)-state.Scale(state.MENU_BUTTON_SIZE)+state.Scale(10), state.GetButtonAnchorByIndex(0)+state.Scale(0)+fontSize, fontSize, color)
-	rl.DrawText("L", int32(rl.GetRenderWidth())-state.Scale(state.SCREEN_MARGIN)-state.Scale(state.MENU_BUTTON_SIZE)+state.Scale(10), state.GetButtonAnchorByIndex(0)+state.Scale(-4)+fontSize*2, fontSize, color)
-
-	rl.DrawRectangle(int32(rl.GetRenderWidth())-state.Scale(state.SCREEN_MARGIN)-state.Scale(state.MENU_BUTTON_SIZE), state.GetButtonAnchorByIndex(1), state.Scale(state.MENU_BUTTON_SIZE), state.Scale(60), state.COLOR_UNSELECT)
-	rl.DrawText("T", int32(rl.GetRenderWidth())-state.Scale(state.SCREEN_MARGIN)-state.Scale(state.MENU_BUTTON_SIZE)+state.Scale(10), state.GetButtonAnchorByIndex(1)+state.Scale(4), fontSize, state.COLOR_SELECT)
-	rl.DrawText("Y", int32(rl.GetRenderWidth())-state.Scale(state.SCREEN_MARGIN)-state.Scale(state.MENU_BUTTON_SIZE)+state.Scale(10), state.GetButtonAnchorByIndex(1)+state.Scale(0)+fontSize, fontSize, state.COLOR_SELECT)
-	rl.DrawText("P", int32(rl.GetRenderWidth())-state.Scale(state.SCREEN_MARGIN)-state.Scale(state.MENU_BUTTON_SIZE)+state.Scale(10), state.GetButtonAnchorByIndex(1)+state.Scale(-4)+fontSize*2, fontSize, state.COLOR_SELECT)
-
-	rl.DrawRectangle(state.Scale(state.SCREEN_MARGIN), state.GetButtonAnchorByIndex(2), state.Scale(state.MENU_BUTTON_SIZE), state.Scale(60), state.COLOR_UNSELECT)
 	if s.navMan.UseHaversine {
-		rl.DrawText("H", state.Scale(state.SCREEN_MARGIN)+state.Scale(10), state.GetButtonAnchorByIndex(2)+state.Scale(4), fontSize, state.COLOR_SELECT)
-		rl.DrawText("A", state.Scale(state.SCREEN_MARGIN)+state.Scale(10), state.GetButtonAnchorByIndex(2)+state.Scale(0)+fontSize, fontSize, state.COLOR_SELECT)
-		rl.DrawText("V", state.Scale(state.SCREEN_MARGIN)+state.Scale(10), state.GetButtonAnchorByIndex(2)+state.Scale(-4)+fontSize*2, fontSize, state.COLOR_SELECT)
+		state.DrawButton("HAV", 8-1)
 	} else {
-		rl.DrawText("T", state.Scale(state.SCREEN_MARGIN)+state.Scale(10), state.GetButtonAnchorByIndex(2)+state.Scale(4), fontSize, state.COLOR_SELECT)
-		rl.DrawText("R", state.Scale(state.SCREEN_MARGIN)+state.Scale(10), state.GetButtonAnchorByIndex(2)+state.Scale(0)+fontSize, fontSize, state.COLOR_SELECT)
-		rl.DrawText("I", state.Scale(state.SCREEN_MARGIN)+state.Scale(10), state.GetButtonAnchorByIndex(2)+state.Scale(-4)+fontSize*2, fontSize, state.COLOR_SELECT)
+		state.DrawButton("TRI", 8-1)
 	}
+
+	anchorX, diffX := state.DrawArrowButtonsVertical(11 - 1)
+	rl.DrawRectangle(anchorX, state.Scale(state.SCREEN_MARGIN), diffX, state.Scale(state.MENU_BUTTON_HEIGHT), rl.Black)
+	targetString := "Nothing"
+	switch s.navMan.SelectedType {
+	case navigation.NAV_POINT:
+		state.DrawButton("TYP", 9-1)
+		state.DrawButton("EDT", 10-1)
+		if len(s.navMan.NavPoints) == 0 {
+			targetString = "No NP"
+		} else if s.navMan.SelectedObject == -1 {
+
+		} else {
+
+			targetString = strconv.FormatInt(int64(s.navMan.SelectedObject+1), 10) + " / " + strconv.FormatInt(int64(len(s.navMan.NavPoints)), 10)
+		}
+	case navigation.AIRFIELD:
+		if len(s.navMan.Airfields) == 0 {
+			targetString = "No AF"
+		} else if s.navMan.SelectedObject == -1 {
+
+		} else {
+			targetString = strconv.FormatInt(int64(s.navMan.SelectedObject+1), 10) + " / " + strconv.FormatInt(int64(len(s.navMan.Airfields)), 10)
+		}
+	}
+	rl.DrawText(
+		targetString,
+		anchorX+diffX/2-rl.MeasureText(targetString, scaleFontSize)/2,
+		state.Scale(state.SCREEN_MARGIN)+(state.Scale(state.MENU_BUTTON_HEIGHT)/2)-(scaleFontSize/2),
+		scaleFontSize,
+		state.COLOR_SELECT,
+	)
 
 	headingFontSize := state.Scale(20)
 	headingStr := strconv.FormatFloat(math.Round(float64(state.GlobalFlightData.Heading*100))/100, 'f', 2, 64) + "°"
-	headingCenter := state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE) + (state.GetDisplayAreaWidth()-rl.MeasureText(headingStr, headingFontSize))/2
-	rl.DrawRectangle(state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE)+(state.GetDisplayAreaWidth()-state.Scale(84))/2, state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE)-state.Scale(1), state.Scale(84), headingFontSize+state.Scale(2), rl.Black)
-	rl.DrawText(headingStr, headingCenter, state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_SIZE), headingFontSize, state.COLOR_SELECT)
+	headingCenter := state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_HEIGHT) + (state.GetDisplayAreaWidth()-rl.MeasureText(headingStr, headingFontSize))/2
+	rl.DrawRectangle(state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_HEIGHT)+(state.GetDisplayAreaWidth()-state.Scale(84))/2, state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_HEIGHT)-state.Scale(1), state.Scale(84), headingFontSize+state.Scale(2), rl.Black)
+	rl.DrawText(headingStr, headingCenter, state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_HEIGHT), headingFontSize, state.COLOR_SELECT)
 }
 
 func (s _state) drawNavigation() {
 	width := state.GetDisplayAreaWidth()
-	anchorX := state.Scale(state.SCREEN_MARGIN*2) + state.Scale(state.MENU_BUTTON_SIZE) + (width / 2)
-	anchorY := state.Scale(state.SCREEN_MARGIN*2) + state.Scale(state.MENU_BUTTON_SIZE) + (width * 3 / 4)
+	anchorX := state.Scale(state.SCREEN_MARGIN*2) + state.Scale(state.MENU_BUTTON_HEIGHT) + (width / 2)
+	anchorY := state.Scale(state.SCREEN_MARGIN*2) + state.Scale(state.MENU_BUTTON_HEIGHT) + (width * 3 / 4)
 
 	// Draw Marking Rings
 	d := (10 / float64(s.scale)) * float64(width/4) * 3
@@ -193,41 +194,45 @@ func (s _state) drawNavInfo(anchorX, anchorY int32, width int32) {
 	if s.navMan.SelectedObject < 0 {
 		return
 	}
-	var obj MappedObject
+	var obj navigation.MappedObject
 	switch s.navMan.SelectedType {
-	case NAV_POINT:
+	case navigation.NAV_POINT:
 		obj = s.navMan.NavPoints[s.navMan.SelectedObject]
-	case AIRFIELD:
+	case navigation.AIRFIELD:
 		obj = s.navMan.Airfields[s.navMan.SelectedObject]
 	}
 
-	recAnchorX := int32(rl.GetRenderWidth()) - state.Scale(state.SCREEN_MARGIN*2) - state.Scale(state.MENU_BUTTON_SIZE) - state.Scale(200)
-	recAnchorY := state.Scale(state.SCREEN_MARGIN*2) + state.Scale(state.MENU_BUTTON_SIZE)
+	recAnchorX := int32(rl.GetRenderWidth()) - state.Scale(state.SCREEN_MARGIN*2) - state.Scale(state.MENU_BUTTON_HEIGHT) - state.Scale(200)
+	recAnchorY := state.Scale(state.SCREEN_MARGIN*2) + state.Scale(state.MENU_BUTTON_HEIGHT)
 	outline := state.Scale(4)
 	fontSize := state.Scale(18)
-	rl.DrawRectangle(recAnchorX, recAnchorY, state.Scale(200), state.Scale(100), state.COLOR_UNSELECT)
-	rl.DrawRectangle(recAnchorX+outline/2, recAnchorY+outline/2, state.Scale(200)-outline, state.Scale(100)-outline, rl.Black)
+	rl.DrawRectangle(recAnchorX, recAnchorY, state.Scale(200), state.Scale(120), state.COLOR_UNSELECT)
+	rl.DrawRectangle(recAnchorX+outline/2, recAnchorY+outline/2, state.Scale(200)-outline, state.Scale(120)-outline, rl.Black)
 	rl.DrawText(obj.Name, recAnchorX+state.Scale(200/2)-rl.MeasureText(obj.Name, fontSize)/2, recAnchorY+outline*2, fontSize, state.COLOR_SELECT)
 
 	rl.DrawText(strconv.FormatFloat(float64(obj.Latitude), 'f', 2, 64)+"°", recAnchorX+outline*2, recAnchorY+outline*3+fontSize, fontSize, state.COLOR_SELECT)
 	longStr := strconv.FormatFloat(float64(obj.Longitude), 'f', 2, 64) + "°"
 	rl.DrawText(longStr, recAnchorX+state.Scale(200)-outline*2-rl.MeasureText(longStr, fontSize), recAnchorY+outline*3+fontSize, fontSize, state.COLOR_SELECT)
 
-	rl.DrawText("Dist:", recAnchorX+outline*2, recAnchorY+outline*4+fontSize*2, fontSize, state.COLOR_SELECT)
-	distStr := strconv.FormatFloat(obj.dist*state.GlobalOptions.Units.DistanceConversion, 'f', 3, 64) + state.GlobalOptions.Units.DistanceUnit
-	rl.DrawText(distStr, recAnchorX+state.Scale(200)-outline*2-rl.MeasureText(distStr, fontSize), recAnchorY+outline*4+fontSize*2, fontSize, state.COLOR_SELECT)
+	rl.DrawText("Alt:", recAnchorX+outline*2, recAnchorY+outline*4+fontSize*2, fontSize, state.COLOR_SELECT)
+	altStr := strconv.FormatFloat(float64(obj.Altitude)*state.GlobalOptions.Units.HightConversion, 'f', 3, 64) + state.GlobalOptions.Units.HightUnit
+	rl.DrawText(altStr, recAnchorX+state.Scale(200)-outline*2-rl.MeasureText(altStr, fontSize), recAnchorY+outline*4+fontSize*2, fontSize, state.COLOR_SELECT)
 
-	rl.DrawText("Bear:", recAnchorX+outline*2, recAnchorY+outline*5+fontSize*3, fontSize, state.COLOR_SELECT)
-	bearStr := strconv.FormatFloat(math.Mod(360+RadToDeg(obj.bearing), 360), 'f', 2, 64) + "°"
-	rl.DrawText(bearStr, recAnchorX+state.Scale(200)-outline*2-rl.MeasureText(bearStr, fontSize), recAnchorY+outline*5+fontSize*3, fontSize, state.COLOR_SELECT)
+	rl.DrawText("Dist:", recAnchorX+outline*2, recAnchorY+outline*5+fontSize*3, fontSize, state.COLOR_SELECT)
+	distStr := strconv.FormatFloat(obj.Dist*state.GlobalOptions.Units.DistanceConversion, 'f', 3, 64) + state.GlobalOptions.Units.DistanceUnit
+	rl.DrawText(distStr, recAnchorX+state.Scale(200)-outline*2-rl.MeasureText(distStr, fontSize), recAnchorY+outline*5+fontSize*3, fontSize, state.COLOR_SELECT)
 
-	if obj.dist/float64(s.scale) > 0.75 {
-		xOff := float32(math.Sin(math.Pi-obj.bearing+DegToRad(float64(state.GlobalFlightData.Heading))) * float64(state.ScaleF(150)))
-		yOff := float32(math.Cos(math.Pi-obj.bearing+DegToRad(float64(state.GlobalFlightData.Heading))) * float64(state.ScaleF(150)))
+	rl.DrawText("Bear:", recAnchorX+outline*2, recAnchorY+outline*6+fontSize*4, fontSize, state.COLOR_SELECT)
+	bearStr := strconv.FormatFloat(math.Mod(360+navigation.RadToDeg(obj.Bearing), 360), 'f', 2, 64) + "°"
+	rl.DrawText(bearStr, recAnchorX+state.Scale(200)-outline*2-rl.MeasureText(bearStr, fontSize), recAnchorY+outline*6+fontSize*4, fontSize, state.COLOR_SELECT)
+
+	if obj.Dist/float64(s.scale) > 0.75 {
+		xOff := float32(math.Sin(math.Pi-obj.Bearing+navigation.DegToRad(float64(state.GlobalFlightData.Heading))) * float64(state.ScaleF(150)))
+		yOff := float32(math.Cos(math.Pi-obj.Bearing+navigation.DegToRad(float64(state.GlobalFlightData.Heading))) * float64(state.ScaleF(150)))
 		rectOut := rl.Rectangle{X: float32(anchorX) + xOff, Y: float32(anchorY) + yOff, Width: state.ScaleF(18), Height: state.ScaleF(18)}
 		rectIn := rl.Rectangle{X: float32(anchorX) + xOff, Y: float32(anchorY) + yOff, Width: state.ScaleF(12), Height: state.ScaleF(12)}
-		rl.DrawRectanglePro(rectOut, rl.Vector2{X: state.ScaleF(9), Y: state.ScaleF(9)}, float32(45+RadToDeg(obj.bearing)-float64(state.GlobalFlightData.Heading)), state.COLOR_SELECT)
-		rl.DrawRectanglePro(rectIn, rl.Vector2{X: state.ScaleF(6), Y: state.ScaleF(6)}, float32(45+RadToDeg(obj.bearing)-float64(state.GlobalFlightData.Heading)), rl.Black)
+		rl.DrawRectanglePro(rectOut, rl.Vector2{X: state.ScaleF(9), Y: state.ScaleF(9)}, float32(45+navigation.RadToDeg(obj.Bearing)-float64(state.GlobalFlightData.Heading)), state.COLOR_SELECT)
+		rl.DrawRectanglePro(rectIn, rl.Vector2{X: state.ScaleF(6), Y: state.ScaleF(6)}, float32(45+navigation.RadToDeg(obj.Bearing)-float64(state.GlobalFlightData.Heading)), rl.Black)
 	}
 }
 
@@ -240,13 +245,13 @@ func (s _state) drawAirfields(anchorX, anchorY int32, width int32) {
 			float64(s.navMan.Airfields[i].Longitude),
 			float64(state.GlobalFlightData.Heading),
 		)
-		s.navMan.Airfields[i].dist = dist
-		s.navMan.Airfields[i].bearing = bearing
-		relX := (x / (float64(s.scale) * state.GlobalOptions.Units.DistanceConversion)) * float64(width/4) * 3
-		relY := (y / (float64(s.scale) * state.GlobalOptions.Units.DistanceConversion)) * float64(width/4) * 3
+		s.navMan.Airfields[i].Dist = dist
+		s.navMan.Airfields[i].Bearing = bearing
+		relX := (x * state.GlobalOptions.Units.DistanceConversion / float64(s.scale)) * float64(width/4) * 3
+		relY := (y * state.GlobalOptions.Units.DistanceConversion / float64(s.scale)) * float64(width/4) * 3
 
 		selected := false
-		if s.navMan.SelectedType == AIRFIELD && s.navMan.SelectedObject == i {
+		if s.navMan.SelectedType == navigation.AIRFIELD && s.navMan.SelectedObject == i {
 			selected = true
 		}
 		s.navMan.Airfields[i].DrawNavObject(anchorX+int32(math.Round(relX)), anchorY+int32(math.Round(relY)), selected)
@@ -264,10 +269,11 @@ func (s _state) drawNavPoints(anchorX, anchorY int32, width int32) {
 			float64(s.navMan.NavPoints[i].Longitude),
 			float64(state.GlobalFlightData.Heading),
 		)
-		s.navMan.NavPoints[i].dist = dist
-		s.navMan.NavPoints[i].bearing = bearing
-		relX := (x / float64(s.scale)) * float64(width/4) * 3
-		relY := (y / float64(s.scale)) * float64(width/4) * 3
+		s.navMan.NavPoints[i].Dist = dist
+		s.navMan.NavPoints[i].Bearing = bearing
+		// fmt.Printf("Distance X = %fkm, ")
+		relX := ((x * state.GlobalOptions.Units.DistanceConversion) / float64(s.scale)) * float64(width/4) * 3
+		relY := ((y * state.GlobalOptions.Units.DistanceConversion) / float64(s.scale)) * float64(width/4) * 3
 		rl.SetLineWidth(state.ScaleF(3))
 		if i > 0 {
 			rl.DrawLineEx(
@@ -280,14 +286,14 @@ func (s _state) drawNavPoints(anchorX, anchorY int32, width int32) {
 					Y: float32(anchorY) + float32(lastY),
 				},
 				2,
-				COLOR_NAV_LINE,
+				navigation.COLOR_NAV_LINE,
 			)
 		}
 		lastX = relX
 		lastY = relY
 
 		selected := false
-		if s.navMan.SelectedType == NAV_POINT && s.navMan.SelectedObject == i {
+		if s.navMan.SelectedType == navigation.NAV_POINT && s.navMan.SelectedObject == i {
 			selected = true
 		}
 		s.navMan.NavPoints[i].DrawNavObject(anchorX+int32(math.Round(relX)), anchorY+int32(math.Round(relY)), selected)

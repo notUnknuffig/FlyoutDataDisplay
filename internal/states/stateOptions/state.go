@@ -7,20 +7,12 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-const OPTION_LENGTH = 5
+const OPTION_LENGTH = 4
 const (
 	OPTION_RESOLUTION   = 0
 	OPTION_ASPECT_RATIO = 1
 	OPTION_FULLSCREEN   = 2
 	OPTION_UNITS        = 3
-	OPTION_APPLY        = 4
-)
-const (
-	KEY_UP    = rl.KeyUp
-	KEY_DOWN  = rl.KeyDown
-	KEY_LEFT  = rl.KeyLeft
-	KEY_RIGHT = rl.KeyRight
-	KEY_APPLY = rl.KeyEnter
 )
 
 var aspectRatios []string = []string{
@@ -181,9 +173,9 @@ func Init(cfg *state.Options) OptionState {
 }
 
 func (s OptionState) Input() state.State {
-	if rl.IsKeyPressed(KEY_DOWN) && s.selection < OPTION_LENGTH-1 {
+	if rl.IsKeyPressed(state.KEY_F7) && s.selection < OPTION_LENGTH-1 {
 		s.selection = s.selection + 1
-	} else if rl.IsKeyPressed(KEY_UP) && s.selection > 0 {
+	} else if rl.IsKeyPressed(state.KEY_F6) && s.selection > 0 {
 		s.selection = s.selection - 1
 	}
 
@@ -191,11 +183,11 @@ func (s OptionState) Input() state.State {
 	case OPTION_RESOLUTION:
 		if s.options.Fullscreen {
 
-		} else if rl.IsKeyPressed(KEY_LEFT) && s.resolutionIndex > 0 {
+		} else if rl.IsKeyPressed(state.KEY_F11) && s.resolutionIndex > 0 {
 			s.resolutionIndex -= 1
 			s.options.ResolutionX = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
 			s.options.ResolutionY = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
-		} else if rl.IsKeyPressed(KEY_RIGHT) && s.resolutionIndex < len(resolutions[0])-1 {
+		} else if rl.IsKeyPressed(state.KEY_F12) && s.resolutionIndex < len(resolutions[0])-1 {
 			s.resolutionIndex += 1
 			s.options.ResolutionX = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
 			s.options.ResolutionY = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
@@ -203,54 +195,53 @@ func (s OptionState) Input() state.State {
 	case OPTION_ASPECT_RATIO:
 		if s.options.Fullscreen {
 
-		} else if rl.IsKeyPressed(KEY_LEFT) && s.aspectRatioIndex > 0 {
+		} else if rl.IsKeyPressed(state.KEY_F11) && s.aspectRatioIndex > 0 {
 			s.aspectRatioIndex -= 1
 			s.options.AspectRatio = aspectRatios[s.aspectRatioIndex]
 			s.options.ResolutionX = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
 			s.options.ResolutionY = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
-		} else if rl.IsKeyPressed(KEY_RIGHT) && s.aspectRatioIndex < len(aspectRatios)-1 {
+		} else if rl.IsKeyPressed(state.KEY_F12) && s.aspectRatioIndex < len(aspectRatios)-1 {
 			s.aspectRatioIndex += 1
 			s.options.AspectRatio = aspectRatios[s.aspectRatioIndex]
 			s.options.ResolutionX = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
 			s.options.ResolutionY = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
 		}
 	case OPTION_FULLSCREEN:
-		if rl.IsKeyPressed(KEY_RIGHT) {
+		if rl.IsKeyPressed(state.KEY_F12) {
 			s.options.Fullscreen = true
 			monitor := rl.GetCurrentMonitor()
 			s.options.ResolutionX = rl.GetMonitorWidth(monitor)
 			s.options.ResolutionY = rl.GetMonitorHeight(monitor)
 
-		} else if rl.IsKeyPressed(KEY_LEFT) {
+		} else if rl.IsKeyPressed(state.KEY_F11) {
 			s.options.Fullscreen = false
 			s.options.ResolutionX = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
 			s.options.ResolutionY = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
 
 		}
 	case OPTION_UNITS:
-		if rl.IsKeyPressed(KEY_LEFT) && s.unitIndex > 0 {
+		if rl.IsKeyPressed(state.KEY_F11) && s.unitIndex > 0 {
 			s.unitIndex -= 1
 			s.options.Units = &units[s.unitIndex]
-		} else if rl.IsKeyPressed(KEY_RIGHT) && s.unitIndex < len(units)-1 {
+		} else if rl.IsKeyPressed(state.KEY_F12) && s.unitIndex < len(units)-1 {
 			s.unitIndex += 1
 			s.options.Units = &units[s.unitIndex]
 		}
-	case OPTION_APPLY:
-		if rl.IsKeyPressed(KEY_APPLY) {
-			if s.options.Fullscreen {
-				rl.SetWindowSize(s.options.ResolutionX, s.options.ResolutionY)
-				if !s.previousFullscreenState {
-					rl.ToggleFullscreen()
-				} // TODO: Figure out if this should be fullscreen
-				s.previousFullscreenState = true
-			} else {
-				if s.previousFullscreenState {
-					rl.ToggleFullscreen()
-				} // TODO: Figure out if this should be fullscreen
-				rl.SetWindowSize(s.options.ResolutionX, s.options.ResolutionY)
-				s.options.Scale = scales[s.resolutionIndex]
-				s.previousFullscreenState = false
-			}
+	}
+	if rl.IsKeyPressed(state.KEY_F8) {
+		if s.options.Fullscreen {
+			rl.SetWindowSize(s.options.ResolutionX, s.options.ResolutionY)
+			if !s.previousFullscreenState {
+				rl.ToggleFullscreen()
+			} // TODO: Figure out if this should be fullscreen
+			s.previousFullscreenState = true
+		} else {
+			if s.previousFullscreenState {
+				rl.ToggleFullscreen()
+			} // TODO: Figure out if this should be fullscreen
+			rl.SetWindowSize(s.options.ResolutionX, s.options.ResolutionY)
+			s.options.Scale = scales[s.resolutionIndex]
+			s.previousFullscreenState = false
 		}
 	}
 	return s
@@ -261,10 +252,10 @@ func (s OptionState) Draw() {
 	s.drawButtons()
 }
 
-const BUTTON_LENGTH = 5
-
 func (s OptionState) drawButtons() {
-	state.DrawArrowButtons(0)
+	state.DrawArrowButtonsHorizontal(0)
+	state.DrawArrowButtonsVertical(11 - 1)
+	state.DrawButton("ENT", 8-1)
 }
 
 func (s OptionState) drawOptions() {
@@ -310,8 +301,6 @@ func (s OptionState) drawOptions() {
 			case UNITS_RU:
 				rl.DrawText("Units: European", centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
 			}
-		case OPTION_APPLY:
-			rl.DrawText("Apply", centerBoxX+buttonMargin, centerBoxY+gap*int32(i)+buttonMargin, fontSize, textColor)
 		}
 	}
 }

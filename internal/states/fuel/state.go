@@ -1,4 +1,4 @@
-package stateFuel
+package fuel
 
 import (
 	"math"
@@ -53,8 +53,8 @@ func (s _state) Draw() {
 	var width = state.Scale(32)
 	var height = state.GetDisplayAreaWidth() - (margin * 2)
 	var fuelHeight = int32(math.Round(float64(height) * float64(state.GlobalFlightData.FuelRatio)))
-	x := state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE) + margin
-	y := state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE) + margin
+	x := state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_HEIGHT) + margin
+	y := state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_HEIGHT) + margin
 	rl.DrawRectangle(x, y, width, height, state.COLOR_UNSELECT)
 	rl.DrawRectangle(
 		x+offset/2,
@@ -101,8 +101,8 @@ func drawFuelState(fuelTank state.FuelTank, xOffset int32) int32 {
 			bColor = COLOR_FUEL_BACKGROUND
 		}
 	}
-	x := state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE) + margin + xOffset
-	y := state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE) + margin
+	x := state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_HEIGHT) + margin + xOffset
+	y := state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_HEIGHT) + margin
 	rl.DrawRectangle(x, y, width, height, bColor)
 	rl.DrawRectangle(
 		x+offset/2,
@@ -126,8 +126,8 @@ func drawFuelState(fuelTank state.FuelTank, xOffset int32) int32 {
 		fulStr = strconv.FormatFloat(float64(fuelTank.Fuel), 'f', 1, 64) + "kg"
 		capStr = strconv.FormatFloat(float64(fuelTank.Capacity), 'f', 1, 64) + "kg"
 	}
-	rl.DrawText(fulStr, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE)+margin+xOffset+(rl.MeasureText(fulStr, fontSize)-width)/2, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE)+margin+height+margin, fontSize, state.COLOR_SELECT)
-	rl.DrawText(capStr, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE)+margin+xOffset+(rl.MeasureText(capStr, fontSize)-width)/2, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE)+margin+height+margin+fontSize, fontSize, state.COLOR_SELECT)
+	rl.DrawText(fulStr, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_HEIGHT)+margin+xOffset+(rl.MeasureText(fulStr, fontSize)-width)/2, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_HEIGHT)+margin+height+margin, fontSize, state.COLOR_SELECT)
+	rl.DrawText(capStr, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_HEIGHT)+margin+xOffset+(rl.MeasureText(capStr, fontSize)-width)/2, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_HEIGHT)+margin+height+margin+fontSize, fontSize, state.COLOR_SELECT)
 
 	for i := 0; i < 21; i++ {
 		var scaleWidth = state.Scale(2)
@@ -164,8 +164,8 @@ func drawMirroredFuelState(aFuelTank state.FuelTank, bFuelTank state.FuelTank, x
 			bColor = COLOR_FUEL_BACKGROUND
 		}
 	}
-	x := state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE) + margin + xOffset
-	y := state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE) + margin
+	x := state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_HEIGHT) + margin + xOffset
+	y := state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_HEIGHT) + margin
 	rl.DrawRectangle(x, y, width, height, bColor)
 	rl.DrawRectangle(
 		x+offset/2,
@@ -216,8 +216,8 @@ func drawMirroredFuelState(aFuelTank state.FuelTank, bFuelTank state.FuelTank, x
 		fulStr = strconv.FormatFloat(float64(aFuelTank.Fuel+bFuelTank.Fuel), 'f', 1, 64) + "t"
 		capStr = strconv.FormatFloat(float64(aFuelTank.Capacity+bFuelTank.Capacity), 'f', 1, 64) + "t"
 	}
-	rl.DrawText(fulStr, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE)+margin+xOffset+width+(rl.MeasureText(fulStr, fontSize)-width-margin)/2, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE)+margin+height+margin, fontSize, state.COLOR_SELECT)
-	rl.DrawText(capStr, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE)+margin+xOffset+width+(rl.MeasureText(capStr, fontSize)-width-margin)/2, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_SIZE)+margin+height+margin+fontSize, fontSize, state.COLOR_SELECT)
+	rl.DrawText(fulStr, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_HEIGHT)+margin+xOffset+width+(rl.MeasureText(fulStr, fontSize)-width-margin)/2, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_HEIGHT)+margin+height+margin, fontSize, state.COLOR_SELECT)
+	rl.DrawText(capStr, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_HEIGHT)+margin+xOffset+width+(rl.MeasureText(capStr, fontSize)-width-margin)/2, state.Scale(state.SCREEN_MARGIN+state.MENU_BUTTON_HEIGHT)+margin+height+margin+fontSize, fontSize, state.COLOR_SELECT)
 
 	for i := 0; i < 21; i++ {
 		var scaleWidth = state.Scale(2)

@@ -12,57 +12,42 @@ func SmoothData(ms int) {
 	//
 }
 
-func DrawNoData() {
-	var messageWidth = Scale(156)
-	var messageHeight = Scale(52)
-	var messageMargin = Scale(12)
-	var centerBoxX = (int32(rl.GetRenderWidth()) - messageWidth) / 2
-	var centerBoxY = (int32(rl.GetRenderHeight()) - messageHeight) / 2
-	rl.DrawRectangle(centerBoxX, centerBoxY, int32(messageWidth), int32(messageHeight), COLOR_UNSELECT)
-	rl.DrawText("No Data", centerBoxX+int32(messageMargin), centerBoxY+int32(messageMargin), Scale(32), COLOR_SELECT)
+// Returns the top right corner of a button around the display.
+func GetButtonAnchor(index int) (int32, int32) {
+	var x, y int32
+	corneredWidth := int32(rl.GetScreenWidth() - int(2*Scale(SCREEN_MARGIN+CORNER_MARGIN)))
+	corneredHeight := int32(rl.GetScreenHeight() - int(2*Scale(SCREEN_MARGIN+CORNER_MARGIN)))
+	if index < 5 { // Bottom Buttons
+		y = int32(rl.GetRenderHeight()) - Scale(SCREEN_MARGIN+MENU_BUTTON_HEIGHT)
+		x = Scale(CORNER_MARGIN+SCREEN_MARGIN) +
+			((corneredWidth-Scale(MENU_BUTTON_WIDTH))/
+				(BUTTON_LENGTH-1))*int32(index%5)
+	} else if index < 10 { // Left Buttons
+		y = Scale(CORNER_MARGIN+SCREEN_MARGIN) +
+			((corneredHeight-Scale(MENU_BUTTON_WIDTH))/
+				(BUTTON_LENGTH-1))*int32(index%5)
+		x = Scale(SCREEN_MARGIN)
+	} else if index < 15 { // Top Buttons
+		y = Scale(SCREEN_MARGIN)
+		x = Scale(CORNER_MARGIN+SCREEN_MARGIN) +
+			((corneredWidth-Scale(MENU_BUTTON_WIDTH))/
+				(BUTTON_LENGTH-1))*int32(index%5)
+	} else { // Left Buttons
+		y = Scale(CORNER_MARGIN+SCREEN_MARGIN) +
+			((corneredHeight-Scale(MENU_BUTTON_WIDTH))/
+				(BUTTON_LENGTH-1))*int32(index%5)
+		x = int32(rl.GetRenderWidth()) - Scale(SCREEN_MARGIN+MENU_BUTTON_HEIGHT)
+	}
 
-}
-
-// Returns Achor Y coord below up button.
-func DrawArrowButtons(i int) (int32, int32) {
-	var buttonSize = Scale(MENU_BUTTON_SIZE) // Square
-	var baseX = int(Scale(SCREEN_MARGIN))
-	var baseY = int(Scale(SCREEN_MARGIN)) + ((rl.GetRenderHeight()-int(2*Scale(SCREEN_MARGIN)))/(BUTTON_LENGTH+1))*(i+1) - int(buttonSize/2)
-	var anchorY = int32(baseY) + buttonSize
-	var diff = int32(0)
-	d := rl.Vector2{X: float32(baseX + int(buttonSize)), Y: float32(baseY + int(buttonSize))}
-	e := rl.Vector2{X: float32(baseX), Y: float32(baseY + int(buttonSize))}
-	f := rl.Vector2{X: float32(baseX + int(buttonSize/2)), Y: float32(baseY)}
-	rl.DrawTriangle(f, e, d, COLOR_SELECT)
-	rl.DrawTriangle(rl.Vector2Add(f, rl.Vector2{X: 0, Y: ScaleF(7)}), rl.Vector2Add(e, rl.Vector2{X: ScaleF(6), Y: ScaleF(-3)}), rl.Vector2Add(d, rl.Vector2{X: ScaleF(-6), Y: ScaleF(-3)}), rl.Black)
-
-	baseY = int(Scale(SCREEN_MARGIN)) + ((rl.GetRenderHeight()-(2*int(Scale(SCREEN_MARGIN))))/(BUTTON_LENGTH+1))*(i+1+1) - int(buttonSize/2)
-	diff = int32(baseY) - anchorY + buttonSize
-	a := rl.Vector2{X: float32(baseX), Y: float32(baseY + int(buttonSize))}
-	b := rl.Vector2{X: float32(baseX + int(buttonSize)), Y: float32(baseY + int(buttonSize))}
-	c := rl.Vector2{X: float32(baseX + int(buttonSize/2)), Y: float32(baseY + int(buttonSize*2))}
-	rl.DrawTriangle(c, b, a, COLOR_SELECT)
-	rl.DrawTriangle(rl.Vector2Add(c, rl.Vector2{X: 0, Y: ScaleF(-7)}), rl.Vector2Add(b, rl.Vector2{X: ScaleF(-6), Y: ScaleF(3)}), rl.Vector2Add(a, rl.Vector2{X: ScaleF(6), Y: ScaleF(3)}), rl.Black)
-	return anchorY, diff
-}
-
-func GetButtonAnchorByIndex(index int) int32 {
-	return Scale(SCREEN_MARGIN) + (int32(rl.GetRenderHeight())-(2*Scale(SCREEN_MARGIN)))/(BUTTON_LENGTH+1)*int32(index+1) - MENU_BUTTON_SIZE/2
-}
-
-func DrawMarginBox() {
-	outLine := Scale(2)
-	anchorX := Scale(MENU_BUTTON_SIZE) + 2*Scale(SCREEN_MARGIN)
-	anchorY := Scale(MENU_BUTTON_SIZE) + 2*Scale(SCREEN_MARGIN)
-	width := GetDisplayAreaWidth()
-	rl.DrawRectangle(anchorX+outLine/2, anchorY+outLine/2, int32(width)+outLine/2, outLine, COLOR_SELECT)
-	rl.DrawRectangle(anchorX+outLine/2, anchorY+outLine/2, outLine, int32(width)+outLine/2, COLOR_SELECT)
-	rl.DrawRectangle(anchorX+outLine/2, anchorY+outLine/2+int32(width), int32(width)+outLine/2, outLine, COLOR_SELECT)
-	rl.DrawRectangle(anchorX+outLine/2+int32(width), anchorY+outLine/2, outLine, int32(width)+outLine/2, COLOR_SELECT)
+	return x, y
 }
 
 func GetDisplayAreaWidth() int32 {
-	return int32(GlobalOptions.ResolutionX - int(4*Scale(SCREEN_MARGIN)+Scale(MENU_BUTTON_SIZE)*2))
+	return int32(rl.GetScreenWidth() - int(4*Scale(SCREEN_MARGIN)+2*Scale(MENU_BUTTON_HEIGHT)))
+}
+
+func GetDisplayAreaHeight() int32 {
+	return int32(rl.GetScreenHeight() - int(4*Scale(SCREEN_MARGIN)+2*Scale(MENU_BUTTON_HEIGHT)))
 }
 
 func Scale(a int) int32 {
