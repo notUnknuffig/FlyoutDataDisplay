@@ -167,7 +167,7 @@ func Init(cfg *state.Options) OptionState {
 	return OptionState{
 		options:          cfg,
 		selection:        0,
-		resolutionIndex:  2,
+		resolutionIndex:  3,
 		aspectRatioIndex: 0,
 	}
 }

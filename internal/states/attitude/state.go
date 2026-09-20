@@ -59,30 +59,52 @@ func (s _state) drawHorizon(maxDegree float32) {
 
 	rl.SetLineWidth(state.ScaleF(3))
 
+	// Pitch Indicator
+	// rl.DrawRectangleLines(anchorX-state.Scale(200), anchorY-state.Scale(300), state.Scale(400), state.Scale(600), state.COLOR_SELECT)
+	pitchFontSize := state.Scale(16)
+	for i := 0; i < 90; i++ {
+		y := float32(anchorY) - state.ScaleF(float32(135*(45-i))) + state.ScaleF((135/5)*state.GlobalFlightData.Pitch)
+		if y < float32(anchorY-state.Scale(300)) || y > float32(anchorY+state.Scale(300)) {
+			continue
+		}
+		pStr := strconv.FormatInt(int64((45-i)*5), 10)
+		pStrLen := rl.MeasureText(pStr, pitchFontSize)
+		if (45 - i) == 0 {
+			rl.DrawLineEx(rl.Vector2{X: float32(anchorX) - state.ScaleF(300), Y: y}, rl.Vector2{X: float32(anchorX) - state.ScaleF(300) + state.ScaleF(160), Y: y}, state.ScaleF(4), state.COLOR_SELECT)
+			rl.DrawLineEx(rl.Vector2{X: float32(anchorX) + state.ScaleF(300) - state.ScaleF(160), Y: y}, rl.Vector2{X: float32(anchorX) + state.ScaleF(300), Y: y}, state.ScaleF(4), state.COLOR_SELECT)
+		} else if (45 - i) < 0 {
+			rl.DrawLineEx(rl.Vector2{X: float32(anchorX) - state.ScaleF(200), Y: y}, rl.Vector2{X: float32(anchorX) - state.ScaleF(200) + state.ScaleF(10), Y: y}, state.ScaleF(4), state.COLOR_UNSELECT)
+			rl.DrawLineEx(rl.Vector2{X: float32(anchorX) - state.ScaleF(185), Y: y}, rl.Vector2{X: float32(anchorX) - state.ScaleF(185) + state.ScaleF(10), Y: y}, state.ScaleF(4), state.COLOR_UNSELECT)
+			rl.DrawLineEx(rl.Vector2{X: float32(anchorX) - state.ScaleF(170), Y: y}, rl.Vector2{X: float32(anchorX) - state.ScaleF(170) + state.ScaleF(10), Y: y}, state.ScaleF(4), state.COLOR_UNSELECT)
+			rl.DrawLineEx(rl.Vector2{X: float32(anchorX) - state.ScaleF(155), Y: y}, rl.Vector2{X: float32(anchorX) - state.ScaleF(155) + state.ScaleF(10), Y: y}, state.ScaleF(4), state.COLOR_UNSELECT)
+			rl.DrawLineEx(rl.Vector2{X: float32(anchorX) - state.ScaleF(142), Y: y}, rl.Vector2{X: float32(anchorX) - state.ScaleF(142), Y: y + state.ScaleF(16)}, state.ScaleF(4), state.COLOR_UNSELECT)
+
+			rl.DrawText(pStr, anchorX-state.Scale(142)-pStrLen-state.Scale(4), int32(y)+state.Scale(4), pitchFontSize, state.COLOR_UNSELECT)
+			rl.DrawText(pStr, anchorX+state.Scale(142)+state.Scale(4), int32(y)+state.Scale(4), pitchFontSize, state.COLOR_UNSELECT)
+
+			rl.DrawLineEx(rl.Vector2{X: float32(anchorX) + state.ScaleF(200) - state.ScaleF(10), Y: y}, rl.Vector2{X: float32(anchorX) + state.ScaleF(200), Y: y}, state.ScaleF(4), state.COLOR_UNSELECT)
+			rl.DrawLineEx(rl.Vector2{X: float32(anchorX) + state.ScaleF(185) - state.ScaleF(10), Y: y}, rl.Vector2{X: float32(anchorX) + state.ScaleF(185), Y: y}, state.ScaleF(4), state.COLOR_UNSELECT)
+			rl.DrawLineEx(rl.Vector2{X: float32(anchorX) + state.ScaleF(170) - state.ScaleF(10), Y: y}, rl.Vector2{X: float32(anchorX) + state.ScaleF(170), Y: y}, state.ScaleF(4), state.COLOR_UNSELECT)
+			rl.DrawLineEx(rl.Vector2{X: float32(anchorX) + state.ScaleF(155) - state.ScaleF(10), Y: y}, rl.Vector2{X: float32(anchorX) + state.ScaleF(155), Y: y}, state.ScaleF(4), state.COLOR_UNSELECT)
+			rl.DrawLineEx(rl.Vector2{X: float32(anchorX) + state.ScaleF(142), Y: y}, rl.Vector2{X: float32(anchorX) + state.ScaleF(142), Y: y + state.ScaleF(16)}, state.ScaleF(4), state.COLOR_UNSELECT)
+		} else {
+			rl.DrawLineEx(rl.Vector2{X: float32(anchorX) - state.ScaleF(200), Y: y}, rl.Vector2{X: float32(anchorX) - state.ScaleF(200) + state.ScaleF(60), Y: y}, state.ScaleF(4), state.COLOR_UNSELECT)
+			rl.DrawLineEx(rl.Vector2{X: float32(anchorX) - state.ScaleF(142), Y: y - state.ScaleF(2)}, rl.Vector2{X: float32(anchorX) - state.ScaleF(142), Y: y - state.ScaleF(16)}, state.ScaleF(4), state.COLOR_UNSELECT)
+
+			rl.DrawText(pStr, anchorX-state.Scale(142)-pStrLen-state.Scale(4), int32(y)-pitchFontSize-state.Scale(4), pitchFontSize, state.COLOR_UNSELECT)
+			rl.DrawText(pStr, anchorX+state.Scale(142)+state.Scale(4), int32(y)-pitchFontSize-state.Scale(4), pitchFontSize, state.COLOR_UNSELECT)
+
+			rl.DrawLineEx(rl.Vector2{X: float32(anchorX) + state.ScaleF(200) - state.ScaleF(60), Y: y}, rl.Vector2{X: float32(anchorX) + state.ScaleF(200), Y: y}, state.ScaleF(4), state.COLOR_UNSELECT)
+			rl.DrawLineEx(rl.Vector2{X: float32(anchorX) + state.ScaleF(142), Y: y - state.ScaleF(2)}, rl.Vector2{X: float32(anchorX) + state.ScaleF(142), Y: y - state.ScaleF(16)}, state.ScaleF(4), state.COLOR_UNSELECT)
+
+		}
+	}
+
 	// Glide Slope
 	alphaOffset := float64((-state.GlobalFlightData.Alpha)/maxDegree) * float64(height)
 	betaOffset := float64((state.GlobalFlightData.Beta)/maxDegree) * float64(height)
 	glideSlopeOffsetX := -float32(sin*alphaOffset) + float32(cos*betaOffset)
 	glideSlopeOffsetY := float32(cos*alphaOffset) + float32(sin*betaOffset)
-
-	/*
-		// Pitch Indicator
-		for i := 0; i < 10; i++ {
-			rl.DrawLine(
-				anchorX-int32(glideSlopeOffsetX)+int32(state.ScaleF(60)*float32(negativeCos))+int32(state.ScaleF(60)*float32(i)*float32(negativeSin)),
-				anchorY-int32(glideSlopeOffsetY)+int32(state.ScaleF(60)*float32(negativeSin))+int32(state.ScaleF(60)*float32(i)*float32(negativeCos)),
-				anchorX-int32(glideSlopeOffsetX)+int32(state.ScaleF(120)*float32(negativeCos))+int32(state.ScaleF(60)*float32(i)*float32(negativeSin)),
-				anchorY-int32(glideSlopeOffsetY)+int32(state.ScaleF(120)*float32(negativeSin))+int32(state.ScaleF(60)*float32(i)*float32(negativeCos)),
-				state.COLOR_UNSELECT,
-			)
-			rl.DrawLine(
-				anchorX-int32(glideSlopeOffsetX)-int32(state.ScaleF(60)*float32(negativeCos))+int32(state.ScaleF(60)*float32(i)*float32(negativeSin)),
-				anchorY-int32(glideSlopeOffsetY)-int32(state.ScaleF(60)*float32(negativeSin))+int32(state.ScaleF(60)*float32(i)*float32(negativeCos)),
-				anchorX-int32(glideSlopeOffsetX)-int32(state.ScaleF(120)*float32(negativeCos))+int32(state.ScaleF(60)*float32(i)*float32(negativeSin)),
-				anchorY-int32(glideSlopeOffsetY)-int32(state.ScaleF(120)*float32(negativeSin))+int32(state.ScaleF(60)*float32(i)*float32(negativeCos)),
-				state.COLOR_UNSELECT,
-			)
-		} */
 	// Glide Slope Marker
 	rl.DrawRing(rl.Vector2{X: float32(anchorX) - glideSlopeOffsetX, Y: float32(anchorY) - glideSlopeOffsetY}, state.ScaleF(13), state.ScaleF(16), 0, 360, 0, state.COLOR_UNSELECT)
 	rl.DrawLine(

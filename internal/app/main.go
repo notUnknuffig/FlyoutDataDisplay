@@ -31,7 +31,7 @@ type App struct {
 }
 
 func (a App) Init() {
-	rl.InitWindow(720, 720, "Multi-Function Display")
+	rl.InitWindow(800, 800, "Multi-Function Display")
 	defer rl.CloseWindow()
 	rl.SetTargetFPS(30)
 	rl.SetExitKey(-1)

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"net"
 	"time"
 
@@ -91,18 +92,18 @@ func object(i int) state.FlightData {
 	return state.FlightData{
 		Time:          0,
 		Name:          "J-8 MFD Test",
-		Altitude:      165.151365514 + float32(i),
-		Airspeed:      43.161341234 + float32(i)*1,
-		Pitch:         5.136514,
-		Roll:          (float32(i%1800) * 0.5),
+		Altitude:      165.151365514,
+		Airspeed:      43.161341234,
+		Pitch:         float32(math.Mod(float64(5.136514)+float64(i)*0.05, 180)) - 90,
+		Roll:          0.0,
 		G:             1.1365341,
-		AGL:           0.13561342 + float32(i),
+		AGL:           0.13561342,
 		Heading:       308.01,
 		Climb:         12.135123,
 		Mass:          10000.135123,
 		Mach:          0.21353,
 		Alpha:         3.05135343,
-		Beta:          3.05135343,
+		Beta:          0.05135343,
 		Latitude:      -34.50,  //+ float32(math.Sin(stateNavigation.DegToRad((float64(i%360)*1)))*0.1),
 		Longitude:     -51.780, // + float32(math.Cos(stateNavigation.DegToRad((float64(i%360)*1)))*0.1),
 		JetEngines:    []state.JetEngine{eng, eng, eng, eng, eng},

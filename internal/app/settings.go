@@ -4,8 +4,8 @@ import "example.com/MFDTest/internal/state"
 
 func (a App) readSettings() state.Options {
 	return state.Options{
-		ResolutionX: 720,
-		ResolutionY: 720,
+		ResolutionX: 800,
+		ResolutionY: 800,
 		AspectRatio: "1x1",
 		Fullscreen:  false,
 		Scale:       1,
