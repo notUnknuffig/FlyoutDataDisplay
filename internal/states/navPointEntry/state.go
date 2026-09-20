@@ -20,6 +20,7 @@ type _state struct {
 	valueIndex  int
 	numberIndex int
 
+	navPointType bool
 	lat          []int
 	latNegative  bool
 	long         []int
@@ -44,6 +45,7 @@ func (s _state) enterEdit() _state {
 	}
 	s.navPointIndex = s.navMan.SelectedObject
 	s.navPoint = s.navMan.NavPoints[s.navMan.SelectedObject]
+	s.navPointType = s.navMan.NavPoints[s.navMan.SelectedObject].Type == navigation.NAV_POINT
 	s.latNegative = s.navPoint.Latitude < 0
 	s.lat = splitNumber(s.navPoint.Latitude)
 	s.longNegative = s.navPoint.Longitude < 0
@@ -62,6 +64,7 @@ func (s _state) enterAdd() _state {
 		Allied:    true,
 		Type:      navigation.NAV_POINT,
 	}
+	s.navPointType = true
 	s.navPointIndex = s.navMan.SelectedObject
 	s.latNegative = s.navPoint.Latitude < 0
 	s.lat = splitNumber(s.navPoint.Latitude)
@@ -79,19 +82,22 @@ func (s _state) Input() state.State {
 		} else {
 			s.navMan.NavPoints[s.navPointIndex] = s.navPoint
 		}
+		s.recountPoints()
 		return s.returnState
 	} else if rl.IsKeyPressed(state.KEY_F9) {
 		s.navPoint = s.readNavPoint()
 		s.addNavPoint()
+		s.recountPoints()
 		return s.returnState
 	} else if rl.IsKeyPressed(state.KEY_F10) {
 		s.removeNavPoint()
+		s.recountPoints()
 		return s.returnState
 	}
 
-	if rl.IsKeyPressed(state.KEY_F11) && s.numberIndex > 0 {
+	if rl.IsKeyPressed(state.KEY_F11) && s.numberIndex > 0 && s.valueIndex != -1 {
 		s.numberIndex--
-	} else if rl.IsKeyPressed(state.KEY_F11) && s.numberIndex == 0 && s.valueIndex > 0 {
+	} else if rl.IsKeyPressed(state.KEY_F11) && s.numberIndex == 0 && s.valueIndex > -1 {
 		s.numberIndex = 6
 		s.valueIndex--
 	} else if rl.IsKeyPressed(state.KEY_F12) && s.numberIndex < 6 {
@@ -102,7 +108,9 @@ func (s _state) Input() state.State {
 	}
 
 	if rl.IsKeyPressed(state.KEY_F6) || rl.IsKeyPressed(state.KEY_F7) {
-		if s.numberIndex == 0 {
+		if s.valueIndex == -1 {
+			s.navPointType = !s.navPointType
+		} else if s.numberIndex == 0 {
 			switch s.valueIndex {
 			case 0:
 				s.latNegative = !s.latNegative
@@ -171,7 +179,18 @@ func (s _state) addNavPoint() {
 			s.navMan.NavPoints = append(s.navMan.NavPoints, navPoints[j])
 			j++
 		}
-		s.navMan.NavPoints[i].Name = "Nav Point " + strconv.FormatInt(int64(i+1), 10)
+	}
+}
+
+func (s _state) recountPoints() {
+	for i := 0; i < len(s.navMan.NavPoints); i++ {
+		str := ""
+		if s.navMan.NavPoints[i].Type == navigation.NAV_POINT {
+			str = "Nav Point "
+		} else {
+			str = "Turn Point "
+		}
+		s.navMan.NavPoints[i].Name = str + strconv.FormatInt(int64(i+1), 10)
 	}
 }
 
@@ -190,6 +209,11 @@ func (s _state) removeNavPoint() {
 }
 
 func (s _state) readNavPoint() navigation.MappedObject {
+	if s.navPointType {
+		s.navPoint.Type = navigation.NAV_POINT
+	} else {
+		s.navPoint.Type = navigation.TURNING_POINT
+	}
 	s.navPoint.Latitude = readNumber(s.lat, s.latNegative)
 	s.navPoint.Longitude = readNumber(s.long, s.longNegative)
 	s.navPoint.Altitude = readNumber(s.height, false) / float32(state.GlobalOptions.Units.HightConversion)
@@ -223,11 +247,23 @@ func (s _state) Draw() {
 	diff := state.Scale(80)
 	x := int32(rl.GetRenderWidth()/2) - state.Scale(420/2)
 	y := state.Scale(2*state.SCREEN_MARGIN+state.MENU_BUTTON_HEIGHT) + cursorHeight
-	rl.DrawText("Name "+s.navPoint.Name, x, y, state.Scale(30), state.COLOR_SELECT)
+	str := ""
+	if s.navPointType {
+		str = "Nav Point "
+		rl.DrawRectangle(x+state.Scale(420)-state.Scale(30), y, state.Scale(30), state.Scale(30), state.COLOR_TEXT_SELECT)
+		rl.DrawRectangle(x+state.Scale(420)-state.Scale(30-4), y+state.Scale(4), state.Scale(30-8), state.Scale(30-8), rl.Black)
+	} else {
+		str = "Turn Point "
+		rl.DrawRing(rl.Vector2{X: float32(x + state.Scale(420) - state.Scale(15)), Y: float32(y + state.Scale(15))}, state.ScaleF(11), state.ScaleF(15), 0, 360, 0, state.COLOR_TEXT_SELECT)
+	}
+	rl.DrawText("Name: "+str+strconv.FormatInt(int64(s.navPointIndex+1), 10), x, y, state.Scale(30), state.COLOR_SELECT)
+
 	drawNumberEdit("Latitude", s.lat, s.latNegative, x, y+diff, false)
 	drawNumberEdit("Longitude", s.long, s.longNegative, x, y+diff*2, false)
 	drawNumberEdit("Height", s.height, false, x, y+diff*3, true)
 	s.drawCursor(x, y+diff, diff)
+
+	s.drawNavPointList(state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_HEIGHT), y+diff*4)
 }
 
 func (s _state) drawCursor(anchorX, anchorY int32, diff int32) {
@@ -291,6 +327,54 @@ func drawNumberEdit(label string, value []int, negative bool, anchorX, anchorY i
 		}
 		nLen := rl.MeasureText(n, fontSize)
 		rl.DrawText(n, anchorX+state.Scale(420-(30*8))+state.Scale(30)*int32(i)+(15-nLen/2), anchorY, fontSize, state.COLOR_SELECT)
+	}
+}
+
+func (s _state) drawNavPointList(anchorX, anchorY int32) {
+	width := state.GetDisplayAreaWidth()
+	height := int32(rl.GetRenderHeight()) - anchorY - state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_HEIGHT)
+	rl.DrawRectangleLines(anchorX, anchorY, width, height, state.COLOR_UNSELECT)
+	padding := state.Scale(8)
+	fontSize := state.Scale(20)
+	arrowPadding := state.Scale(20)
+
+	countDisplayablePoints := int(math.Floor(float64(height-padding) / float64(fontSize+padding)))
+	offset := 0
+	if s.navPointIndex > countDisplayablePoints-1 {
+		if len(s.navMan.NavPoints) < countDisplayablePoints*2 || len(s.navMan.NavPoints)-s.navPointIndex < countDisplayablePoints {
+			offset = len(s.navMan.NavPoints) - countDisplayablePoints
+			// fmt.Printf("Seeing Bottom from: %d to %d\n", offset, offset+countDisplayablePoints)
+		} else {
+			offset = s.navPointIndex - 3
+			// fmt.Printf("Seeing Justified from: %d to %d\n", offset, offset+countDisplayablePoints)
+		}
+	}
+
+	for i := 0; i < int(math.Min(float64(len(s.navMan.NavPoints)), float64(countDisplayablePoints))); i++ {
+		x := anchorX + arrowPadding + padding
+		y := anchorY + padding + (fontSize+padding)*int32(i)
+		if i == s.navPointIndex-offset {
+			d := rl.Vector2{
+				X: float32(x - arrowPadding),
+				Y: float32(y + fontSize),
+			}
+			e := rl.Vector2{
+				X: float32(x + state.Scale(16) - arrowPadding),
+				Y: float32(y + fontSize/2),
+			}
+			f := rl.Vector2{
+				X: float32(x - arrowPadding),
+				Y: float32(y),
+			}
+			rl.DrawTriangleLines(d, e, f, state.COLOR_SELECT)
+			rl.DrawRectangle(x, y+fontSize, width-arrowPadding-padding*2, state.Scale(2), state.COLOR_UNSELECT)
+		}
+
+		rl.DrawText(s.navMan.NavPoints[i+offset].Name, x, y, fontSize, state.COLOR_SELECT)
+		rl.DrawText(strconv.FormatFloat(float64(s.navMan.NavPoints[i+offset].Latitude), 'f', 3, 64)+"°", x+state.Scale(140), y, fontSize, state.COLOR_SELECT)
+		rl.DrawText(strconv.FormatFloat(float64(s.navMan.NavPoints[i+offset].Longitude), 'f', 3, 64)+"°", x+state.Scale(240), y, fontSize, state.COLOR_SELECT)
+		rl.DrawText(strconv.FormatFloat(float64(s.navMan.NavPoints[i+offset].Altitude)*state.GlobalOptions.Units.HightConversion, 'f', 3, 64)+state.GlobalOptions.Units.HightUnit, x+state.Scale(340), y, fontSize, state.COLOR_SELECT)
+		rl.DrawText(strconv.FormatFloat(float64(s.navMan.NavPoints[i+offset].Dist)*state.GlobalOptions.Units.DistanceConversion, 'f', 3, 64)+state.GlobalOptions.Units.DistanceUnit, x+state.Scale(440), y, fontSize, state.COLOR_SELECT)
 	}
 }
 

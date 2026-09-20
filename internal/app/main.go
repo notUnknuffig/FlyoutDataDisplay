@@ -74,13 +74,14 @@ func (a App) Init() {
 	}
 	state.GlobalOptions = &config
 	var fuelState state.State = fuel.Init()
+	var optionState state.State = stateOptions.Init(&config)
 	a.availableStates = []state.State{
 		attitude.Init(&nav),
 		engine.Init(fuelState),
 		navigator.Init(&nav),
-		systems.Init(),
+		systems.Init(optionState),
 		weapons.Init(),
-		stateOptions.Init(&config),
+		optionState,
 	}
 
 	a.state = a.availableStates[Options]

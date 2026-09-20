@@ -49,6 +49,9 @@ func (s _state) drawHorizon(maxDegree float32) {
 	sin := math.Sin(-navigation.DegToRad(float64(state.GlobalFlightData.Roll)))
 	cos := math.Cos(-navigation.DegToRad(float64(state.GlobalFlightData.Roll)))
 
+	// negativeSin := math.Sin(navigation.DegToRad(float64(state.GlobalFlightData.Roll)))
+	// negativeCos := math.Cos(navigation.DegToRad(float64(state.GlobalFlightData.Roll)))
+
 	inX := cos * float64(innnerRadius)
 	inY := sin * float64(innnerRadius)
 	outX := cos * float64(outerRadius)
@@ -56,20 +59,31 @@ func (s _state) drawHorizon(maxDegree float32) {
 
 	rl.SetLineWidth(state.ScaleF(3))
 
-	rl.DrawLine(anchorX-int32(inX), anchorY-int32(inY), anchorX-int32(outX), anchorY-int32(outY), state.COLOR_SELECT)
-	rl.DrawLine(anchorX-int32(outX)-int32(float32(sin)*state.ScaleF(18)), anchorY-int32(outY)+int32(float32(cos)*state.ScaleF(18)), anchorX-int32(outX), anchorY-int32(outY), state.COLOR_SELECT)
-
-	rl.DrawLine(anchorX+int32(inX), anchorY+int32(inY), anchorX+int32(outX), anchorY+int32(outY), state.COLOR_SELECT)
-	rl.DrawLine(anchorX+int32(outX)-int32(float32(sin)*state.ScaleF(18)), anchorY+int32(outY)+int32(float32(cos)*state.ScaleF(18)), anchorX+int32(outX), anchorY+int32(outY), state.COLOR_SELECT)
-
-	// Center
-	rl.DrawRectangle(anchorX-state.Scale(4), anchorY-state.Scale(4), state.Scale(8), state.Scale(8), state.COLOR_SELECT)
-
 	// Glide Slope
 	alphaOffset := float64((-state.GlobalFlightData.Alpha)/maxDegree) * float64(height)
 	betaOffset := float64((state.GlobalFlightData.Beta)/maxDegree) * float64(height)
 	glideSlopeOffsetX := -float32(sin*alphaOffset) + float32(cos*betaOffset)
 	glideSlopeOffsetY := float32(cos*alphaOffset) + float32(sin*betaOffset)
+
+	/*
+		// Pitch Indicator
+		for i := 0; i < 10; i++ {
+			rl.DrawLine(
+				anchorX-int32(glideSlopeOffsetX)+int32(state.ScaleF(60)*float32(negativeCos))+int32(state.ScaleF(60)*float32(i)*float32(negativeSin)),
+				anchorY-int32(glideSlopeOffsetY)+int32(state.ScaleF(60)*float32(negativeSin))+int32(state.ScaleF(60)*float32(i)*float32(negativeCos)),
+				anchorX-int32(glideSlopeOffsetX)+int32(state.ScaleF(120)*float32(negativeCos))+int32(state.ScaleF(60)*float32(i)*float32(negativeSin)),
+				anchorY-int32(glideSlopeOffsetY)+int32(state.ScaleF(120)*float32(negativeSin))+int32(state.ScaleF(60)*float32(i)*float32(negativeCos)),
+				state.COLOR_UNSELECT,
+			)
+			rl.DrawLine(
+				anchorX-int32(glideSlopeOffsetX)-int32(state.ScaleF(60)*float32(negativeCos))+int32(state.ScaleF(60)*float32(i)*float32(negativeSin)),
+				anchorY-int32(glideSlopeOffsetY)-int32(state.ScaleF(60)*float32(negativeSin))+int32(state.ScaleF(60)*float32(i)*float32(negativeCos)),
+				anchorX-int32(glideSlopeOffsetX)-int32(state.ScaleF(120)*float32(negativeCos))+int32(state.ScaleF(60)*float32(i)*float32(negativeSin)),
+				anchorY-int32(glideSlopeOffsetY)-int32(state.ScaleF(120)*float32(negativeSin))+int32(state.ScaleF(60)*float32(i)*float32(negativeCos)),
+				state.COLOR_UNSELECT,
+			)
+		} */
+	// Glide Slope Marker
 	rl.DrawRing(rl.Vector2{X: float32(anchorX) - glideSlopeOffsetX, Y: float32(anchorY) - glideSlopeOffsetY}, state.ScaleF(13), state.ScaleF(16), 0, 360, 0, state.COLOR_UNSELECT)
 	rl.DrawLine(
 		anchorX-int32(glideSlopeOffsetX),
@@ -92,6 +106,15 @@ func (s _state) drawHorizon(maxDegree float32) {
 		anchorY-int32(glideSlopeOffsetY),
 		state.COLOR_UNSELECT,
 	)
+
+	rl.DrawLine(anchorX-int32(inX), anchorY-int32(inY), anchorX-int32(outX), anchorY-int32(outY), state.COLOR_SELECT)
+	rl.DrawLine(anchorX-int32(outX)-int32(float32(sin)*state.ScaleF(18)), anchorY-int32(outY)+int32(float32(cos)*state.ScaleF(18)), anchorX-int32(outX), anchorY-int32(outY), state.COLOR_SELECT)
+
+	rl.DrawLine(anchorX+int32(inX), anchorY+int32(inY), anchorX+int32(outX), anchorY+int32(outY), state.COLOR_SELECT)
+	rl.DrawLine(anchorX+int32(outX)-int32(float32(sin)*state.ScaleF(18)), anchorY+int32(outY)+int32(float32(cos)*state.ScaleF(18)), anchorX+int32(outX), anchorY+int32(outY), state.COLOR_SELECT)
+
+	// Center
+	rl.DrawRectangle(anchorX-state.Scale(4), anchorY-state.Scale(4), state.Scale(8), state.Scale(8), state.COLOR_SELECT)
 
 	// Heading
 	hdgStr := strconv.FormatFloat(float64(state.GlobalFlightData.Heading), 'f', 1, 64)

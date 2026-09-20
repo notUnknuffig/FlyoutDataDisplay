@@ -89,12 +89,12 @@ func (s _state) Draw() {
 		state.DrawButton("TRI", 8-1)
 	}
 
+	state.DrawButton("TYP", 9-1)
 	anchorX, diffX := state.DrawArrowButtonsVertical(11 - 1)
 	rl.DrawRectangle(anchorX, state.Scale(state.SCREEN_MARGIN), diffX, state.Scale(state.MENU_BUTTON_HEIGHT), rl.Black)
 	targetString := "Nothing"
 	switch s.navMan.SelectedType {
 	case navigation.NAV_POINT:
-		state.DrawButton("TYP", 9-1)
 		state.DrawButton("EDT", 10-1)
 		if len(s.navMan.NavPoints) == 0 {
 			targetString = "No NP"
