@@ -2,6 +2,7 @@ package weapons
 
 import (
 	"math"
+	"strconv"
 
 	"example.com/MFDTest/internal/state"
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -34,7 +35,7 @@ func (s _state) Draw() {
 
 func (s _state) DrawWingShape() {
 	anchorX := int32(rl.GetRenderWidth() / 2)
-	anchorY := int32(rl.GetRenderWidth()/2) - state.Scale(100)
+	anchorY := state.Scale(state.SCREEN_MARGIN*2 + state.MENU_BUTTON_HEIGHT + 100)
 	fuselageWidth := state.Scale(80)
 	wingSweep := state.Scale(80)
 	wingWidth := state.Scale(275)
@@ -43,7 +44,6 @@ func (s _state) DrawWingShape() {
 
 	s.missileInfo = nil
 	s.drawPayload(anchorX, anchorY)
-	s.drawPayloadInfo()
 
 	// Draw Generic Plane
 	rl.DrawLine(anchorX-wingWidth, anchorY+wingSweep, anchorX-fuselageWidth/2, anchorY, state.COLOR_SELECT)
@@ -59,18 +59,6 @@ func (s _state) drawPayload(anchorX, anchorY int32) {
 	}
 	for i := 0; i < missile; i++ {
 		s.drawMissile(anchorX-state.Scale(75+(50*i)), anchorX+state.Scale(75+(50*i)), anchorY+state.Scale(12+(17*i)), state.GlobalFlightData.Missiles[i])
-	}
-}
-
-func (s _state) drawWeaponStats(anchorX, anchorY int32, count int) {
-	missileCount := count
-	for i := 0; i < missileCount; i++ {
-		row := int(math.Floor(float64(i) / 2.0))
-		offset := -1
-		if i%2 == 0 {
-			offset = 1
-		}
-		rl.DrawCircle(anchorX+state.Scale(6*offset), anchorY+state.Scale(12*row), state.ScaleF(4), state.COLOR_TEXT_SELECT)
 	}
 }
 
@@ -91,9 +79,21 @@ func (s _state) drawMissile(anchorXRight, anchorXLeft, anchorY int32, missile st
 	s.drawWeaponStats(anchorXLeft, anchorY+state.Scale(20), countLeft)
 	s.drawWeaponStats(anchorXRight, anchorY+state.Scale(20), countRight)
 	if missile.Name == state.GlobalFlightData.ActiveMissile {
-		s.missileInfo = &missile
+		s.drawPayloadInfo(missile)
 		yOffset := int(math.Ceil(float64(missile.Count) / 4))
 		s.drawActiveMark(anchorXLeft, anchorXRight, anchorY+state.Scale(20*yOffset))
+	}
+}
+
+func (s _state) drawWeaponStats(anchorX, anchorY int32, count int) {
+	missileCount := count
+	for i := 0; i < missileCount; i++ {
+		row := int(math.Floor(float64(i) / 2.0))
+		offset := -1
+		if i%2 == 0 {
+			offset = 1
+		}
+		rl.DrawCircle(anchorX+state.Scale(6*offset), anchorY+state.Scale(12*row), state.ScaleF(4), state.COLOR_TEXT_SELECT)
 	}
 }
 
@@ -208,6 +208,10 @@ func (s _state) drawIRMissile(anchorX, anchorY int32, mirrored bool) {
 	rl.DrawLine(anchorX-(state.Scale(s.missileThickness)/2), anchorY-state.Scale(36), anchorX+(state.Scale(s.missileThickness)/2), anchorY-state.Scale(36), state.COLOR_SELECT)
 }
 
-func (s _state) drawPayloadInfo() {
-
+func (s _state) drawPayloadInfo(missile state.Missile) {
+	fontSize := state.Scale(24)
+	anchorX := state.Scale(state.SCREEN_MARGIN*2 + state.MENU_BUTTON_HEIGHT)
+	anchorY := state.Scale(state.SCREEN_MARGIN*2 + state.MENU_BUTTON_HEIGHT + 300)
+	rl.DrawRectangleLines(anchorX, anchorY, state.GetDisplayAreaWidth(), state.Scale(100), state.COLOR_SELECT)
+	rl.DrawText(strconv.FormatInt(int64(missile.Count), 10)+" x "+missile.Name, anchorX+state.Scale(12), anchorY+state.Scale(12), fontSize, state.COLOR_SELECT)
 }

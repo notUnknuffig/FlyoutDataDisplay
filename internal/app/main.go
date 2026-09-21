@@ -20,8 +20,8 @@ const (
 	Attidude   = 0
 	Engine     = 1
 	Navigation = 2
-	Systems    = 3
-	Weapons    = 4
+	Weapons    = 3
+	Systems    = 4
 	Options    = 5
 )
 
