@@ -1,5 +1,10 @@
 package attitude
 
+/*
+ * Somewhat like the HUD of the Flyout UI but also includes some
+ * navigation and additional info.
+ */
+
 import (
 	"math"
 	"strconv"

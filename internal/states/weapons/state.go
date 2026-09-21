@@ -9,11 +9,13 @@ import (
 
 type _state struct {
 	missileThickness int
+	missileInfo      *state.Missile
 }
 
 func Init() _state {
 	return _state{
 		missileThickness: 12,
+		missileInfo:      nil,
 	}
 }
 
@@ -39,7 +41,9 @@ func (s _state) DrawWingShape() {
 
 	rl.SetLineWidth(state.ScaleF(3))
 
+	s.missileInfo = nil
 	s.drawPayload(anchorX, anchorY)
+	s.drawPayloadInfo()
 
 	// Draw Generic Plane
 	rl.DrawLine(anchorX-wingWidth, anchorY+wingSweep, anchorX-fuselageWidth/2, anchorY, state.COLOR_SELECT)
@@ -86,6 +90,16 @@ func (s _state) drawMissile(anchorXRight, anchorXLeft, anchorY int32, missile st
 	}
 	s.drawWeaponStats(anchorXLeft, anchorY+state.Scale(20), countLeft)
 	s.drawWeaponStats(anchorXRight, anchorY+state.Scale(20), countRight)
+	if missile.Name == state.GlobalFlightData.ActiveMissile {
+		s.missileInfo = &missile
+		yOffset := int(math.Ceil(float64(missile.Count) / 4))
+		s.drawActiveMark(anchorXLeft, anchorXRight, anchorY+state.Scale(20*yOffset))
+	}
+}
+
+func (s _state) drawActiveMark(anchorXRight, anchorXLeft, anchorY int32) {
+	rl.DrawRectangle(anchorXLeft-state.Scale(15), anchorY, state.Scale(30), state.Scale(4), state.COLOR_SELECT)
+	rl.DrawRectangle(anchorXRight-state.Scale(15), anchorY, state.Scale(30), state.Scale(4), state.COLOR_SELECT)
 }
 
 // Sharp Missile Head
@@ -192,4 +206,8 @@ func (s _state) drawIRMissile(anchorX, anchorY int32, mirrored bool) {
 		state.COLOR_SELECT,
 	)
 	rl.DrawLine(anchorX-(state.Scale(s.missileThickness)/2), anchorY-state.Scale(36), anchorX+(state.Scale(s.missileThickness)/2), anchorY-state.Scale(36), state.COLOR_SELECT)
+}
+
+func (s _state) drawPayloadInfo() {
+
 }

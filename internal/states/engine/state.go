@@ -1,5 +1,10 @@
 package engine
 
+/*
+ * Provides info about engine state, throttle and fuel flow.
+ * A button also let's you enter the fuel info state.
+ */
+
 import (
 	"math"
 	"strconv"
