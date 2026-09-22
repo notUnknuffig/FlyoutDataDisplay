@@ -78,10 +78,10 @@ func (s _state) drawMissile(anchorXRight, anchorXLeft, anchorY int32, missile st
 	countLeft := int(math.Ceil(float64(missile.Count) / 2))
 	countRight := int(math.Floor(float64(missile.Count) / 2))
 	switch missile.Type {
-	case "Infrared Missile":
+	case "InfraredAllAspect":
 		s.drawIRMissile(anchorXLeft, anchorY, true)
 		s.drawIRMissile(anchorXRight, anchorY, false)
-	case "Unguided Missile":
+	case "Unguided":
 		s.drawBomb(anchorXLeft, anchorY, true)
 		s.drawBomb(anchorXRight, anchorY, false)
 	default:

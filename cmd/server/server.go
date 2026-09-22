@@ -62,16 +62,18 @@ func object(i int) state.FlightData {
 		Temperature:  400.0,
 		Power:        660000,
 	}
-	mis1 := state.Missile{
-		Count: 10,
-		Type:  "Infrared Missile",
-		Name:  "Aim-9X",
+	/* mis1 := state.Missile{
+		Count:       2,
+		Type:        "Infrared Missile",
+		Name:        "Aim-9X",
+		MaxDistance: 15000.0,
 	}
 	mis2 := state.Missile{
-		Count: 12,
-		Type:  "Radar Missile",
-		Name:  "ARAAM-120",
-	}
+		Count:       12,
+		Type:        "Radar Missile",
+		Name:        "ARAAM-120",
+		MaxDistance: 10000.0,
+	} */
 	var b = false
 	if i > 3000 {
 		b = true
@@ -88,6 +90,38 @@ func object(i int) state.FlightData {
 	// if i%3600 == 0 {
 	// 	randomVal = 0.5 - rand.Float32()
 	// }
+
+	miss := "Aim-9X"
+	if i%1200 > 300 && i%1200 < 600 {
+		miss = "ARAAM-120"
+	} else if i%1200 > 600 {
+		miss = "PL-12"
+	}
+
+	misss := []state.Missile{
+		{
+			Count:       1,
+			Type:        "InfraredAllAspect",
+			Name:        "Aim-9X",
+			MaxDistance: 10000.0,
+		},
+		{
+			Count:       4,
+			Type:        "CraftRadar",
+			Name:        "ARAAM-120",
+			MaxDistance: 10000.0,
+		}, {
+			Count:       6,
+			Type:        "Unguided",
+			Name:        "PL-12",
+			MaxDistance: 10000.0,
+		}, {
+			Count:       13,
+			Type:        "Radar Missile",
+			Name:        "Aim-9X",
+			MaxDistance: 10000.0,
+		},
+	}
 
 	return state.FlightData{
 		Time:          0,
@@ -113,7 +147,15 @@ func object(i int) state.FlightData {
 		FuelCapacity:  6000,
 		FuelRatio:     (6000 - float32(i*2)) / 6000,
 		TimeToEmpty:   13000,
-		Missiles:      []state.Missile{mis1, mis2, mis1, mis1, mis1, mis2, mis1, mis1},
-		ActiveMissile: "Aim-9X",
+		Missiles:      misss,
+		ActiveMissile: miss,
+		Radar: state.Radar{
+			Range:  12540.0,
+			Mode:   "Bore",
+			SteerX: 0.0,
+			SteerY: 0.0,
+			SteerZ: 0.0,
+			Size:   68.0,
+		},
 	}
 }

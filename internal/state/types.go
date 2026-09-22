@@ -34,9 +34,19 @@ type FuelTank struct {
 }
 
 type Missile struct {
-	Count int    `json:"Count"`
-	Type  string `json:"Type"`
-	Name  string `json:"Name"`
+	Count       int     `json:"Count"`
+	Type        string  `json:"Type"`
+	Name        string  `json:"Name"`
+	MaxDistance float32 `json:"MaxDistance"`
+}
+
+type Radar struct {
+	Range  float32 `json:"Range"`
+	Mode   string  `json:"Mode"`
+	SteerX float32 `json:"SteerX"`
+	SteerY float32 `json:"SteerY"`
+	SteerZ float32 `json:"SteerZ"`
+	Size   float32 `json:"Size"`
 }
 
 type FlightData struct {
@@ -65,6 +75,7 @@ type FlightData struct {
 	FuelTanks     []FuelTank     `json:"FuelTanks"`
 	Missiles      []Missile      `json:"Missiles"`
 	ActiveMissile string         `json:"ActiveMissile"`
+	Radar         Radar          `json:"Radar"`
 }
 
 type Options struct {
