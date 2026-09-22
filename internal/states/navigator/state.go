@@ -206,9 +206,9 @@ func (s _state) drawRadar(anchorX, anchorY int32, width int32) {
 	}
 	d := (float64(state.GlobalFlightData.Radar.Range/1000) / float64(s.scale)) * float64(width/4) * 3
 	rl.DrawRing(rl.Vector2{X: float32(anchorX), Y: float32(anchorY)}, float32(d)-state.ScaleF(0.5), float32(d)+state.ScaleF(0.5), 0, 360, 0, radarColor)
-	angle := float32(math.Acos(float64(state.GlobalFlightData.Radar.SteerX + 1)))
+	angle := float32(math.Acos(float64(state.GlobalFlightData.Radar.SteerX))) - 90
 	angleOffset := state.GlobalFlightData.Radar.Size / 2
-	rl.DrawRingLines(rl.Vector2{X: float32(anchorX), Y: float32(anchorY)}, float32(d)-state.ScaleF(1), 0, angle-angleOffset-90, angle+angleOffset-90, 0, radarColor)
+	rl.DrawRingLines(rl.Vector2{X: float32(anchorX), Y: float32(anchorY)}, float32(d)-state.ScaleF(1), 0, angle-angleOffset, angle+angleOffset, 0, radarColor)
 }
 
 func (s _state) drawNavInfo(anchorX, anchorY int32, width int32) {
