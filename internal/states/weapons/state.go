@@ -41,9 +41,14 @@ func (s _state) DrawWingShape() {
 	wingWidth := state.Scale(275)
 
 	rl.SetLineWidth(state.ScaleF(3))
-
 	s.missileInfo = nil
 	s.drawPayload(anchorX, anchorY)
+
+	for i := 0; i < len(state.GlobalFlightData.Missiles); i++ {
+		if state.GlobalFlightData.Missiles[i].Name == state.GlobalFlightData.ActiveMissile {
+			s.drawPayloadInfo(state.GlobalFlightData.Missiles[i])
+		}
+	}
 
 	// Draw Generic Plane
 	rl.DrawLine(anchorX-wingWidth, anchorY+wingSweep, anchorX-fuselageWidth/2, anchorY, state.COLOR_SELECT)
@@ -72,6 +77,9 @@ func (s _state) drawMissile(anchorXRight, anchorXLeft, anchorY int32, missile st
 	case "Unguided":
 		s.drawBomb(anchorXLeft, anchorY, true)
 		s.drawBomb(anchorXRight, anchorY, false)
+	case "AntiRadiation":
+		s.drawAntiRadarMissile(anchorXLeft, anchorY, true)
+		s.drawAntiRadarMissile(anchorXRight, anchorY, false)
 	default:
 		s.drawRadarMissile(anchorXLeft, anchorY, true)
 		s.drawRadarMissile(anchorXRight, anchorY, false)
@@ -79,9 +87,8 @@ func (s _state) drawMissile(anchorXRight, anchorXLeft, anchorY int32, missile st
 	s.drawWeaponStats(anchorXLeft, anchorY+state.Scale(20), countLeft)
 	s.drawWeaponStats(anchorXRight, anchorY+state.Scale(20), countRight)
 	if missile.Name == state.GlobalFlightData.ActiveMissile {
-		s.drawPayloadInfo(missile)
-		yOffset := int(math.Ceil(float64(missile.Count) / 4))
-		s.drawActiveMark(anchorXLeft, anchorXRight, anchorY+state.Scale(20*yOffset))
+		yOffset := int(math.Ceil(float64(missile.Count)/4)) + 1
+		s.drawActiveMark(anchorXLeft, anchorXRight, anchorY+state.Scale(12*yOffset)+state.Scale(4))
 	}
 }
 
@@ -136,10 +143,8 @@ func (s _state) drawRadarMissile(anchorX, anchorY int32, mirrored bool) {
 	)
 }
 
-// Thick Body
-// No Fins
-func (s _state) drawBomb(anchorX, anchorY int32, mirrored bool) {
-	// rl.DrawLine(anchorX+(state.Scale(s.missileThickness)/2), anchorY-state.Scale(2), anchorX-(state.Scale(s.missileThickness)/2), anchorY+state.Scale(2), state.COLOR_SELECT)
+func (s _state) drawAntiRadarMissile(anchorX, anchorY int32, mirrored bool) {
+	// rl.DrawLine(anchorX+(s.missileThickness/2), anchorY-state.Scale(2), anchorX-(s.missileThickness/2), anchorY+state.Scale(2), state.COLOR_SELECT)
 	missileFinLength := state.Scale(8)
 	mirroredInv := int32(1)
 	if mirrored {
@@ -148,9 +153,9 @@ func (s _state) drawBomb(anchorX, anchorY int32, mirrored bool) {
 
 	rl.DrawLine(anchorX-(state.Scale(s.missileThickness)/2), anchorY+state.Scale(2)*mirroredInv, anchorX-(state.Scale(s.missileThickness)/2), anchorY-state.Scale(40), state.COLOR_SELECT)
 	rl.DrawLine(anchorX+(state.Scale(s.missileThickness)/2), anchorY-state.Scale(2)*mirroredInv, anchorX+(state.Scale(s.missileThickness)/2), anchorY-state.Scale(40), state.COLOR_SELECT)
-	rl.DrawTriangleLines(
-		rl.Vector2{X: float32(anchorX-(state.Scale(s.missileThickness)/2)) - state.ScaleF(1), Y: float32(anchorY - state.Scale(40))},
-		rl.Vector2{X: float32(anchorX+(state.Scale(s.missileThickness)/2)) + state.ScaleF(1), Y: float32(anchorY - state.Scale(40))},
+	rl.DrawTriangle(
+		rl.Vector2{X: float32(anchorX-(state.Scale(s.missileThickness)/2)) - state.ScaleF(2), Y: float32(anchorY - state.Scale(40))},
+		rl.Vector2{X: float32(anchorX+(state.Scale(s.missileThickness)/2)) + state.ScaleF(2), Y: float32(anchorY - state.Scale(40))},
 		rl.Vector2{X: float32(anchorX), Y: float32(anchorY - state.Scale(60))},
 		state.COLOR_SELECT,
 	)
@@ -166,6 +171,29 @@ func (s _state) drawBomb(anchorX, anchorY int32, mirrored bool) {
 		rl.Vector2{X: float32(anchorX+(state.Scale(s.missileThickness)/2)) + state.ScaleF(1), Y: float32(anchorY - state.Scale(20))},
 		rl.Vector2{X: float32(anchorX+(state.Scale(s.missileThickness)/2)) + state.ScaleF(1), Y: float32(anchorY - state.Scale(10))},
 		rl.Vector2{X: float32(anchorX+(state.Scale(s.missileThickness)/2)+missileFinLength) + state.ScaleF(1), Y: float32(anchorY - state.Scale(10))},
+		state.COLOR_SELECT,
+	)
+}
+
+// Thick Body
+// No Fins
+func (s _state) drawBomb(anchorX, anchorY int32, mirrored bool) {
+	// rl.DrawLine(anchorX+(state.Scale(s.missileThickness)/2), anchorY-state.Scale(2), anchorX-(state.Scale(s.missileThickness)/2), anchorY+state.Scale(2), state.COLOR_SELECT)
+	// missileFinLength := state.Scale(8)
+	mirroredInv := int32(1)
+	if mirrored {
+		mirroredInv = -1
+	}
+
+	rl.DrawLine(anchorX-(state.Scale(s.missileThickness)/2), anchorY+state.Scale(2)*mirroredInv, anchorX-(state.Scale(s.missileThickness)/2), anchorY-state.Scale(40), state.COLOR_SELECT)
+	rl.DrawLine(anchorX+(state.Scale(s.missileThickness)/2), anchorY-state.Scale(2)*mirroredInv, anchorX+(state.Scale(s.missileThickness)/2), anchorY-state.Scale(40), state.COLOR_SELECT)
+	rl.DrawRing(
+		rl.Vector2{X: float32(anchorX), Y: float32(anchorY - state.Scale(40))},
+		float32(state.Scale(s.missileThickness)/2)-state.ScaleF(1.5),
+		float32(state.Scale(s.missileThickness)/2)+state.ScaleF(1.5),
+		180,
+		360,
+		0,
 		state.COLOR_SELECT,
 	)
 }
@@ -214,4 +242,25 @@ func (s _state) drawPayloadInfo(missile state.Missile) {
 	anchorY := state.Scale(state.SCREEN_MARGIN*2 + state.MENU_BUTTON_HEIGHT + 300)
 	rl.DrawRectangleLines(anchorX, anchorY, state.GetDisplayAreaWidth(), state.Scale(100), state.COLOR_SELECT)
 	rl.DrawText(strconv.FormatInt(int64(missile.Count), 10)+" x "+missile.Name, anchorX+state.Scale(12), anchorY+state.Scale(12), fontSize, state.COLOR_SELECT)
+	rl.DrawText(getTypeString(missile.Type), anchorX+state.Scale(12), anchorY+state.Scale(16)+fontSize, fontSize, state.COLOR_SELECT)
+	rl.DrawText(strconv.FormatFloat(float64(missile.MaxDistance)*state.GlobalOptions.Units.DistanceConversion, 'f', 0, 64)+state.GlobalOptions.Units.DistanceUnit, anchorX+state.Scale(12), anchorY+state.Scale(20)+fontSize*2, fontSize, state.COLOR_SELECT)
+}
+
+func getTypeString(typ string) string {
+	switch typ {
+	case "InfraredAllAspect":
+		return "Infrared Missile"
+	case "Unguided":
+		return "Dumb Ground Munition"
+	case "AntiRadiation":
+		return "Radar Homing Missile"
+	case "Coordinates":
+		return "GPS Guided Ground Munition"
+	case "CraftRadar":
+		return "Semi Active Radar Missile"
+	case "Laser":
+		return "Laser Targeted Ground Munition"
+	default:
+		return typ
+	}
 }

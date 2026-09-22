@@ -94,32 +94,34 @@ func object(i int) state.FlightData {
 	miss := "Aim-9X"
 	if i%1200 > 300 && i%1200 < 600 {
 		miss = "ARAAM-120"
-	} else if i%1200 > 600 {
+	} else if i%1200 > 600 && i%1200 < 900 {
 		miss = "PL-12"
+	} else if i%1200 > 900 {
+		miss = "Aim-9C"
 	}
 
 	misss := []state.Missile{
 		{
-			Count:       1,
+			Count:       0,
 			Type:        "InfraredAllAspect",
 			Name:        "Aim-9X",
-			MaxDistance: 10000.0,
+			MaxDistance: 15000.0,
 		},
 		{
-			Count:       4,
+			Count:       1,
 			Type:        "CraftRadar",
 			Name:        "ARAAM-120",
-			MaxDistance: 10000.0,
+			MaxDistance: 20000.0,
 		}, {
-			Count:       6,
+			Count:       4,
 			Type:        "Unguided",
 			Name:        "PL-12",
 			MaxDistance: 10000.0,
 		}, {
-			Count:       13,
-			Type:        "Radar Missile",
-			Name:        "Aim-9X",
-			MaxDistance: 10000.0,
+			Count:       21,
+			Type:        "AntiRadiation",
+			Name:        "Aim-9C",
+			MaxDistance: 12000.0,
 		},
 	}
 
@@ -155,7 +157,7 @@ func object(i int) state.FlightData {
 			SteerX: 0.0,
 			SteerY: 0.0,
 			SteerZ: 0.0,
-			Size:   68.0,
+			Size:   18.0,
 		},
 	}
 }

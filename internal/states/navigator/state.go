@@ -72,8 +72,12 @@ func (s _state) Draw() {
 		return
 	}
 
+	width := state.GetDisplayAreaWidth()
+	anchorX := state.Scale(state.SCREEN_MARGIN*2) + state.Scale(state.MENU_BUTTON_HEIGHT) + (width / 2)
+	anchorY := state.Scale(state.SCREEN_MARGIN*2) + state.Scale(state.MENU_BUTTON_HEIGHT) + (width * 3 / 4)
 	// Draw Nav Screen
-	s.drawNavigation()
+	s.drawNavigation(anchorX, anchorY, width)
+	s.drawRadar(anchorX, anchorY, width)
 
 	anchorY, diffY := state.DrawArrowButtonsHorizontal(0)
 	scaleFontSize := state.Scale(24)
@@ -128,11 +132,7 @@ func (s _state) Draw() {
 	rl.DrawText(headingStr, headingCenter, state.Scale(state.SCREEN_MARGIN*2+state.MENU_BUTTON_HEIGHT), headingFontSize, state.COLOR_SELECT)
 }
 
-func (s _state) drawNavigation() {
-	width := state.GetDisplayAreaWidth()
-	anchorX := state.Scale(state.SCREEN_MARGIN*2) + state.Scale(state.MENU_BUTTON_HEIGHT) + (width / 2)
-	anchorY := state.Scale(state.SCREEN_MARGIN*2) + state.Scale(state.MENU_BUTTON_HEIGHT) + (width * 3 / 4)
-
+func (s _state) drawNavigation(anchorX, anchorY int32, width int32) {
 	// Draw Marking Rings
 	d := (10 / float64(s.scale)) * float64(width/4) * 3
 	switch s.scale {
@@ -188,6 +188,27 @@ func (s _state) drawNavigation() {
 	rl.DrawRectangle(anchorX-(planeThickness/2), anchorY, planeThickness, planeSize, COLOR_PLANE_SELF)
 	rl.DrawRectangle(anchorX-planeSize/2, anchorY+(planeSize/3)-(planeThickness/2), planeSize, planeThickness, COLOR_PLANE_SELF)
 	rl.DrawRectangle(anchorX-planeSize/4, anchorY+(planeSize*7/8)-2, planeSize/2, planeThickness, COLOR_PLANE_SELF)
+}
+
+func (s _state) drawRadar(anchorX, anchorY int32, width int32) {
+	radarColor := rl.Orange
+	wpnColor := rl.Red
+	for i := 0; i < len(state.GlobalFlightData.Missiles); i++ {
+		if state.GlobalFlightData.Missiles[i].Name == state.GlobalFlightData.ActiveMissile {
+			d := (float64(state.GlobalFlightData.Missiles[i].MaxDistance/1000) / float64(s.scale)) * float64(width/4) * 3
+			rl.DrawRing(rl.Vector2{X: float32(anchorX), Y: float32(anchorY)}, float32(d)-state.ScaleF(0.5), float32(d)+state.ScaleF(0.5), 0, 360, 0, wpnColor)
+		}
+	}
+
+	rl.SetLineWidth(state.ScaleF(2))
+	if state.GlobalFlightData.Radar.Mode == "Off" {
+		return
+	}
+	d := (float64(state.GlobalFlightData.Radar.Range/1000) / float64(s.scale)) * float64(width/4) * 3
+	rl.DrawRing(rl.Vector2{X: float32(anchorX), Y: float32(anchorY)}, float32(d)-state.ScaleF(0.5), float32(d)+state.ScaleF(0.5), 0, 360, 0, radarColor)
+	angle := float32(math.Acos(float64(state.GlobalFlightData.Radar.SteerX + 1)))
+	angleOffset := state.GlobalFlightData.Radar.Size / 2
+	rl.DrawRingLines(rl.Vector2{X: float32(anchorX), Y: float32(anchorY)}, float32(d)-state.ScaleF(1), 0, angle-angleOffset-90, angle+angleOffset-90, 0, radarColor)
 }
 
 func (s _state) drawNavInfo(anchorX, anchorY int32, width int32) {

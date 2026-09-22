@@ -3,26 +3,26 @@
     "FileVersion": {
       "Major": 0,
       "Minor": 3,
-      "Patch": 1,
-      "Build": 2
+      "Patch": 2,
+      "Build": 0
     },
     "ProductVersion": {
       "Major": 0,
       "Minor": 3,
-      "Patch": 1,
-      "Build": 2
+      "Patch": 2,
+      "Build": 0
     },
     "FileType": "01"
   },
   "StringFileInfo": {
     "CompanyName": "notUnknuffig",
     "FileDescription": "Multifunction Display for Flyout",
-    "FileVersion": "0.3.1.2",
+    "FileVersion": "0.3.2.0",
     "InternalName": "client",
     "LegalCopyright": "© 2026 notUnknuffig",
     "OriginalFilename": "MFD.exe",
     "ProductName": "Flyout MFD",
-    "ProductVersion": "0.3.1.2"
+    "ProductVersion": "0.3.2.0"
   },
   "IconPath": "icon.ico",
   "ManifestPath": ""
