@@ -18,7 +18,7 @@ const (
 var (
 	COLOR_NAVPOINT = rl.White
 	COLOR_ALLIED   = rl.White
-	COLOR_ENEMY    = rl.Orange
+	COLOR_ENEMY    = rl.Red
 	COLOR_NAV_LINE = rl.White
 )
 

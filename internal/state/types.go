@@ -49,6 +49,15 @@ type Radar struct {
 	Size   float32 `json:"Size"`
 }
 
+type Target struct {
+	HasTarget bool    `json:"HasTarget"`
+	ID        int     `json:"ID"`
+	Heading   float32 `json:"Heading"`
+	RelX      float32 `json:"RelX"`
+	RelY      float32 `json:"RelY"`
+	RelZ      float32 `json:"RelZ"`
+}
+
 type FlightData struct {
 	Time          float32        `json:"Time"`
 	Name          string         `json:"Name"`
@@ -76,6 +85,7 @@ type FlightData struct {
 	Missiles      []Missile      `json:"Missiles"`
 	ActiveMissile string         `json:"ActiveMissile"`
 	Radar         Radar          `json:"Radar"`
+	Target        Target         `json:"Target"`
 }
 
 type Options struct {

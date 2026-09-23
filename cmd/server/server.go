@@ -125,6 +125,15 @@ func object(i int) state.FlightData {
 		},
 	}
 
+	target := state.Target{
+		HasTarget: true,
+		ID:        -30050,
+		Heading:   50,
+		RelX:      300,
+		RelY:      -500,
+		RelZ:      20000,
+	}
+
 	return state.FlightData{
 		Time:          0,
 		Name:          "J-8 MFD Test",
@@ -134,7 +143,7 @@ func object(i int) state.FlightData {
 		Roll:          0.0,
 		G:             1.1365341,
 		AGL:           0.13561342,
-		Heading:       308.01,
+		Heading:       float32(math.Mod(float64(i)/10, 360)),
 		Climb:         12.135123,
 		Mass:          10000.135123,
 		Mach:          0.21353,
@@ -159,5 +168,6 @@ func object(i int) state.FlightData {
 			SteerZ: 0.0,
 			Size:   18.0,
 		},
+		Target: target,
 	}
 }

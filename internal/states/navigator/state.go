@@ -1,6 +1,7 @@
 package navigator
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 
@@ -208,6 +209,32 @@ func (s _state) drawRadar(anchorX, anchorY int32, width int32) {
 	rl.DrawRing(rl.Vector2{X: float32(anchorX), Y: float32(anchorY)}, float32(d)-state.ScaleF(0.5), float32(d)+state.ScaleF(0.5), 0, 360, 0, radarColor)
 	angleOffset := state.GlobalFlightData.Radar.Size / 2
 	rl.DrawRingLines(rl.Vector2{X: float32(anchorX), Y: float32(anchorY)}, float32(d)-state.ScaleF(1), 0, state.GlobalFlightData.Radar.SteerZ-angleOffset-90, state.GlobalFlightData.Radar.SteerZ+angleOffset-90, 0, radarColor)
+	if state.GlobalFlightData.Target.HasTarget {
+		fmt.Printf("----------- Drawing Target with ID: %d -----------\n", state.GlobalFlightData.Target.ID)
+		x := float32((float64(state.GlobalFlightData.Target.RelX/1000) / float64(s.scale)) * float64(width/4) * 3)
+		y := float32((float64(state.GlobalFlightData.Target.RelZ/1000) / float64(s.scale)) * float64(width/4) * 3)
+		fmt.Printf("X: %f, Y: %f\n", x, y)
+		rl.DrawRectanglePro(
+			rl.Rectangle{X: float32(anchorX) - x, Y: float32(anchorY) - y, Width: state.ScaleF(16), Height: state.ScaleF(16)},
+			rl.Vector2{X: state.ScaleF(8), Y: state.ScaleF(8)},
+			state.GlobalFlightData.Target.Heading-state.GlobalFlightData.Heading,
+			navigation.COLOR_ENEMY,
+		)
+		lineLength := state.ScaleF(50)
+		angle := float64(state.GlobalFlightData.Target.Heading - state.GlobalFlightData.Heading)
+		rl.DrawLineEx(
+			rl.Vector2{
+				X: float32(anchorX) - x,
+				Y: float32(anchorY) - y,
+			},
+			rl.Vector2{
+				X: float32(anchorX) - x - float32(math.Cos(navigation.DegToRad(angle)))*lineLength,
+				Y: float32(anchorY) - y - float32(math.Sin(navigation.DegToRad(angle)))*lineLength,
+			},
+			state.ScaleF(4),
+			navigation.COLOR_ENEMY,
+		)
+	}
 }
 
 func (s _state) drawNavInfo(anchorX, anchorY int32, width int32) {
