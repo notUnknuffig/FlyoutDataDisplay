@@ -16,6 +16,13 @@ type _state struct {
 	maxScale int
 	minScale int
 	navMan   *navigation.NavManager
+	targets  map[int]targetRadarInstance
+}
+
+type targetRadarInstance struct {
+	target   state.Target
+	expire   int
+	targeted bool
 }
 
 func Init(nav *navigation.NavManager) _state {
@@ -24,6 +31,7 @@ func Init(nav *navigation.NavManager) _state {
 		maxScale: 150,
 		minScale: 10,
 		navMan:   nav,
+		targets:  make(map[int]targetRadarInstance),
 	}
 	return s
 }
@@ -194,6 +202,7 @@ func (s _state) drawNavigation(anchorX, anchorY int32, width int32) {
 func (s _state) drawRadar(anchorX, anchorY int32, width int32) {
 	radarColor := rl.Orange
 	wpnColor := rl.Red
+	rl.SetLineWidth(state.ScaleF(2))
 	for i := 0; i < len(state.GlobalFlightData.Missiles); i++ {
 		if state.GlobalFlightData.Missiles[i].Name == state.GlobalFlightData.ActiveMissile {
 			d := (float64(state.GlobalFlightData.Missiles[i].MaxDistance/1000) / float64(s.scale)) * float64(width/4) * 3
@@ -201,7 +210,6 @@ func (s _state) drawRadar(anchorX, anchorY int32, width int32) {
 		}
 	}
 
-	rl.SetLineWidth(state.ScaleF(2))
 	if state.GlobalFlightData.Radar.Mode == "Off" {
 		return
 	}
@@ -210,30 +218,76 @@ func (s _state) drawRadar(anchorX, anchorY int32, width int32) {
 	angleOffset := state.GlobalFlightData.Radar.Size / 2
 	rl.DrawRingLines(rl.Vector2{X: float32(anchorX), Y: float32(anchorY)}, float32(d)-state.ScaleF(1), 0, state.GlobalFlightData.Radar.SteerZ-angleOffset-90, state.GlobalFlightData.Radar.SteerZ+angleOffset-90, 0, radarColor)
 	if state.GlobalFlightData.Target.HasTarget {
-		fmt.Printf("----------- Drawing Target with ID: %d -----------\n", state.GlobalFlightData.Target.ID)
-		x := float32((float64(state.GlobalFlightData.Target.RelX/1000) / float64(s.scale)) * float64(width/4) * 3)
-		y := float32((float64(state.GlobalFlightData.Target.RelZ/1000) / float64(s.scale)) * float64(width/4) * 3)
-		fmt.Printf("X: %f, Y: %f\n", x, y)
-		rl.DrawRectanglePro(
-			rl.Rectangle{X: float32(anchorX) - x, Y: float32(anchorY) - y, Width: state.ScaleF(16), Height: state.ScaleF(16)},
-			rl.Vector2{X: state.ScaleF(8), Y: state.ScaleF(8)},
-			state.GlobalFlightData.Target.Heading-state.GlobalFlightData.Heading,
-			navigation.COLOR_ENEMY,
-		)
+		s.targets[state.GlobalFlightData.Target.ID] = targetRadarInstance{
+			expire:   100,
+			targeted: true,
+			target:   state.GlobalFlightData.Target,
+		}
+	}
+
+	for a, k := range s.targets {
+		x := float32((float64(k.target.RelX/1000) / float64(s.scale)) * float64(width/4) * 3)
+		y := float32((float64(k.target.RelZ/1000) / float64(s.scale)) * float64(width/4) * 3)
 		lineLength := state.ScaleF(50)
-		angle := float64(state.GlobalFlightData.Target.Heading - state.GlobalFlightData.Heading)
-		rl.DrawLineEx(
-			rl.Vector2{
-				X: float32(anchorX) - x,
-				Y: float32(anchorY) - y,
-			},
-			rl.Vector2{
-				X: float32(anchorX) - x - float32(math.Cos(navigation.DegToRad(angle)))*lineLength,
-				Y: float32(anchorY) - y - float32(math.Sin(navigation.DegToRad(angle)))*lineLength,
-			},
-			state.ScaleF(4),
-			navigation.COLOR_ENEMY,
-		)
+		angle := float64(k.target.Heading - state.GlobalFlightData.Heading)
+
+		color := navigation.COLOR_ENEMY
+		if k.expire < 50 {
+			color = navigation.COLOR_ENEMY_EXPIRE
+		}
+
+		if k.targeted {
+			rl.DrawRectanglePro(
+				rl.Rectangle{X: float32(anchorX) - x, Y: float32(anchorY) - y, Width: state.ScaleF(16), Height: state.ScaleF(16)},
+				rl.Vector2{X: state.ScaleF(8), Y: state.ScaleF(8)},
+				k.target.Heading-state.GlobalFlightData.Heading,
+				color,
+			)
+			rl.DrawLineEx(
+				rl.Vector2{
+					X: float32(anchorX) - x - float32(math.Cos(navigation.DegToRad(angle)))*state.ScaleF(8),
+					Y: float32(anchorY) - y - float32(math.Sin(navigation.DegToRad(angle)))*state.ScaleF(8),
+				},
+				rl.Vector2{
+					X: float32(anchorX) - x - float32(math.Cos(navigation.DegToRad(angle)))*lineLength,
+					Y: float32(anchorY) - y - float32(math.Sin(navigation.DegToRad(angle)))*lineLength,
+				},
+				state.ScaleF(4),
+				color,
+			)
+		} else {
+			rl.DrawRectanglePro(
+				rl.Rectangle{X: float32(anchorX) - x, Y: float32(anchorY) - y, Width: state.ScaleF(16), Height: state.ScaleF(16)},
+				rl.Vector2{X: state.ScaleF(8), Y: state.ScaleF(8)},
+				k.target.Heading-state.GlobalFlightData.Heading,
+				color,
+			)
+			rl.DrawRectanglePro(
+				rl.Rectangle{X: float32(anchorX) - x, Y: float32(anchorY) - y, Width: state.ScaleF(12), Height: state.ScaleF(12)},
+				rl.Vector2{X: state.ScaleF(6), Y: state.ScaleF(6)},
+				k.target.Heading-state.GlobalFlightData.Heading,
+				rl.Black,
+			)
+			rl.DrawLineEx(
+				rl.Vector2{
+					X: float32(anchorX) - x - float32(math.Cos(navigation.DegToRad(angle)))*state.ScaleF(8),
+					Y: float32(anchorY) - y - float32(math.Sin(navigation.DegToRad(angle)))*state.ScaleF(8),
+				},
+				rl.Vector2{
+					X: float32(anchorX) - x - float32(math.Cos(navigation.DegToRad(angle)))*lineLength,
+					Y: float32(anchorY) - y - float32(math.Sin(navigation.DegToRad(angle)))*lineLength,
+				},
+				state.ScaleF(2),
+				color,
+			)
+		}
+		k.expire--
+		k.targeted = false
+		s.targets[a] = k
+		if k.expire <= 0 {
+			fmt.Printf("Target: %d, is expired.\n", k.target.ID)
+			delete(s.targets, a)
+		}
 	}
 }
 

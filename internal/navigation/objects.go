@@ -16,10 +16,11 @@ const (
 )
 
 var (
-	COLOR_NAVPOINT = rl.White
-	COLOR_ALLIED   = rl.White
-	COLOR_ENEMY    = rl.Red
-	COLOR_NAV_LINE = rl.White
+	COLOR_NAVPOINT     = rl.White
+	COLOR_ALLIED       = rl.White
+	COLOR_ENEMY        = rl.Red
+	COLOR_NAV_LINE     = rl.White
+	COLOR_ENEMY_EXPIRE = rl.Fade(rl.Red, 0.4)
 )
 
 type MappedObject struct {

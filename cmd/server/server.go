@@ -91,11 +91,39 @@ func object(i int) state.FlightData {
 	// 	randomVal = 0.5 - rand.Float32()
 	// }
 
+	target1 := state.Target{
+		HasTarget: true,
+		ID:        -30050,
+		Heading:   50,
+		RelX:      3000,
+		RelY:      -500,
+		RelZ:      20000,
+	}
+	target2 := state.Target{
+		HasTarget: true,
+		ID:        -29050,
+		Heading:   180,
+		RelX:      500,
+		RelY:      -500,
+		RelZ:      21000,
+	}
+	target3 := state.Target{
+		HasTarget: true,
+		ID:        -28050,
+		Heading:   270,
+		RelX:      -1000,
+		RelY:      -500,
+		RelZ:      19000,
+	}
+
+	target := target1
 	miss := "Aim-9X"
 	if i%1200 > 300 && i%1200 < 600 {
 		miss = "ARAAM-120"
+		target = target2
 	} else if i%1200 > 600 && i%1200 < 900 {
 		miss = "PL-12"
+		target = target3
 	} else if i%1200 > 900 {
 		miss = "Aim-9C"
 	}
@@ -123,15 +151,6 @@ func object(i int) state.FlightData {
 			Name:        "Aim-9C",
 			MaxDistance: 12000.0,
 		},
-	}
-
-	target := state.Target{
-		HasTarget: true,
-		ID:        -30050,
-		Heading:   50,
-		RelX:      300,
-		RelY:      -500,
-		RelZ:      20000,
 	}
 
 	return state.FlightData{
