@@ -17,6 +17,8 @@ The app connects to Flyout via the [Flyout Data Socket](https://github.com/notUn
 
 You will need to use the Function Keys and Arrow Keys to navigate the app. The are currently no hints to what is doing what, and the keys are also pretty random... sooooo, you'll need to figure this out on your own... (sorry :3)
 
+I don't really plan to add clickable buttons, because i hate touchscreens in aircraft. I just want to have buttons to press. I also made this with a MFD panel for flightsimming in mind.
+
 ## Info Screens
 
 ### HUD
@@ -51,20 +53,25 @@ You can change the scale of the map with `<up-arrow>` and `<down-arrow>`. The th
 
 With `<F7>` you can enter select mode, while in select mode you can use `<left-arrow>` and `<right-arrow>` to select objects to navigate towards. With `<F8>` you can swap between navigating to nav-points or airfields. If the navigation target is outside the view a diamond will show you which heading you should follow. There is also some data about your target like distance.
 
--> This display can already show you navigation points but there is now way to add the right now so that feature will be finished soon.
+You can add new navigation points with the `EDT` button.
 
--> Intigrating flyouts radar is a bit far fetched for my abbilities to write melonloader mods but sounds cool.
+The display also shows the radar scan area (orange) and weapon range (red).
+
+-> Storing navigation point data would be so nice because using the editing panel is pain.
+
+-> I want to do targeting data but i just don't know how to get it from flyout T-T
 
 -> I don't know how big the world of flyout is, i found a number of about 10,000km radius. But i have also seen a navigation tool which used around 9,000km. Because i didn't do any testing so the distances might be off by a bit.
 
 <img src ="assets/image_navigation.png">
+
+### Weapons
+
+The weapons panel shows you detailes about your missiles and bombs. Currently you can display up to 10 weapons (Any more weapons will just not be shown). The type of weapon and the shape is defined by the guidance system setting in the missile core.
+<img src ="assets/image_weapon.png">
 
 ### Systems
 
 -> I have no clue what to display here, but maybe like reading custom axis values... you could name you axis like `MFD-axis-some name` and display it here as `some name` with a bar for sliders and light for switches, or steps.
 
 -> also displaying flaps with one of these wing thingy displays.
-
-### Weapons
-
--> I have the data of the weaons already but i need to find a way to show it... I have not worked on that yet.
