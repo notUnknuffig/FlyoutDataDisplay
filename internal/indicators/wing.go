@@ -8,7 +8,7 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-func DrawFlap(flapAngle float64, slatAngle float64, size float64, anchorX, anchorY int32) {
+func DrawFlap(flapAngle float64, slatAngle float64, anchorX, anchorY int32) {
 	var (
 		wingCord      int32 = state.Scale(100)
 		wingThickness       = state.Scale(20)

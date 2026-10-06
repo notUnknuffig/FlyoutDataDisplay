@@ -9,6 +9,7 @@ import (
 	"math"
 	"strconv"
 
+	"example.com/MFDTest/internal/indicators"
 	"example.com/MFDTest/internal/navigation"
 	"example.com/MFDTest/internal/state"
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -39,6 +40,7 @@ func (s _state) Draw() {
 	}
 
 	s.drawHorizon(30)
+	s.drawIndicators()
 }
 
 func (s _state) drawHorizon(maxDegree float32) {
@@ -257,4 +259,27 @@ func (s _state) drawHorizon(maxDegree float32) {
 	)
 	rl.DrawText(strAlt, infoAnchorX-state.Scale(50)-rl.MeasureText(strAlt, uiFontSize)+infoMargin+infoOutline, infoAnchorY+infoMargin+infoOutline, uiFontSize, state.COLOR_SELECT)
 
+}
+
+func (s _state) drawIndicators() {
+	var offset = state.Scale(70)
+	anchorX := state.Scale(state.SCREEN_MARGIN*2 + state.MENU_BUTTON_HEIGHT)
+	anchorY := state.Scale(state.SCREEN_MARGIN*2 + state.MENU_BUTTON_HEIGHT)
+	offsetX := int32(0)
+	if state.GlobalFlightData.LandingGear {
+		indicators.DrawLandingGear(anchorX+offsetX, anchorY)
+		offsetX += offset
+	}
+	if state.GlobalFlightData.HasAirbrake && state.GlobalFlightData.Airbrake > 0 {
+		indicators.DrawAirbrake(anchorX+offsetX, anchorY)
+		offsetX += offset
+	}
+	if state.GlobalFlightData.HasHook && state.GlobalFlightData.Hook {
+		indicators.DrawHook(anchorX+offsetX, anchorY)
+		offsetX += offset
+	}
+	if state.GlobalFlightData.HasApu && state.GlobalFlightData.Apu {
+		indicators.DrawApu(anchorX+offsetX, anchorY)
+		offsetX += offset
+	}
 }

@@ -86,6 +86,14 @@ type FlightData struct {
 	ActiveMissile string         `json:"ActiveMissile"`
 	Radar         Radar          `json:"Radar"`
 	Target        Target         `json:"Target"`
+	Flaps         int32          `json:"Flaps"`
+	HasHook       bool           `json:"HasHook"`
+	Hook          bool           `json:"Hook"`
+	HasApu        bool           `json:"HasApu"`
+	Apu           bool           `json:"Apu"`
+	HasAirbrake   bool           `json:"HasAirbrake"`
+	Airbrake      float32        `json:"Airbrake"`
+	LandingGear   bool           `json:"LandingGear"`
 }
 
 type Options struct {

@@ -30,5 +30,5 @@ func (s _state) Draw() {
 		return
 	}
 
-	indicators.DrawFlap(5, 10, 1, 200, 200)
+	indicators.DrawFlap(10+float64(7*state.GlobalFlightData.Flaps), 10+float64(7*state.GlobalFlightData.Flaps), 200, 200)
 }
