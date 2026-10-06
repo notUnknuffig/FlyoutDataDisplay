@@ -1,6 +1,7 @@
 package systems
 
 import (
+	"example.com/MFDTest/internal/indicators"
 	"example.com/MFDTest/internal/state"
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -28,4 +29,6 @@ func (s _state) Draw() {
 		state.DrawNoData()
 		return
 	}
+
+	indicators.DrawFlap(5, 10, 1, 200, 200)
 }

@@ -202,6 +202,7 @@ func (s _state) drawHorizon(maxDegree float32) {
 	infoAnchorY := int32(rl.GetRenderWidth()/2) - infoMargin*2 - uiFontSize/2
 	alphaStr := "a: " + strconv.FormatFloat(float64(state.GlobalFlightData.Alpha), 'f', 1, 64) + "°"
 	gStr := "g: " + strconv.FormatFloat(float64(state.GlobalFlightData.G), 'f', 1, 64)
+	mStr := "m: " + strconv.FormatFloat(float64(state.GlobalFlightData.Mach), 'f', 1, 64)
 
 	wheelOffset := state.Scale(200)
 	relSpeed := math.Mod(float64(state.GlobalFlightData.Airspeed), 10) / 10
@@ -227,6 +228,7 @@ func (s _state) drawHorizon(maxDegree float32) {
 	rl.DrawText(strSpd, infoAnchorX+state.Scale(30)+infoMargin+infoOutline, infoAnchorY+infoMargin+infoOutline, uiFontSize, state.COLOR_SELECT)
 	rl.DrawText(alphaStr, infoAnchorX+state.Scale(30)+infoMargin+infoOutline, infoAnchorY+uiFontSize+infoMargin*4+infoOutline*2, state.Scale(18), state.COLOR_SELECT)
 	rl.DrawText(gStr, infoAnchorX+state.Scale(30)+infoMargin+infoOutline, infoAnchorY+uiFontSize*2+infoMargin*5+infoOutline*2, state.Scale(18), state.COLOR_SELECT)
+	rl.DrawText(mStr, infoAnchorX+state.Scale(30)+infoMargin+infoOutline, infoAnchorY+uiFontSize*3+infoMargin*6+infoOutline*2, state.Scale(18), state.COLOR_SELECT)
 
 	// Alt Info
 	strAlt := strconv.FormatInt(int64(math.Round(float64(state.GlobalFlightData.Altitude)*state.GlobalOptions.Units.HightConversion)), 10) + state.GlobalOptions.Units.HightUnit
