@@ -189,12 +189,12 @@ func object(i int) state.FlightData {
 		},
 		Target:      target,
 		Flaps:       int32(math.Mod(float64(i)*0.04, 4)),
-		HasHook:     false,
-		Hook:        false,
-		HasApu:      false,
-		Apu:         false,
+		HasHook:     true,
+		Hook:        true,
+		HasApu:      true,
+		Apu:         true,
 		HasAirbrake: true,
 		Airbrake:    float32(math.Mod(float64(i)*0.004, 1)),
-		LandingGear: true,
+		LandingGear: false,
 	}
 }

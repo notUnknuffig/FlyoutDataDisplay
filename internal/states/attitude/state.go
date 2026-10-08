@@ -266,6 +266,14 @@ func (s _state) drawIndicators() {
 	anchorX := state.Scale(state.SCREEN_MARGIN*2 + state.MENU_BUTTON_HEIGHT)
 	anchorY := state.Scale(state.SCREEN_MARGIN*2 + state.MENU_BUTTON_HEIGHT)
 	offsetX := int32(0)
+	if state.GlobalFlightData.AGL < 100 && !state.GlobalFlightData.LandingGear {
+		indicators.DrawTerrain(anchorX+offsetX, anchorY)
+		offsetX += offset
+	}
+	if state.GlobalFlightData.TimeToEmpty < 60*2 { // Two minutes
+		indicators.DrawFuelLow(anchorX+offsetX, anchorY)
+		offsetX += offset
+	}
 	if state.GlobalFlightData.LandingGear {
 		indicators.DrawLandingGear(anchorX+offsetX, anchorY)
 		offsetX += offset

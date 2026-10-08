@@ -27,7 +27,7 @@ func DrawLandingGear(anchorX, anchorY int32) {
 	rl.DrawRectangle(anchorX+(width/2)-(pistonWidth/2), anchorY, pistonWidth, width-int32(wheelSize*2)-state.Scale(4), COLOR_WARNING)
 
 	margin := rl.MeasureText("LG", fontSize)
-	rl.DrawText("LG", anchorX+state.Scale(22)-(margin/2), anchorY+state.Scale(60)-fontSize, fontSize, COLOR_INFO)
+	rl.DrawText("LG", anchorX+state.Scale(22)-(margin/2), anchorY+state.Scale(60)-fontSize, fontSize, COLOR_WARNING)
 }
 
 // 16 *
@@ -65,11 +65,11 @@ func DrawAirbrake(anchorX, anchorY int32) {
 		for i := 0; i < 9; i++ {
 			var a, b rl.Vector2
 			if i <= 3 {
-				a = rl.Vector2{X: float32(anchorX) + 10*float32(i+1) + state.ScaleF(4), Y: float32(anchorY) + state.ScaleF(4)}
-				b = rl.Vector2{X: float32(anchorX) + state.ScaleF(4), Y: float32(anchorY) + state.ScaleF(4) + 10*float32(i+1)}
+				a = rl.Vector2{X: float32(anchorX) + state.ScaleF(10)*float32(i+1) + state.ScaleF(4), Y: float32(anchorY) + state.ScaleF(4)}
+				b = rl.Vector2{X: float32(anchorX) + state.ScaleF(4), Y: float32(anchorY) + state.ScaleF(4) + state.ScaleF(10)*float32(i+1)}
 			} else {
-				a = rl.Vector2{X: float32(anchorX) + state.ScaleF(4) + state.ScaleF(40) - 10*float32((i%4)), Y: float32(anchorY) + state.ScaleF(4) + state.ScaleF(40)}
-				b = rl.Vector2{X: float32(anchorX) + state.ScaleF(4) + state.ScaleF(40), Y: float32(anchorY) + state.ScaleF(4) + state.ScaleF(40) - 10*float32((i%4))}
+				a = rl.Vector2{X: float32(anchorX) + state.ScaleF(4) + state.ScaleF(40) - state.ScaleF(10)*float32((i%4)), Y: float32(anchorY) + state.ScaleF(4) + state.ScaleF(40)}
+				b = rl.Vector2{X: float32(anchorX) + state.ScaleF(4) + state.ScaleF(40), Y: float32(anchorY) + state.ScaleF(4) + state.ScaleF(40) - state.ScaleF(10)*float32((i%4))}
 			}
 			rl.DrawLineV(a, b, COLOR_INFO)
 		}
@@ -80,16 +80,54 @@ func DrawAirbrake(anchorX, anchorY int32) {
 
 func DrawHook(anchorX, anchorY int32) {
 	var (
-		fontSize = state.Scale(16)
+		width         = state.Scale(44)
+		fontSize      = state.Scale(16)
+		hookThickness = state.Scale(4)
+		hookRadius    = state.ScaleF(10)
 	)
+	rl.DrawRing(rl.Vector2{X: float32(anchorX) + float32(width)/2, Y: float32(anchorY) + float32(width)/2}, hookRadius, hookRadius+float32(hookThickness), 0, 180, 0, COLOR_WARNING)
+	rl.DrawRectangle(anchorX-int32(hookRadius)-hookThickness+width/2, anchorY+state.Scale(8), hookThickness, width/2-state.Scale(8), COLOR_WARNING)
+	rl.DrawRing(rl.Vector2{X: float32(anchorX) - hookRadius - float32((hookThickness-width)/2), Y: float32(anchorY + state.Scale(4))}, state.ScaleF(2), state.ScaleF(4), 0, 360, 0, COLOR_WARNING)
 	margin := rl.MeasureText("HK", fontSize)
-	rl.DrawText("HK", anchorX+state.Scale(22)-(margin/2), anchorY+state.Scale(60)-fontSize, fontSize, COLOR_INFO)
+	rl.DrawText("HK", anchorX+state.Scale(22)-(margin/2), anchorY+state.Scale(60)-fontSize, fontSize, COLOR_WARNING)
 }
 
 func DrawApu(anchorX, anchorY int32) {
 	var (
 		fontSize = state.Scale(16)
 	)
+
 	margin := rl.MeasureText("APU", fontSize)
 	rl.DrawText("APU", anchorX+state.Scale(22)-(margin/2), anchorY+state.Scale(60)-fontSize, fontSize, COLOR_INFO)
+}
+
+func DrawFuelLow(anchorX, anchorY int32) {
+	var (
+		fontSize = state.Scale(16)
+	)
+
+	marginA := rl.MeasureText("FUEL", fontSize)
+	rl.DrawText("FUEL", anchorX+state.Scale(22)-(marginA/2), anchorY, fontSize, COLOR_WARNING)
+	marginB := rl.MeasureText("LOW", fontSize)
+	rl.DrawText("LOW", anchorX+state.Scale(22)-(marginB/2), anchorY+fontSize+state.Scale(10), fontSize, COLOR_WARNING)
+}
+
+func DrawTerrain(anchorX, anchorY int32) {
+	var (
+		width    = state.ScaleF(44)
+		fontSize = state.Scale(16)
+	)
+	a := rl.Vector2{X: float32(anchorX) + state.ScaleF(4), Y: float32(anchorY) + width - state.ScaleF(10)}
+	b := rl.Vector2{X: float32(anchorX) + state.ScaleF(14), Y: float32(anchorY) + width - state.ScaleF(10)}
+	c := rl.Vector2{X: float32(anchorX) + state.ScaleF(24), Y: float32(anchorY) + width - state.ScaleF(10)}
+	d := rl.Vector2{X: float32(anchorX) + state.ScaleF(34), Y: float32(anchorY) + width - state.ScaleF(10)}
+
+	f := rl.Vector2{X: float32(anchorX) + state.ScaleF(14), Y: float32(anchorY) + width - state.ScaleF(25)}
+	g := rl.Vector2{X: float32(anchorX) + state.ScaleF(24), Y: float32(anchorY) + width - state.ScaleF(30)}
+
+	rl.DrawTriangle(c, f, a, COLOR_EMERGENCY)
+	rl.DrawTriangle(d, g, b, COLOR_EMERGENCY)
+
+	margin := rl.MeasureText("ALT", fontSize)
+	rl.DrawText("ALT", anchorX+state.Scale(22)-(margin/2), anchorY+state.Scale(60)-fontSize, fontSize, COLOR_EMERGENCY)
 }
