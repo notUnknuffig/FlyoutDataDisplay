@@ -176,7 +176,7 @@ func object(i int) state.FlightData {
 		Fuel:          6000 - float32(i),
 		FuelCapacity:  6000,
 		FuelRatio:     (6000 - float32(i*2)) / 6000,
-		TimeToEmpty:   13000,
+		TimeToEmpty:   118,
 		Missiles:      misss,
 		ActiveMissile: miss,
 		Radar: state.Radar{

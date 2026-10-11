@@ -7,7 +7,7 @@ import (
 
 var (
 	COLOR_INFO      = rl.White
-	COLOR_WARNING   = rl.Orange
+	COLOR_WARNING   = rl.Yellow
 	COLOR_EMERGENCY = rl.Red
 )
 
@@ -41,13 +41,13 @@ func DrawAirbrake(anchorX, anchorY int32) {
 	)
 
 	if state.GlobalFlightData.Airbrake < 0.5 {
-		rl.SetLineWidth(state.ScaleF(2))
+		// rl.SetLineWidth(state.ScaleF(2))
 		j := -1
 		for i := 0; i < 9; i++ {
 			if i%3 == 0 {
 				j++
 			}
-			rl.DrawCircleLines(anchorX+offsetX*int32(i%3)+size, anchorY+offsetY*int32(j)+size, float32(size)-state.ScaleF(2), COLOR_INFO)
+			rl.DrawRing(rl.Vector2{X: float32(anchorX + offsetX*int32(i%3) + size), Y: float32(anchorY + offsetY*int32(j) + size)}, float32(size)-state.ScaleF(4), float32(size), 0, 360, 0, COLOR_INFO)
 		}
 	} else if state.GlobalFlightData.Airbrake < 0.9 {
 		j := -1
@@ -58,7 +58,7 @@ func DrawAirbrake(anchorX, anchorY int32) {
 			rl.DrawCircle(anchorX+offsetX*int32(i%3)+size, anchorY+offsetY*int32(j)+size, float32(size), COLOR_INFO)
 		}
 	} else {
-		rl.SetLineWidth(state.ScaleF(4))
+		// rl.SetLineWidth(state.ScaleF(3))
 
 		rl.DrawRectangleLines(anchorX+state.Scale(2), anchorY+state.Scale(2), size*2+offsetX*2-state.Scale(4), size*2+offsetX*2-state.Scale(4), COLOR_INFO)
 
@@ -98,7 +98,7 @@ func DrawApu(anchorX, anchorY int32) {
 	)
 
 	margin := rl.MeasureText("APU", fontSize)
-	rl.DrawText("APU", anchorX+state.Scale(22)-(margin/2), anchorY+state.Scale(60)-fontSize, fontSize, COLOR_INFO)
+	rl.DrawText("APU", anchorX+state.Scale(22)-(margin/2), anchorY+state.Scale(60)-fontSize, fontSize, COLOR_WARNING)
 }
 
 func DrawFuelLow(anchorX, anchorY int32) {
