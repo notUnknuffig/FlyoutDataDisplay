@@ -96,7 +96,16 @@ func DrawApu(anchorX, anchorY int32) {
 	var (
 		fontSize = state.Scale(16)
 	)
-
+	recA := rl.Rectangle{X: float32(anchorX) + state.ScaleF(16), Y: float32(anchorY) + state.ScaleF(22), Width: state.ScaleF(20), Height: state.ScaleF(6)}
+	recB := rl.Rectangle{X: float32(anchorX) + state.ScaleF(30), Y: float32(anchorY) + state.ScaleF(28), Width: state.ScaleF(20), Height: state.ScaleF(6)}
+	rl.DrawRectanglePro(recA, rl.Vector2{X: state.ScaleF(20), Y: state.ScaleF(10)}, 45, COLOR_WARNING)
+	rl.DrawRectanglePro(recB, rl.Vector2{X: state.ScaleF(20), Y: state.ScaleF(10)}, 45, COLOR_WARNING)
+	rl.DrawTriangle(
+		rl.Vector2{X: float32(anchorX) + state.ScaleF(28), Y: float32(anchorY) + state.ScaleF(30)},
+		rl.Vector2{X: float32(anchorX) + state.ScaleF(44), Y: float32(anchorY) + state.ScaleF(30)},
+		rl.Vector2{X: float32(anchorX) + state.ScaleF(44), Y: float32(anchorY) + state.ScaleF(14)},
+		COLOR_WARNING,
+	)
 	margin := rl.MeasureText("APU", fontSize)
 	rl.DrawText("APU", anchorX+state.Scale(22)-(margin/2), anchorY+state.Scale(60)-fontSize, fontSize, COLOR_WARNING)
 }
