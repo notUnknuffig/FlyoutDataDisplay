@@ -3,7 +3,6 @@ package systems
 import (
 	"example.com/MFDTest/internal/indicators"
 	"example.com/MFDTest/internal/state"
-	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 type _state struct {
@@ -17,7 +16,7 @@ func Init(optState state.State) _state {
 }
 
 func (s _state) Input() state.State {
-	if rl.IsKeyPressed(state.KEY_F8) {
+	if state.IsKeyPressed(8) {
 		return s.optionState
 	}
 	return s

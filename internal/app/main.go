@@ -136,16 +136,15 @@ func (a App) Init() {
 }
 
 func (a App) Input() state.State {
-	switch rl.GetKeyPressed() {
-	case state.KEY_F1:
+	if state.IsKeyPressed(1) {
 		return a.availableStates[Attidude]
-	case state.KEY_F2:
+	} else if state.IsKeyPressed(2) {
 		return a.availableStates[Engine]
-	case state.KEY_F3:
+	} else if state.IsKeyPressed(3) {
 		return a.availableStates[Navigation]
-	case state.KEY_F4:
+	} else if state.IsKeyPressed(4) {
 		return a.availableStates[Systems]
-	case state.KEY_F5:
+	} else if state.IsKeyPressed(5) {
 		return a.availableStates[Weapons]
 	}
 	return a.state

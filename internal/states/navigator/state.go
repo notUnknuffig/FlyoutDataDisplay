@@ -43,19 +43,19 @@ func (s _state) Input() state.State {
 	if state.GlobalFlightData == nil {
 		return s
 	}
-	if rl.IsKeyPressed(state.KEY_F8) {
+	if state.IsKeyPressed(8) {
 		s.navMan.UseHaversine = !s.navMan.UseHaversine
 	}
-	if rl.IsKeyPressed(state.KEY_F12) {
+	if state.IsKeyPressed(12) {
 		if (s.navMan.SelectedType == navigation.AIRFIELD) && s.navMan.SelectedObject < len(s.navMan.Airfields)-1 {
 			s.navMan.SelectedObject += 1
 		} else if (s.navMan.SelectedType == navigation.NAV_POINT) && s.navMan.SelectedObject < len(s.navMan.NavPoints)-1 {
 			s.navMan.SelectedObject += 1
 		}
-	} else if rl.IsKeyPressed(state.KEY_F11) && s.navMan.SelectedObject >= 0 {
+	} else if state.IsKeyPressed(11) && s.navMan.SelectedObject >= 0 {
 		s.navMan.SelectedObject -= 1
 	}
-	if rl.IsKeyPressed(state.KEY_F9) {
+	if state.IsKeyPressed(9) {
 		switch s.navMan.SelectedType {
 		case navigation.AIRFIELD:
 			s.navMan.SelectedType = navigation.NAV_POINT
@@ -65,15 +65,15 @@ func (s _state) Input() state.State {
 			s.navMan.SelectedObject = 0
 		}
 	}
-	if rl.IsKeyPressed(state.KEY_F6) && s.scale < s.maxScale {
+	if state.IsKeyPressed(6) && s.scale < s.maxScale {
 		s.scale = s.scale + 20
-	} else if rl.IsKeyPressed(state.KEY_F7) && s.scale > s.minScale {
+	} else if state.IsKeyPressed(7) && s.scale > s.minScale {
 		s.scale = s.scale - 20
 	}
-	if s.navMan.SelectedType == navigation.NAV_POINT && rl.IsKeyPressed(state.KEY_F10) {
+	if s.navMan.SelectedType == navigation.NAV_POINT && state.IsKeyPressed(10) {
 		return navPointEntry.Init(s.navMan, s)
 	}
-	if rl.IsKeyPressed(state.KEY_F13) {
+	if state.IsKeyPressed(13) {
 		s.useMap = !s.useMap
 	}
 

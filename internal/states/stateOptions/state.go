@@ -173,9 +173,9 @@ func Init(cfg *state.Options) OptionState {
 }
 
 func (s OptionState) Input() state.State {
-	if rl.IsKeyPressed(state.KEY_F7) && s.selection < OPTION_LENGTH-1 {
+	if state.IsKeyPressed(7) && s.selection < OPTION_LENGTH-1 {
 		s.selection = s.selection + 1
-	} else if rl.IsKeyPressed(state.KEY_F6) && s.selection > 0 {
+	} else if state.IsKeyPressed(6) && s.selection > 0 {
 		s.selection = s.selection - 1
 	}
 
@@ -183,11 +183,11 @@ func (s OptionState) Input() state.State {
 	case OPTION_RESOLUTION:
 		if s.options.Fullscreen {
 
-		} else if rl.IsKeyPressed(state.KEY_F11) && s.resolutionIndex > 0 {
+		} else if state.IsKeyPressed(11) && s.resolutionIndex > 0 {
 			s.resolutionIndex -= 1
 			s.options.ResolutionX = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
 			s.options.ResolutionY = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
-		} else if rl.IsKeyPressed(state.KEY_F12) && s.resolutionIndex < len(resolutions[0])-1 {
+		} else if state.IsKeyPressed(12) && s.resolutionIndex < len(resolutions[0])-1 {
 			s.resolutionIndex += 1
 			s.options.ResolutionX = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
 			s.options.ResolutionY = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
@@ -195,40 +195,40 @@ func (s OptionState) Input() state.State {
 	case OPTION_ASPECT_RATIO:
 		if s.options.Fullscreen {
 
-		} else if rl.IsKeyPressed(state.KEY_F11) && s.aspectRatioIndex > 0 {
+		} else if state.IsKeyPressed(11) && s.aspectRatioIndex > 0 {
 			s.aspectRatioIndex -= 1
 			s.options.AspectRatio = aspectRatios[s.aspectRatioIndex]
 			s.options.ResolutionX = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
 			s.options.ResolutionY = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
-		} else if rl.IsKeyPressed(state.KEY_F12) && s.aspectRatioIndex < len(aspectRatios)-1 {
+		} else if state.IsKeyPressed(12) && s.aspectRatioIndex < len(aspectRatios)-1 {
 			s.aspectRatioIndex += 1
 			s.options.AspectRatio = aspectRatios[s.aspectRatioIndex]
 			s.options.ResolutionX = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
 			s.options.ResolutionY = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
 		}
 	case OPTION_FULLSCREEN:
-		if rl.IsKeyPressed(state.KEY_F12) {
+		if state.IsKeyPressed(12) {
 			s.options.Fullscreen = true
 			monitor := rl.GetCurrentMonitor()
 			s.options.ResolutionX = rl.GetMonitorWidth(monitor)
 			s.options.ResolutionY = rl.GetMonitorHeight(monitor)
 
-		} else if rl.IsKeyPressed(state.KEY_F11) {
+		} else if state.IsKeyPressed(11) {
 			s.options.Fullscreen = false
 			s.options.ResolutionX = resolutions[s.aspectRatioIndex][s.resolutionIndex][0]
 			s.options.ResolutionY = resolutions[s.aspectRatioIndex][s.resolutionIndex][1]
 
 		}
 	case OPTION_UNITS:
-		if rl.IsKeyPressed(state.KEY_F11) && s.unitIndex > 0 {
+		if state.IsKeyPressed(11) && s.unitIndex > 0 {
 			s.unitIndex -= 1
 			s.options.Units = &units[s.unitIndex]
-		} else if rl.IsKeyPressed(state.KEY_F12) && s.unitIndex < len(units)-1 {
+		} else if state.IsKeyPressed(12) && s.unitIndex < len(units)-1 {
 			s.unitIndex += 1
 			s.options.Units = &units[s.unitIndex]
 		}
 	}
-	if rl.IsKeyPressed(state.KEY_F8) {
+	if state.IsKeyPressed(8) {
 		if s.options.Fullscreen {
 			rl.SetWindowSize(s.options.ResolutionX, s.options.ResolutionY)
 			if !s.previousFullscreenState {

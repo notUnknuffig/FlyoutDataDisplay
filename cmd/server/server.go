@@ -153,6 +153,20 @@ func object(i int) state.FlightData {
 		},
 	}
 
+	input := state.Input{
+		FunctionKeyMask: 0,
+	}
+
+	/* if i%1000 > 100 && i%1000 < 110 {
+		input.FunctionKeyMask = 1
+	} else if i%1000 > 200 && i%1000 < 210 {
+		input.FunctionKeyMask = 1 << 1
+	} else if i%1000 > 300 && i%1000 < 310 {
+		input.FunctionKeyMask = 1 << 2
+	} else if i%1000 > 400 && i%1000 < 410 {
+		input.FunctionKeyMask = 1 << 3
+	} */
+
 	return state.FlightData{
 		Time:          0,
 		Name:          "J-8 MFD Test",
@@ -196,5 +210,6 @@ func object(i int) state.FlightData {
 		HasAirbrake: true,
 		Airbrake:    float32(math.Mod(float64(i)*0.004, 1)),
 		LandingGear: false,
+		Input:       input,
 	}
 }

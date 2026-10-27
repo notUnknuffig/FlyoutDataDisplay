@@ -58,6 +58,10 @@ type Target struct {
 	RelZ      float32 `json:"RelZ"`
 }
 
+type Input struct {
+	FunctionKeyMask int `json:"FunctionKeyMask"` // f20 f19 f18 f17 f16 f15 f14 f13 f12 f11 f10 f9 f8 f7 f6 f5 f4 f3 f2 f1 <- At leadst 20 bits
+}
+
 type FlightData struct {
 	Time          float32        `json:"Time"`
 	Name          string         `json:"Name"`
@@ -94,6 +98,7 @@ type FlightData struct {
 	HasAirbrake   bool           `json:"HasAirbrake"`
 	Airbrake      float32        `json:"Airbrake"`
 	LandingGear   bool           `json:"LandingGear"`
+	Input         Input          `json:"Input"`
 }
 
 type Options struct {

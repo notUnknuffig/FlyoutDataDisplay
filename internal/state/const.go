@@ -22,19 +22,19 @@ const (
 	KEY_F9  = rl.KeyF7
 	KEY_F10 = rl.KeyF8
 
-	// Right Side Buttons
-	KEY_F16 = rl.KeyF9
-	KEY_F17 = rl.KeyF10
-	KEY_F18 = rl.KeyF12
-	KEY_F19 = rl.KeyF10
-	KEY_F20 = rl.KeyF10
-
 	// Top Buttons
 	KEY_F11 = rl.KeyLeft
 	KEY_F12 = rl.KeyRight
 	KEY_F13 = rl.KeyF9
 	KEY_F14 = rl.KeyF10
 	KEY_F15 = rl.KeyF11
+
+	// Right Side Buttons
+	KEY_F16 = rl.KeyF9
+	KEY_F17 = rl.KeyF10
+	KEY_F18 = rl.KeyF12
+	KEY_F19 = rl.KeyF10
+	KEY_F20 = rl.KeyF10
 )
 
 const MENU_BUTTON_HEIGHT = 36

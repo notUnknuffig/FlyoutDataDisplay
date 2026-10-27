@@ -32,14 +32,14 @@ func (s _state) Input() state.State {
 		return s
 	}
 
-	if rl.IsKeyPressed(state.KEY_F8) {
+	if state.IsKeyPressed(8) {
 		return s.fuelState
 	}
 
 	s.maxOffset = int(math.Ceil(float64(len(state.GlobalFlightData.JetEngines)+len(state.GlobalFlightData.PistonEngines))/4) - 1)
-	if rl.IsKeyPressed(state.KEY_F7) && s.offset < s.maxOffset {
+	if state.IsKeyPressed(7) && s.offset < s.maxOffset {
 		s.offset = s.offset + 1
-	} else if rl.IsKeyPressed(state.KEY_F6) && s.offset > 0 {
+	} else if state.IsKeyPressed(6) && s.offset > 0 {
 		s.offset = s.offset - 1
 	}
 	return s

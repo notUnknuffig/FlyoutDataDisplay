@@ -75,7 +75,7 @@ func (s _state) enterAdd() _state {
 }
 
 func (s _state) Input() state.State {
-	if rl.IsKeyPressed(state.KEY_F8) {
+	if state.IsKeyPressed(8) {
 		s.navPoint = s.readNavPoint()
 		if s.navPointIndex < 0 {
 			s.addNavPoint()
@@ -84,30 +84,30 @@ func (s _state) Input() state.State {
 		}
 		s.recountPoints()
 		return s.returnState
-	} else if rl.IsKeyPressed(state.KEY_F9) {
+	} else if state.IsKeyPressed(9) {
 		s.navPoint = s.readNavPoint()
 		s.addNavPoint()
 		s.recountPoints()
 		return s.returnState
-	} else if rl.IsKeyPressed(state.KEY_F10) {
+	} else if state.IsKeyPressed(10) {
 		s.removeNavPoint()
 		s.recountPoints()
 		return s.returnState
 	}
 
-	if rl.IsKeyPressed(state.KEY_F11) && s.numberIndex > 0 && s.valueIndex != -1 {
+	if state.IsKeyPressed(11) && s.numberIndex > 0 && s.valueIndex != -1 {
 		s.numberIndex--
-	} else if rl.IsKeyPressed(state.KEY_F11) && s.numberIndex == 0 && s.valueIndex > -1 {
+	} else if state.IsKeyPressed(11) && s.numberIndex == 0 && s.valueIndex > -1 {
 		s.numberIndex = 6
 		s.valueIndex--
-	} else if rl.IsKeyPressed(state.KEY_F12) && s.numberIndex < 6 {
+	} else if state.IsKeyPressed(12) && s.numberIndex < 6 {
 		s.numberIndex++
-	} else if rl.IsKeyPressed(state.KEY_F12) && s.numberIndex == 6 && s.valueIndex < 2 {
+	} else if state.IsKeyPressed(12) && s.numberIndex == 6 && s.valueIndex < 2 {
 		s.numberIndex = 0
 		s.valueIndex++
 	}
 
-	if rl.IsKeyPressed(state.KEY_F6) || rl.IsKeyPressed(state.KEY_F7) {
+	if state.IsKeyPressed(6) || state.IsKeyPressed(7) {
 		if s.valueIndex == -1 {
 			s.navPointType = !s.navPointType
 		} else if s.numberIndex == 0 {
@@ -117,46 +117,46 @@ func (s _state) Input() state.State {
 			case 1:
 				s.longNegative = !s.longNegative
 			case 2:
-				if rl.IsKeyPressed(state.KEY_F6) && s.height[s.numberIndex] < 9 {
+				if state.IsKeyPressed(6) && s.height[s.numberIndex] < 9 {
 					s.height[s.numberIndex]++
-				} else if rl.IsKeyPressed(state.KEY_F7) && s.height[s.numberIndex] > 0 {
+				} else if state.IsKeyPressed(7) && s.height[s.numberIndex] > 0 {
 					s.height[s.numberIndex]--
-				} else if rl.IsKeyPressed(state.KEY_F6) && s.height[s.numberIndex] == 9 {
+				} else if state.IsKeyPressed(6) && s.height[s.numberIndex] == 9 {
 					s.height[s.numberIndex] = 0
-				} else if rl.IsKeyPressed(state.KEY_F7) && s.height[s.numberIndex] == 0 {
+				} else if state.IsKeyPressed(7) && s.height[s.numberIndex] == 0 {
 					s.height[s.numberIndex] = 9
 				}
 			}
 		} else {
 			switch s.valueIndex {
 			case 0:
-				if rl.IsKeyPressed(state.KEY_F6) && s.lat[s.numberIndex] < 9 {
+				if state.IsKeyPressed(6) && s.lat[s.numberIndex] < 9 {
 					s.lat[s.numberIndex]++
-				} else if rl.IsKeyPressed(state.KEY_F7) && s.lat[s.numberIndex] > 0 {
+				} else if state.IsKeyPressed(7) && s.lat[s.numberIndex] > 0 {
 					s.lat[s.numberIndex]--
-				} else if rl.IsKeyPressed(state.KEY_F6) && s.lat[s.numberIndex] == 9 {
+				} else if state.IsKeyPressed(6) && s.lat[s.numberIndex] == 9 {
 					s.lat[s.numberIndex] = 0
-				} else if rl.IsKeyPressed(state.KEY_F7) && s.lat[s.numberIndex] == 0 {
+				} else if state.IsKeyPressed(7) && s.lat[s.numberIndex] == 0 {
 					s.lat[s.numberIndex] = 9
 				}
 			case 1:
-				if rl.IsKeyPressed(state.KEY_F6) && s.long[s.numberIndex] < 9 {
+				if state.IsKeyPressed(6) && s.long[s.numberIndex] < 9 {
 					s.long[s.numberIndex]++
-				} else if rl.IsKeyPressed(state.KEY_F7) && s.long[s.numberIndex] > 0 {
+				} else if state.IsKeyPressed(7) && s.long[s.numberIndex] > 0 {
 					s.long[s.numberIndex]--
-				} else if rl.IsKeyPressed(state.KEY_F6) && s.long[s.numberIndex] == 9 {
+				} else if state.IsKeyPressed(6) && s.long[s.numberIndex] == 9 {
 					s.long[s.numberIndex] = 0
-				} else if rl.IsKeyPressed(state.KEY_F7) && s.long[s.numberIndex] == 0 {
+				} else if state.IsKeyPressed(7) && s.long[s.numberIndex] == 0 {
 					s.long[s.numberIndex] = 9
 				}
 			case 2:
-				if rl.IsKeyPressed(state.KEY_F6) && s.height[s.numberIndex] < 9 {
+				if state.IsKeyPressed(6) && s.height[s.numberIndex] < 9 {
 					s.height[s.numberIndex]++
-				} else if rl.IsKeyPressed(state.KEY_F7) && s.height[s.numberIndex] > 0 {
+				} else if state.IsKeyPressed(7) && s.height[s.numberIndex] > 0 {
 					s.height[s.numberIndex]--
-				} else if rl.IsKeyPressed(state.KEY_F6) && s.height[s.numberIndex] == 9 {
+				} else if state.IsKeyPressed(6) && s.height[s.numberIndex] == 9 {
 					s.height[s.numberIndex] = 0
-				} else if rl.IsKeyPressed(state.KEY_F7) && s.height[s.numberIndex] == 0 {
+				} else if state.IsKeyPressed(7) && s.height[s.numberIndex] == 0 {
 					s.height[s.numberIndex] = 9
 				}
 			}

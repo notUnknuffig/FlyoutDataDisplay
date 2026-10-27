@@ -27,7 +27,7 @@ func initWindow() {
 func initTCPConnection(a app.App) {
 	var conn net.Conn
 	var err error
-	for !a.ShouldTerminate {
+	for {
 		a.ConnectionStatus = false
 		conn, err = net.Dial("tcp", ADDR)
 		if err != nil {
@@ -38,7 +38,7 @@ func initTCPConnection(a app.App) {
 			fmt.Println("Connected to socket")
 			a.ConnectionStatus = true
 			// ms := 0
-			for !a.ShouldTerminate {
+			for {
 				// ms = time.Now().Nanosecond()
 				buf := make([]byte, 4096)
 				n, err := conn.Read(buf)
@@ -51,6 +51,7 @@ func initTCPConnection(a app.App) {
 				obj := state.FlightData{}
 				if err := state.ReadString(msg, &obj); err == nil {
 					state.GlobalFlightData = &obj
+					state.ConnectionInputProcessed = false
 				} else {
 					fmt.Printf("Error decoding json:\n%s\n", err.Error())
 				}
@@ -59,5 +60,5 @@ func initTCPConnection(a app.App) {
 			}
 		}
 	}
-	fmt.Printf("Terminated Connection")
+	// fmt.Printf("Terminated Connection")
 }
