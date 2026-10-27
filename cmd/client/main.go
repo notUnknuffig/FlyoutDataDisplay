@@ -12,7 +12,10 @@ import (
 const ADDR = "127.0.0.1:14501"
 
 func main() {
-	app := app.App{}
+	app := app.App{
+		ConnectionStatus: false,
+		ShouldTerminate:  false,
+	}
 	go initTCPConnection(app)
 	app.Init()
 }
@@ -24,7 +27,8 @@ func initWindow() {
 func initTCPConnection(a app.App) {
 	var conn net.Conn
 	var err error
-	for {
+	for !a.ShouldTerminate {
+		a.ConnectionStatus = false
 		conn, err = net.Dial("tcp", ADDR)
 		if err != nil {
 			time.Sleep(5 * time.Second)
@@ -32,10 +36,10 @@ func initTCPConnection(a app.App) {
 		} else {
 			defer conn.Close()
 			fmt.Println("Connected to socket")
-
-			ms := 0
-			for {
-				ms = time.Now().Nanosecond()
+			a.ConnectionStatus = true
+			// ms := 0
+			for !a.ShouldTerminate {
+				// ms = time.Now().Nanosecond()
 				buf := make([]byte, 4096)
 				n, err := conn.Read(buf)
 				if err != nil {
@@ -50,10 +54,10 @@ func initTCPConnection(a app.App) {
 				} else {
 					fmt.Printf("Error decoding json:\n%s\n", err.Error())
 				}
-				ms = time.Now().Nanosecond() - ms
-				state.SmoothData(ms)
+				// ms = time.Now().Nanosecond() - ms
+				// state.SmoothData(ms)
 			}
 		}
 	}
-
+	fmt.Printf("Terminated Connection")
 }

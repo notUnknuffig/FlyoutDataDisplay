@@ -26,8 +26,10 @@ const (
 )
 
 type App struct {
-	state           state.State
-	availableStates []state.State
+	ConnectionStatus bool
+	ShouldTerminate  bool
+	state            state.State
+	availableStates  []state.State
 }
 
 func (a App) Init() {
@@ -72,6 +74,8 @@ func (a App) Init() {
 		SelectedObject: -1,
 		SelectedType:   navigation.NAV_POINT,
 	}
+	// nav.NavPoints = navigation.LoadCoords(2.25)
+
 	state.GlobalOptions = &config
 	var fuelState state.State = fuel.Init()
 	var optionState state.State = stateOptions.Init(&config)
@@ -127,7 +131,7 @@ func (a App) Init() {
 		rl.EndDrawing()
 		i++
 	}
-
+	a.ShouldTerminate = true
 	a.writeSettings()
 }
 

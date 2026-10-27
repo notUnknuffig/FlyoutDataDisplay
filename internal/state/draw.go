@@ -22,7 +22,7 @@ func DrawButton(text string, index int) {
 	buttonFont := Scale(MENU_BUTTON_FONT_SIZE)
 	x, y := GetButtonAnchor(index)
 
-	if (index < 10 && index >= 5) || (index < 15 && index >= 10) {
+	if (index >= 5 && index < 10) || (index >= 15 && index < 20) {
 		rl.DrawRectangle(x, y, buttonHeight, buttonWidth, COLOR_UNSELECT)
 		symbols := strings.Split(text, "")
 		centerX := x + (buttonHeight / 2)
