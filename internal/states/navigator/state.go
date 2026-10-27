@@ -17,6 +17,8 @@ type _state struct {
 	minScale int
 	navMan   *navigation.NavManager
 	targets  map[int]targetRadarInstance
+	useMap   bool
+	mapGrid  mapGrid
 }
 
 type targetRadarInstance struct {
@@ -32,6 +34,7 @@ func Init(nav *navigation.NavManager) _state {
 		minScale: 10,
 		navMan:   nav,
 		targets:  make(map[int]targetRadarInstance),
+		useMap:   false,
 	}
 	return s
 }
@@ -70,6 +73,13 @@ func (s _state) Input() state.State {
 	if s.navMan.SelectedType == navigation.NAV_POINT && rl.IsKeyPressed(state.KEY_F10) {
 		return navPointEntry.Init(s.navMan, s)
 	}
+	if rl.IsKeyPressed(state.KEY_F13) {
+		s.useMap = !s.useMap
+	}
+
+	if s.useMap {
+		s = s.calcMap()
+	}
 	return s
 }
 
@@ -85,8 +95,12 @@ func (s _state) Draw() {
 	anchorX := state.Scale(state.SCREEN_MARGIN*2) + state.Scale(state.MENU_BUTTON_HEIGHT) + (width / 2)
 	anchorY := state.Scale(state.SCREEN_MARGIN*2) + state.Scale(state.MENU_BUTTON_HEIGHT) + (width * 3 / 4)
 	// Draw Nav Screen
+	if s.useMap {
+		s.DrawMap()
+	}
 	s.drawNavigation(anchorX, anchorY, width)
 	s.drawRadar(anchorX, anchorY, width)
+	s.DrawMapMargin()
 
 	anchorY, diffY := state.DrawArrowButtonsHorizontal(0)
 	scaleFontSize := state.Scale(24)
@@ -133,6 +147,8 @@ func (s _state) Draw() {
 		scaleFontSize,
 		state.COLOR_SELECT,
 	)
+
+	state.DrawButton("MAP", 13-1)
 
 	headingFontSize := state.Scale(20)
 	headingStr := strconv.FormatFloat(math.Round(float64(state.GlobalFlightData.Heading*100))/100, 'f', 2, 64) + "°"
