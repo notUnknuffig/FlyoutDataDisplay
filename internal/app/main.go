@@ -129,6 +129,9 @@ func (a App) Init() {
 		}
 
 		rl.EndDrawing()
+
+		state.ClearInputBuffer()
+
 		i++
 	}
 	a.ShouldTerminate = true

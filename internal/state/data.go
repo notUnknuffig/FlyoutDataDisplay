@@ -7,9 +7,17 @@ import (
 var GlobalFlightData *FlightData
 var SmoothedGlobalFlightData *FlightData
 var GlobalOptions *Options
+var GlobalInputBuffer int
 
 func SmoothData(ms int) {
 	//
+}
+
+func BufferInput() {
+	GlobalInputBuffer |= GlobalFlightData.Input.FunctionKeyMask
+}
+
+func ClearInputBuffer() {
 }
 
 // Returns the top right corner of a button around the display.

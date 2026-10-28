@@ -4,8 +4,6 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-var ConnectionInputProcessed = false
-
 var mapping []int32 = []int32{
 	// Bottom Buttons
 	rl.KeyF1,
@@ -38,10 +36,10 @@ var mapping []int32 = []int32{
 
 func IsKeyPressed(key int) bool {
 	bit := key - 1
-	if GlobalFlightData == nil {
+	if GlobalInputBuffer == 0 {
 		return rl.IsKeyPressed(mapping[bit])
-	} else if GlobalFlightData.Input.FunctionKeyMask&(1<<bit) != 0 && !ConnectionInputProcessed {
-		ConnectionInputProcessed = true
+	} else if GlobalInputBuffer&(1<<bit) != 0 {
+		GlobalInputBuffer ^= (1 << bit)
 		return true
 	} else {
 		return rl.IsKeyPressed(mapping[bit])

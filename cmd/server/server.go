@@ -157,14 +157,19 @@ func object(i int) state.FlightData {
 		FunctionKeyMask: 0,
 	}
 
-	/* if i%1000 > 100 && i%1000 < 110 {
+	/* switch i % 1000 {
+	case 100:
 		input.FunctionKeyMask = 1
-	} else if i%1000 > 200 && i%1000 < 210 {
+		fmt.Printf("F1\n")
+	case 200:
 		input.FunctionKeyMask = 1 << 1
-	} else if i%1000 > 300 && i%1000 < 310 {
+		fmt.Printf("F2\n")
+	case 300:
 		input.FunctionKeyMask = 1 << 2
-	} else if i%1000 > 400 && i%1000 < 410 {
+		fmt.Printf("F3\n")
+	case 400:
 		input.FunctionKeyMask = 1 << 3
+		fmt.Printf("F4\n")
 	} */
 
 	return state.FlightData{

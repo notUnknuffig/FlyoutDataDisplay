@@ -51,12 +51,12 @@ func initTCPConnection(a app.App) {
 				obj := state.FlightData{}
 				if err := state.ReadString(msg, &obj); err == nil {
 					state.GlobalFlightData = &obj
-					state.ConnectionInputProcessed = false
 				} else {
 					fmt.Printf("Error decoding json:\n%s\n", err.Error())
 				}
 				// ms = time.Now().Nanosecond() - ms
 				// state.SmoothData(ms)
+				state.BufferInput()
 			}
 		}
 	}
