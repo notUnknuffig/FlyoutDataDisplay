@@ -37,6 +37,7 @@ jobs:
             ./out/MFD.exe
             ./out/MFD (Debug).exe
             ./icon.png
+            ./assets/map.zip
 
       - name: Send ntfy ping
         uses: niniyas/ntfy-action@master
