@@ -78,7 +78,13 @@ func (s _state) Input() state.State {
 	}
 
 	if s.useMap {
-		s = s.calcMap()
+		var err error
+		s, err = s.calcMap()
+		if err != nil {
+			fmt.Printf("[WARNING] Unable to load textures.\n")
+			s.useMap = false
+			return s
+		}
 	}
 	return s
 }
@@ -96,7 +102,7 @@ func (s _state) Draw() {
 	anchorY := state.Scale(state.SCREEN_MARGIN*2) + state.Scale(state.MENU_BUTTON_HEIGHT) + (width * 3 / 4)
 	// Draw Nav Screen
 	if s.useMap {
-		s.DrawMap()
+		s.DrawMap(anchorX, anchorY, width)
 	}
 	s.drawNavigation(anchorX, anchorY, width)
 	s.drawRadar(anchorX, anchorY, width)

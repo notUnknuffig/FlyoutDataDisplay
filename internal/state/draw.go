@@ -112,3 +112,41 @@ func DrawMarginBox(drawMargin bool) {
 	rl.DrawRectangle(anchorX, anchorY+int32(width)-outLine, int32(width), outLine, COLOR_SELECT)
 	rl.DrawRectangle(anchorX+int32(width)-outLine, anchorY, outLine, int32(width), COLOR_SELECT)
 }
+
+func DrawQuadColor(vecs []rl.Vector2, col rl.Color) {
+	rl.DrawTriangle(
+		vecs[0],
+		vecs[2],
+		vecs[1],
+		col,
+	)
+	rl.DrawTriangle(
+		vecs[1],
+		vecs[2],
+		vecs[3],
+		col,
+	)
+}
+
+func DrawQuadTexture(vecs []rl.Vector2, tex rl.Texture2D) {
+	rl.DrawLine(-1, -1, -2, -2, rl.White)
+	rl.SetTexture(tex.ID)
+	rl.Begin(rl.Triangles)
+
+	rl.TexCoord2f(0.0, 1.0)
+	rl.Vertex2f(vecs[3].X, vecs[3].Y)
+	rl.TexCoord2f(1.0, 1.0)
+	rl.Vertex2f(vecs[1].X, vecs[1].Y)
+	rl.TexCoord2f(1.0, 0.0)
+	rl.Vertex2f(vecs[0].X, vecs[0].Y)
+
+	rl.TexCoord2f(1.0, 0.0)
+	rl.Vertex2f(vecs[0].X, vecs[0].Y)
+	rl.TexCoord2f(0.0, 0.0)
+	rl.Vertex2f(vecs[2].X, vecs[2].Y)
+	rl.TexCoord2f(0.0, 1.0)
+	rl.Vertex2f(vecs[3].X, vecs[3].Y)
+
+	rl.End()
+	rl.SetTexture(0)
+}

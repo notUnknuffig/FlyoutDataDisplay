@@ -7,6 +7,7 @@ import (
 	"net"
 	"time"
 
+	"example.com/MFDTest/internal/navigation"
 	"example.com/MFDTest/internal/state"
 )
 
@@ -187,8 +188,8 @@ func object(i int) state.FlightData {
 		Mach:          0.21353,
 		Alpha:         3.05135343,
 		Beta:          0.05135343,
-		Latitude:      float32(math.Mod(float64(i)*0.1, 90)), //+ float32(math.Sin(stateNavigation.DegToRad((float64(i%360)*1)))*0.1),
-		Longitude:     float32(math.Mod(float64(i)*0.1, 90)), // + float32(math.Cos(stateNavigation.DegToRad((float64(i%360)*1)))*0.1),
+		Latitude:      -30 + float32(math.Sin(navigation.DegToRad((float64(i%360)*1)))*3), // float32(math.Mod(float64(i)*0.006, 30)),
+		Longitude:     -30 + float32(math.Cos(navigation.DegToRad((float64(i%360)*1)))*3), // 40 + float32(math.Mod(float64(i)*0.003, 30)),
 		JetEngines:    []state.JetEngine{eng, eng, eng, eng, eng},
 		PistonEngines: []state.PistonEngine{pist, pist, pist, pist},
 		FuelTanks:     []state.FuelTank{tank, tank, tank},
